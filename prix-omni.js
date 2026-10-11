@@ -8,7 +8,7 @@
 window.PRIX_OMNI = {
   "source": "OMNI",
   "genereLe": "2026-10-11T20:39:38.967Z",
-  "versionMinimale": 1.77,
+  "versionMinimale": 1.78,
   "message": null,
   "nbProduits": 71,
   "operateurs": {
