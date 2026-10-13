@@ -9,7 +9,7 @@ window.PRIX_OMNI = {
   "source": "OMNI",
   "genereLe": "2026-10-13T07:18:16.776Z",
   "versionMinimale": 2.0,
-  "message": null,
+  "message": "Nouvelle version disponible : Comparateur entre smartphones, Comparateur concurence (SFR/Bouygues)",
   "nbProduits": 115,
   "operateurs": {
     "orange": {
