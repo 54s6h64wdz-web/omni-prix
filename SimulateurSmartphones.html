@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur Smartphones — Orange</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --orange: #FF7900; --orange-light: #FFF3E8; --bg: #F6F5F2; --surface: #FFFFFF;
+    --border: rgba(0,0,0,0.1); --border-strong: rgba(0,0,0,0.2);
+    --text: #1A1A1A; --text-muted: #666; --text-hint: #999;
+    --green-bg: #EAF3DE; --green-text: #3B6D11; --red-bg: #FCEBEB; --red-text: #A32D2D;
+    --amber-bg: #FAEEDA; --amber-text: #854F0B; --blue-bg: #E6F1FB; --blue-text: #185FA5;
+    --radius: 10px; --radius-sm: 6px; --shadow: 0 1px 3px rgba(0,0,0,0.07);
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; min-height: 100vh; }
+  button { font-family: inherit; }
+  a { color: var(--orange); }
+
+  header { background: var(--orange); padding: 0 1.5rem; height: 56px; display: flex; align-items: center; gap: 14px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+  .logo { color: white; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-title { color: rgba(255,255,255,0.9); font-size: 14px; border-left: 1px solid rgba(255,255,255,0.4); padding-left: 14px; }
+  .version-badge { color: rgba(255,255,255,0.8); font-size: 11px; font-weight: 500; background: rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 10px; }
+  .data-badge { margin-left: auto; color: white; font-size: 12px; background: rgba(0,0,0,0.12); padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+  .hdr-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: white; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35); padding: 5px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+  .hdr-btn:hover { background: rgba(255,255,255,0.32); }
+  @media (max-width: 760px) { .header-title, .version-badge, .data-badge { display: none; } .hdr-btn span { display:none; } }
+
+  .app-layout { display: flex; padding-top: 56px; min-height: 100vh; }
+  .sidebar { width: 312px; flex-shrink: 0; background: var(--surface); border-right: 0.5px solid var(--border); position: fixed; top: 56px; bottom: 0; left: 0; overflow-y: auto; padding: 18px 14px; display: flex; flex-direction: column; gap: 14px; box-shadow: 2px 0 8px rgba(0,0,0,0.04); }
+  .sidebar-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; }
+  .sidebar { gap: 10px; padding: 12px 10px; font-size: 13px; }
+  .sidebar .section-label { font-size: 10px; margin-bottom: 6px; }
+  .sidebar .toggle-btn { padding: 6px 9px; font-size: 12.5px; }
+  .sidebar .toggle-group.row .toggle-btn { padding: 5px 0; }
+  .sidebar .switch-row { font-size: 12.5px; }
+  .sidebar .switch-row + .switch-row { margin-top: 7px; }
+  .sidebar select { padding: 6px 26px 6px 8px; font-size: 12.5px; }
+  .sidebar .sub-label { margin: 7px 0 4px; font-size: 10.5px; }
+  /* Forfait dans la colonne de gauche */
+  .sb-forfait .forfait-name { font-size: 14px; line-height: 1.25; }
+  .sb-forfait .forfait-tag { font-size: 11px; }
+  .sb-forfait .forfait-base { font-size: 11px; }
+  .sb-forfait .forfait-base b { font-size: 14px; }
+  .sb-forfait .features { font-size: 11px; margin: 4px 0 0 14px; }
+  .sb-forfait .rem-list { gap: 3px; margin-top: 7px; }
+  .sb-forfait .rem-row { font-size: 11.5px; padding: 4px 6px; gap: 6px; align-items: flex-start; }
+  .sb-forfait .rem-row input { margin-top: 2px; }
+  .sb-forfait .kind { font-size: 9px; padding: 0 5px; }
+  .sb-forfait .rem-row a { font-size: 10px; }
+  .sb-forfait .chip { font-size: 11px; padding: 2px 8px; }
+  .sb-forfait .opt-group-title { font-size: 10.5px; margin-bottom: 2px; }
+  .sb-forfait .opt-groups { gap: 5px; margin-top: 4px; }
+  .sb-forfait details > summary { cursor: pointer; font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-top: 8px; }
+  .sb-forfait .forfait-sum { grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 8px; }
+  .sb-forfait .sum-cell { background: var(--surface); padding: 5px 7px; }
+  .sb-forfait .sum-cell .k { font-size: 10px; }
+  .sb-forfait .sum-cell .v { font-size: 14px; }
+  .sb-forfait .sum-cell.wide { grid-column: span 2; display: flex; justify-content: space-between; align-items: baseline; }
+  .sb-forfait .muted-note { font-size: 10.5px; margin-top: 5px; }
+  .sb-forfait .na-box { font-size: 11.5px; padding: 8px; background: var(--surface); }
+  main { margin-left: 312px; flex: 1; padding: 1.5rem 1.5rem 3rem; min-width: 0; }
+  @media (max-width: 900px) { .sidebar { position: static; width: 100%; border-right: none; } .app-layout { flex-direction: column; } main { margin-left: 0; padding: 1rem; } }
+
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+  .toggle-group { display: flex; flex-direction: column; gap: 5px; }
+  .toggle-group.row { flex-direction: row; }
+  .toggle-btn { flex: 1; padding: 8px 10px; font-size: 13px; font-weight: 500; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); cursor: pointer; background: transparent; color: var(--text-muted); text-align: left; transition: all .15s; }
+  .toggle-group.row .toggle-btn { text-align: center; padding: 7px 0; }
+  .toggle-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .toggle-btn.active { background: var(--orange); color: white; border-color: var(--orange); box-shadow: 0 1px 4px rgba(255,121,0,0.3); }
+  .toggle-btn small { display: block; font-size: 10.5px; font-weight: 400; opacity: .8; }
+  .sub-label { font-size: 11px; color: var(--text-hint); margin: 10px 0 5px; }
+
+  .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 500; }
+  .switch-row + .switch-row { margin-top: 10px; }
+  .switch-row small { display:block; font-size: 10.5px; font-weight: 400; color: var(--text-hint); }
+  .switch { position: relative; display: inline-block; width: 40px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-slider { position: absolute; inset: 0; background: #ccc; border-radius: 24px; cursor: pointer; transition: background .25s; }
+  .switch-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform .25s; }
+  .switch input:checked + .switch-slider { background: var(--orange); }
+  .switch input:checked + .switch-slider::before { transform: translateX(16px); }
+  .reprise-input { display: none; align-items: center; gap: 6px; margin-top: 8px; }
+  .reprise-input input { width: 90px; padding: 6px 8px; font-size: 14px; font-weight: 600; border: 1.5px solid var(--orange); border-radius: var(--radius-sm); background: var(--orange-light); color: var(--orange); text-align: right; outline: none; }
+
+  select, .txt-input { width: 100%; padding: 9px 12px; font-size: 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: inherit; }
+  select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  select:focus, .txt-input:focus { outline: 2px solid var(--orange); outline-offset: 1px; }
+
+  /* Colonnes téléphones */
+  .phones-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; align-items: stretch; }
+  .phones-grid.single { grid-template-columns: 1fr 200px; }
+  @media (max-width: 1100px) { .phones-grid, .phones-grid.single { grid-template-columns: 1fr; } }
+  .phone-col { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: border-color .15s; min-width: 0; }
+  .phone-col.active-col { border-color: rgba(255,121,0,0.55); }
+  .phone-col.drag-over { border: 2px dashed var(--orange); background: var(--orange-light); }
+  .col-header { display: flex; justify-content: space-between; align-items: center; }
+  .active-pill { font-size: 10px; font-weight: 600; color: var(--orange); background: var(--orange-light); padding: 2px 8px; border-radius: 10px; margin-left: 6px; vertical-align: 1px; text-transform: none; letter-spacing: 0; }
+  .icon-btn { background: none; border: none; cursor: pointer; padding: 4px; border-radius: var(--radius-sm); color: var(--text-hint); line-height: 0; }
+  .icon-btn:hover { color: #E24B4A; background: var(--red-bg); }
+  .add-col-btn { border: 1.5px dashed var(--border-strong); border-radius: var(--radius); background: transparent; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 13px; min-height: 160px; }
+  .add-col-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
+  .add-col-icon { font-size: 26px; line-height: 1; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 2px; }
+  .chip { font-size: 12px; padding: 4px 10px; border: 1px solid var(--border-strong); border-radius: 20px; background: var(--surface); cursor: pointer; color: var(--text-muted); }
+  .chip:hover { border-color: var(--orange); color: var(--orange); }
+  .chip.active { border-color: var(--orange); background: var(--orange-light); color: var(--orange); font-weight: 600; }
+  .chip.off { opacity: .45; text-decoration: line-through; }
+
+  .phone-top { display: flex; gap: 14px; align-items: center; margin: 8px 0 6px; }
+  .phone-visual { width: 110px; height: 130px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .phone-visual img { max-height: 130px; max-width: 110px; object-fit: contain; }
+  .phone-placeholder { width: 56px; height: 104px; border: 1.5px dashed var(--border-strong); border-radius: 12px; }
+  .phone-price-block { flex: 1; min-width: 0; }
+  .pp-amount { font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .pp-strike { font-size: 14px; color: var(--text-hint); text-decoration: line-through; margin-left: 6px; font-weight: 400; }
+  .pp-label { font-size: 12px; color: var(--text-muted); }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin: 4px 4px 0 0; }
+  .badge.orange { background: var(--orange-light); color: var(--orange); }
+  .badge.red { background: var(--red-bg); color: var(--red-text); }
+  .badge.green { background: var(--green-bg); color: var(--green-text); }
+  .badge.blue { background: var(--blue-bg); color: var(--blue-text); }
+  .na-msg { font-size: 13px; color: var(--red-text); background: var(--red-bg); padding: 8px 10px; border-radius: var(--radius-sm); }
+
+  details.all-prices { margin: 4px 0 10px; font-size: 12px; }
+  details.all-prices summary { cursor: pointer; color: var(--text-muted); font-weight: 500; }
+  .prices-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  .prices-table td, .prices-table th { padding: 4px 6px; border-bottom: 0.5px solid var(--border); text-align: right; }
+  .prices-table th { text-align: left; font-weight: 500; color: var(--text-muted); }
+  .prices-table tr.cur { background: var(--orange-light); font-weight: 600; }
+  .prices-table s { color: var(--text-hint); font-weight: 400; margin-right: 4px; }
+
+  .acc-section-header { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); margin: 6px 0; }
+  .acc-section-header span { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--text-hint); }
+  .drop-zone { min-height: 52px; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; background: #F0EEE9; }
+  .empty-hint { font-size: 12px; color: var(--text-hint); font-style: italic; width: 100%; text-align: center; padding: 6px 0; }
+  .acc-tag { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 4px 6px 4px 8px; font-size: 12px; animation: pop .35s cubic-bezier(.34,1.56,.64,1); }
+  .acc-tag.packed { border-color: #FAC775; background: #FFFBF3; }
+  .acc-tag .p { color: var(--text-muted); white-space: nowrap; }
+  .acc-tag .p s { color: var(--text-hint); margin-right: 3px; }
+  .acc-tag .p b { color: var(--green-text); }
+  .acc-tag select { width: auto; padding: 2px 22px 2px 6px; font-size: 12px; margin: 0; background-position: right 6px center; }
+  .acc-tag input { width: 110px; padding: 2px 6px; font-size: 12px; border: 1px solid var(--border-strong); border-radius: 4px; }
+  .acc-tag input.num { width: 64px; text-align: right; }
+  .rm { background: none; border: none; color: var(--text-hint); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; }
+  .rm:hover { color: #E24B4A; }
+  @keyframes pop { 0% { opacity: 0; transform: scale(.4) translateY(14px); } 100% { opacity: 1; transform: none; } }
+  .pack-banner { width: 100%; font-size: 11.5px; font-weight: 600; color: var(--amber-text); background: var(--amber-bg); border-radius: 4px; padding: 3px 8px; }
+
+  .total-block { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+  .t-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--text-muted); gap: 8px; }
+  .t-row .v { color: var(--text); font-weight: 500; white-space: nowrap; }
+  .t-row.green, .t-row.green .v { color: var(--green-text); }
+  .t-row.odr { font-size: 12px; color: var(--orange); background: var(--orange-light); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+  .t-row.odr .v { color: var(--orange); }
+  .t-row.odr a { font-weight: 500; font-size: 11px; margin-left: 4px; }
+  .t-row.odr.off { opacity: .5; }
+  .final-row { display: flex; justify-content: space-between; align-items: baseline; padding-top: 6px; }
+  .final-label { font-size: 13px; font-weight: 600; }
+  .final-amount { font-size: 28px; font-weight: 700; color: var(--orange); line-height: 1; }
+  .final-amount.sm { font-size: 20px; color: var(--green-text); }
+  .cost-box { margin-top: 10px; background: var(--blue-bg); color: var(--blue-text); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 12.5px; }
+  .cost-box b { font-size: 14px; }
+  .diff-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; margin-top: 8px; }
+
+  /* Cartes du bas */
+  .bottom-grid { display: block; }
+  .palette-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .palette-row .pack-tile { flex: 1; min-width: 260px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .forfait-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .forfait-name { font-size: 18px; font-weight: 700; }
+  .forfait-tag { font-size: 12px; color: var(--text-muted); }
+  .forfait-base { text-align: right; font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+  .forfait-base b { font-size: 18px; color: var(--text); }
+  .features { margin: 8px 0 4px 16px; font-size: 12px; color: var(--text-muted); }
+  .rem-list { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+  .rem-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; }
+  .rem-row.on { border-color: rgba(59,109,17,.35); background: var(--green-bg); }
+  .rem-row.dis { opacity: .45; cursor: not-allowed; }
+  .rem-row input { accent-color: var(--orange); }
+  .rem-row .l { flex: 1; }
+  .rem-row .a { font-weight: 600; white-space: nowrap; }
+  .kind { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; background: #F1EFE8; color: #5F5E5A; margin-left: 4px; }
+  .kind.until { background: var(--amber-bg); color: var(--amber-text); }
+  .rem-row a { font-size: 11px; }
+  .forfait-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .sum-cell { background: var(--bg); border-radius: var(--radius-sm); padding: 8px 10px; }
+  .sum-cell .k { font-size: 11px; color: var(--text-muted); }
+  .sum-cell .v { font-size: 18px; font-weight: 700; }
+  .sum-cell .v small { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+  .opt-groups { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .opt-group-title { font-size: 11px; color: var(--text-hint); margin-bottom: 4px; }
+  .muted-note { font-size: 12px; color: var(--text-hint); margin-top: 8px; }
+  .na-box { font-size: 13px; color: var(--text-muted); background: var(--bg); padding: 12px; border-radius: var(--radius-sm); }
+
+  .palette-intro { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+  .palette-items { display: flex; flex-wrap: wrap; gap: 8px; }
+  .palette-item { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 7px 10px; font-size: 13px; cursor: grab; user-select: none; transition: all .15s; }
+  .palette-item:hover { border-color: var(--orange); background: var(--orange-light); }
+  .palette-item .pr { font-size: 12px; color: var(--text-muted); }
+  .palette-item.ios { position: relative; }
+  .palette-item.ios::after { content: 'iPhone'; font-size: 9px; font-weight: 700; color: var(--text-hint); border: 1px solid var(--border-strong); border-radius: 8px; padding: 0 5px; }
+  .pack-tile { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg,#fff7f0,#fff0e0); border: 1.5px solid var(--orange); border-radius: var(--radius-sm); padding: 8px 12px; cursor: grab; user-select: none; margin-bottom: 8px; transition: all .15s; }
+  .pack-tile:hover { box-shadow: 0 2px 12px rgba(255,121,0,0.2); transform: translateY(-1px); }
+  .pack-icon { width: 28px; height: 28px; background: var(--orange); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; font-weight: 700; font-size: 12px; }
+  .pack-title { font-size: 13px; font-weight: 700; color: var(--orange); }
+  .pack-items { font-size: 11px; color: var(--text-muted); }
+  .promo-note { margin-top: 10px; padding: 8px 12px; background: var(--amber-bg); border-radius: var(--radius-sm); font-size: 12px; color: var(--amber-text); }
+
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1A1A1A; color: white; font-size: 13px; padding: 9px 16px; border-radius: 20px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 500; max-width: 90vw; }
+  .toast.show { opacity: 1; transform: translateX(-50%); }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; align-items: center; justify-content: center; z-index: 300; padding: 16px; }
+  .modal-overlay.show { display: flex; }
+  .modal-panel { background: var(--surface); border-radius: var(--radius); width: 560px; max-width: 100%; max-height: 86vh; overflow: auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 0.5px solid var(--border); font-weight: 600; }
+  .modal-body { padding: 16px 18px; font-size: 13px; }
+  .modal-body h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin: 14px 0 6px; }
+  .drop-json { border: 2px dashed var(--border-strong); border-radius: var(--radius); padding: 18px; text-align: center; color: var(--text-muted); cursor: pointer; }
+  .drop-json.over, .drop-json:hover { border-color: var(--orange); background: var(--orange-light); color: var(--orange); }
+  .btn { background: var(--orange); color: white; border: none; border-radius: var(--radius-sm); padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn.ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border-strong); }
+  .patch li { margin: 4px 0 4px 18px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
+  .stat-grid div { background: var(--bg); border-radius: 6px; padding: 6px 8px; font-size: 12px; color: var(--text-muted); }
+  .stat-grid b { display: block; font-size: 16px; color: var(--text); }
+
+  /* ---------- ZONE IMPRIMABLE (capturée bloc par bloc pour le PDF, mise en forme reprise de Simultoo) ---------- */
+  #printArea { position: fixed; top: 0; left: 0; width: 794px; transform: translateX(-11000px); background: #fff; z-index: -1; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #1a1a1a; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+    body > *:not(#printArea) { display: none !important; }
+    /* Imprime les fonds (en-tête orange, bandeaux noirs, encarts) exactement comme à l'écran */
+    #printArea, #printArea * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    #printArea { transform: none !important; position: static !important; width: 794px !important; margin: 0 auto !important; z-index: auto !important; }
+    #printArea .pr-block { page-break-inside: avoid; }
+    #printArea .pr-page2 { page-break-before: always; }
+  }
+  #printArea * { box-sizing: border-box; }
+  #printArea .pr-header { background: #FF7900; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; padding: 22px 40px 16px; }
+  #printArea .pr-title { font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+  #printArea .pr-advisor { font-size: 13px; font-weight: 700; margin-top: 3px; }
+  #printArea .pr-badges { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 9px; }
+  #printArea .pr-pill { background: rgba(255,255,255,.20); border: 1px solid rgba(255,255,255,.55); border-radius: 100px; padding: 4px 14px; font-size: 13px; font-weight: 800; }
+  #printArea .pr-date { font-size: 13px; font-weight: 700; }
+  #printArea .pr-header-slim { background: #FF7900; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 13px 40px; }
+  #printArea .pr-header-slim .t { font-size: 15px; font-weight: 800; }
+  #printArea .pr-spacer { height: 18px; }
+  #printArea .pr-block-pad { padding: 0 40px; }
+  #printArea .pr-optlabel { font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; margin: 4px 0 8px; display: flex; align-items: center; gap: 10px; }
+  #printArea .pr-optlabel span { font-size: 12px; font-weight: 700; color: #FF7900; text-transform: none; letter-spacing: 0; }
+  #printArea .pr-card { border: 1px solid #e2e2e2; border-left: 5px solid #F5A623; border-radius: 10px; overflow: hidden; margin-bottom: 11px; }
+  #printArea .pr-card-head { display: flex; align-items: center; gap: 16px; padding: 13px 16px 11px; }
+  #printArea .pr-thumb { width: 96px; height: 116px; object-fit: contain; border: 1px solid #e6e6e6; border-radius: 8px; background: #fff; flex-shrink: 0; padding: 4px; }
+  #printArea .pr-thumb.sm { width: 46px; height: 46px; padding: 2px; }
+  #printArea .pr-thumb-ph { width: 76px; height: 92px; border: 1px solid #e6e6e6; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  #printArea .pr-cat { font-size: 11px; font-weight: 700; letter-spacing: .09em; color: #8a8a8a; text-transform: uppercase; }
+  #printArea .pr-card-head h3, #printArea .pr-compact-text h3 { font-size: 20px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; margin-top: 1px; }
+  #printArea .pr-meta { font-size: 12px; font-weight: 700; color: #8a8a8a; margin-top: 2px; }
+  #printArea .pr-promo { font-size: 11.5px; color: #B35C00; font-weight: 700; margin-top: 4px; }
+  #printArea .pr-opts { list-style: none; padding: 0 16px 10px; display: flex; flex-direction: column; gap: 6px; }
+  #printArea .pr-opts li { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+  #printArea .pr-opts li .pr-li-price { margin-left: auto; font-weight: 700; white-space: nowrap; }
+  #printArea .pr-opts li s { color: #9a9a9a; font-weight: 500; margin-right: 5px; }
+  #printArea .pr-opt-dot { width: 16px; height: 16px; border-radius: 50%; background: #FF7900; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #printArea .pr-pack { font-size: 11px; font-weight: 800; color: #B35C00; background: #FFF1DE; border-radius: 100px; padding: 1px 8px; }
+  #printArea .pr-remline { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding: 7px 16px; font-size: 13px; }
+  #printArea .pr-remline span:first-child { color: #6a6a6a; }
+  #printArea .pr-remline b { font-weight: 800; }
+  #printArea .pr-remline.green b { color: #3B6D11; }
+  #printArea .pr-foot { background: #000; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 16px; }
+  #printArea .pr-foot-lbl { font-size: 15px; font-weight: 800; padding-top: 2px; }
+  #printArea .pr-foot-lbl span { font-weight: 500; color: #b9b9b9; font-size: 13px; }
+  #printArea .pr-foot-right { text-align: right; }
+  #printArea .pr-amt { font-size: 22px; font-weight: 800; line-height: 1; }
+  #printArea .pr-amt small { font-size: 12px; font-weight: 600; color: #c9c9c9; }
+  #printArea .pr-foot-row2 { font-size: 12px; color: #c9c9c9; margin-top: 6px; }
+  #printArea .pr-odr-list { margin-top: 7px; padding-top: 6px; border-top: 1px solid #3a3a3a; display: flex; flex-direction: column; gap: 2px; }
+  #printArea .pr-odr-line { display: flex; justify-content: flex-end; gap: 14px; font-size: 12px; color: #c9c9c9; }
+  #printArea .pr-odr-line b { color: #fff; font-weight: 700; min-width: 64px; }
+  #printArea .pr-odr-list + .pr-foot-row2 { margin-top: 5px; padding-top: 5px; border-top: 1px solid #3a3a3a; }
+  #printArea .pr-foot-row2 b { color: #fff; font-size: 14px; }
+  #printArea .pr-card.compact { display: flex; align-items: stretch; }
+  #printArea .pr-compact-left { flex: 1; padding: 11px 16px; display: flex; align-items: center; gap: 13px; }
+  #printArea .pr-compact-text h3 { font-size: 18px; }
+  #printArea .pr-compact-opt { font-size: 11.5px; color: #4a4a4a; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+  #printArea .pr-compact-opt .pr-opt-dot { width: 13px; height: 13px; font-size: 8px; }
+  #printArea .pr-compact-right { background: #000; color: #fff; padding: 10px 16px; text-align: right; display: flex; flex-direction: column; justify-content: center; min-width: 210px; }
+  #printArea .pr-compact-right .lbl { font-size: 10.5px; font-weight: 700; color: #9a9a9a; margin-bottom: 4px; }
+  #printArea .pr-compact-right .lbl span { color: #c9c9c9; font-weight: 500; }
+  #printArea .pr-compact-right .pr-amt { font-size: 18px; }
+  #printArea .pr-compact-right .sub { font-size: 11px; color: #c9c9c9; margin-top: 4px; }
+  #printArea .pr-compact-right .sub b { color: #fff; }
+  #printArea .pr-compact-right .sub2 { font-size: 11px; color: #9a9a9a; margin-top: 1px; }
+  #printArea .pr-totalbox { border: 2px solid #000; border-radius: 12px; padding: 14px 20px 12px; margin: 14px 0; }
+  #printArea .pr-totalbox-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  #printArea .pr-totalbox-row + .pr-totalbox-row { margin-top: 8px; padding-top: 8px; border-top: 1px solid #e6e6e6; }
+  #printArea .pr-totalbox .l { font-size: 16px; font-weight: 800; }
+  #printArea .pr-totalbox .l small { display: block; font-size: 11.5px; font-weight: 600; color: #8a8a8a; }
+  #printArea .pr-totalbox .v { font-size: 26px; font-weight: 800; color: #FF7900; white-space: nowrap; text-align: right; }
+  #printArea .pr-totalbox .v small { font-size: 14px; color: #1a1a1a; font-weight: 700; }
+  #printArea .pr-totalbox .sub { text-align: right; font-size: 13px; font-weight: 700; color: #5a5a5a; margin-top: 4px; }
+  #printArea .pr-eco { background: #FFF6D6; border-left: 5px solid #E6A800; border-radius: 6px; padding: 11px 16px; font-size: 13.5px; }
+  #printArea .pr-eco b { color: #6b5200; }
+  #printArea .pr-comment { background: #FFF7EF; border-left: 5px solid #FF7900; border-radius: 6px; padding: 12px 16px; margin-top: 10px; }
+  #printArea .pr-comment-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: #B35C00; margin-bottom: 6px; }
+  #printArea .pr-comment-body { font-size: 13.5px; line-height: 1.5; word-wrap: break-word; }
+  #printArea main.pr-main2 { padding: 26px 40px 30px; margin: 0; min-width: 0; flex: none; }
+  #printArea .pr-section { font-size: 15px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+  #printArea .pr-feat-block { background: #f4f4f4; border-radius: 10px; padding: 18px 22px; margin-top: 12px; margin-bottom: 18px; }
+  #printArea .pr-feat-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  #printArea .pr-feat-head b { font-size: 15px; font-weight: 800; }
+  #printArea .pr-feat-head span { font-size: 12.5px; color: #FF7900; font-weight: 700; }
+  #printArea .pr-feat-list { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 26px; }
+  #printArea .pr-feat-list li { font-size: 12px; color: #3a3a3a; line-height: 1.6; break-inside: avoid; position: relative; padding-left: 16px; }
+  #printArea .pr-feat-list li::before { content: "✓"; position: absolute; left: 0; color: #FF7900; font-weight: 800; }
+  #printArea .pr-just { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; background: #f4f4f4; border-radius: 10px; padding: 20px 22px; margin-top: 12px; }
+  #printArea .pr-just b { display: block; color: #FF7900; font-size: 14px; font-weight: 800; }
+  #printArea .pr-just p { font-size: 12.5px; color: #4a4a4a; line-height: 1.5; margin-top: 6px; }
+  #printArea .pr-just.simple { display: block; }
+  #printArea .pr-just.simple p { margin: 0; font-size: 14px; font-weight: 700; color: #000; }
+  #printArea .pr-qrgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  #printArea .pr-qr { display: flex; align-items: center; gap: 14px; border: 1px solid #e2e2e2; border-radius: 10px; padding: 14px; }
+  #printArea .pr-qr img { width: 64px; height: 64px; border-radius: 7px; flex-shrink: 0; }
+  #printArea .pr-qr-lbl { font-size: 13.5px; font-weight: 800; line-height: 1.3; }
+  #printArea .pr-qr-lbl span { display: block; font-weight: 600; color: #6a6a6a; margin-top: 1px; }
+  #printArea .pr-qr-lbl em { display: block; font-style: normal; font-weight: 800; color: #B35C00; margin-top: 3px; font-size: 12px; }
+  #printArea .pr-qr-lbl small { display: block; font-weight: 400; color: #9a9a9a; margin-top: 4px; font-size: 10px; word-break: break-all; }
+  #printArea .pr-validity { font-size: 12.5px; color: #4a4a4a; font-weight: 600; margin-top: 24px; }
+  #printArea .pr-footline { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e2e2; margin-top: 14px; padding-top: 12px; font-size: 12px; font-weight: 700; color: #8a8a8a; }
+  /* Version noir et blanc */
+  #printArea.pr-bw * { color: #000 !important; border-color: #000 !important; }
+  #printArea.pr-bw .pr-header, #printArea.pr-bw .pr-header *, #printArea.pr-bw .pr-header-slim, #printArea.pr-bw .pr-header-slim *,
+  #printArea.pr-bw .pr-foot, #printArea.pr-bw .pr-foot *, #printArea.pr-bw .pr-compact-right, #printArea.pr-bw .pr-compact-right *, #printArea.pr-bw .pr-opt-dot { color: #fff !important; }
+  #printArea.pr-bw .pr-header, #printArea.pr-bw .pr-header-slim, #printArea.pr-bw .pr-opt-dot { background: #000 !important; }
+  #printArea.pr-bw .pr-card { border: 1.5px solid #000 !important; }
+  #printArea.pr-bw .pr-eco, #printArea.pr-bw .pr-comment, #printArea.pr-bw .pr-feat-block, #printArea.pr-bw .pr-just, #printArea.pr-bw .pr-pack { background: #fff !important; border: 1.5px solid #000 !important; }
+  #printArea.pr-bw .pr-qr { border: 1.5px solid #000 !important; }
+  #printArea.pr-bw img { filter: grayscale(100%) contrast(1.2); }
+  .modal-body label.fld { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 10px; }
+  .modal-body label.fld input, .modal-body label.fld textarea { display: block; width: 100%; margin-top: 4px; padding: 8px 10px; font-size: 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; }
+  .modal-body label.chk { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; margin-bottom: 8px; cursor: pointer; }
+  .modal-body label.chk input { margin-top: 3px; accent-color: var(--orange); }
+  .modal-body label.chk small { display: block; color: var(--text-hint); font-size: 11.5px; }
+
+  /* ---------- Bandeau aperçu Teams (repris de Simultoo v65) ---------- */
+  .preview-banner { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 400; background: #CC0000; color: #fff; padding: 18px 26px 18px 68px; box-shadow: 0 2px 14px rgba(0,0,0,.35); }
+  .preview-banner.show { display: block; }
+  .pb-arrow { position: absolute; left: 14px; top: 16px; font-size: 36px; line-height: 1; transform: rotate(-8deg); text-shadow: 0 2px 5px rgba(0,0,0,.35); }
+  .pb-title { font-size: 19px; font-weight: 800; letter-spacing: -.2px; margin-bottom: 6px; }
+  .pb-sub { font-size: 13.5px; font-weight: 600; line-height: 1.45; margin-bottom: 12px; max-width: 820px; }
+  .pb-pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #B30000; font-weight: 800; font-size: 13px; padding: 9px 14px; border-radius: 3px; margin-bottom: 12px; }
+  .pb-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .pb-btn { background: #7A0000; color: #fff; border: 1px solid #9c0000; padding: 10px 16px; font-size: 13px; font-weight: 800; cursor: pointer; }
+  .pb-btn:hover { background: #5c0000; }
+  .pb-skip { background: none; border: none; color: rgba(255,255,255,.72); font-size: 11.5px; font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .pb-skip:hover { color: #fff; }
+  .ver-badge { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #FFD400; color: #000; font-weight: 800; font-size: 15px; padding: 8px 14px; border-radius: 3px; margin: 0 10px 12px 0; }
+  .ver-badge b { background: #000; color: #FFD400; padding: 3px 10px; border-radius: 2px; font-size: 17px; }
+  .ver-badge small { font-weight: 600; font-size: 12px; }
+  @media (max-width: 700px) { .preview-banner { padding-left: 50px; } .pb-arrow { display: none; } }
+  body.preview-locked > header, body.preview-locked .sidebar, body.preview-locked main { filter: grayscale(65%); opacity: .42; pointer-events: none; user-select: none; }
+  #tuto-modal { z-index: 500; }
+  /* Chargement des prix en ligne */
+  .loader { position: fixed; inset: 0; z-index: 350; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .loader.hide { display: none; }
+  .loader-box { background: var(--surface); border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,.12); padding: 28px 30px; width: 460px; max-width: 100%; text-align: center; }
+  .loader-box h2 { font-size: 18px; margin: 10px 0 6px; }
+  .loader-box p { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
+  .loader-box .btn { margin: 4px; }
+  .spinner { width: 36px; height: 36px; border: 4px solid var(--orange-light); border-top-color: var(--orange); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-err { font-size: 11.5px; color: var(--text-hint); margin-top: 10px; word-break: break-all; }
+  .notice { border-radius: var(--radius-sm); padding: 9px 14px; font-size: 13px; margin-bottom: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .notice.red { background: #CC0000; color: #fff; font-weight: 600; }
+  .notice.red a { color: #fff; font-weight: 800; }
+  .notice.blue { background: var(--blue-bg); color: var(--blue-text); }
+  .notice.yellow { background: var(--amber-bg); color: var(--amber-text); }
+  .url-row { display: flex; gap: 6px; }
+  .url-row input { flex: 1; padding: 7px 9px; font-size: 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; }
+  .tuto-steps { margin: 6px 0 14px 18px; font-size: 13px; line-height: 1.6; }
+  .tuto-img { display: block; max-width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-top: 4px; }
+  .update-link-btn { display: block; text-align: center; text-decoration: none; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="loader" id="loader">
+  <div class="loader-box" id="loader-box"></div>
+  <input type="file" id="loader-file" accept=".json,.js,application/json,text/javascript" style="display:none" onchange="openLocalFile(this.files[0])">
+</div>
+<div class="preview-banner" id="previewBanner">
+  <div class="pb-arrow" aria-hidden="true">↖</div>
+  <div class="pb-title">⚠️ Téléchargez le fichier pour utiliser le Simulateur Smartphones</div>
+  <div class="pb-sub">Vous êtes dans l'aperçu Teams : ici, le PDF client, les liens ODR et l'import des prix ne fonctionnent pas, et votre simulation sera perdue à la fermeture.</div>
+  <div class="ver-badge">🆕 Dernière version disponible : <b class="ver-num"></b> <small class="ver-data"></small></div>
+  <div class="pb-pill">👉 Cliquez sur le bouton Télécharger ↓ en haut à gauche de l'aperçu, puis ouvrez le fichier téléchargé.</div>
+  <div class="pb-actions">
+    <button class="pb-btn" onclick="openUpdateTutorial()">Voir le tutoriel en images</button>
+    <button class="pb-skip" onclick="dismissPreviewBanner()">Le simulateur ne devrait pas être bloqué ? Continuer quand même</button>
+  </div>
+</div>
+<header>
+  <div class="logo">orange</div>
+  <div class="header-title">Simulateur Smartphones</div>
+  <span class="version-badge" id="version-badge"></span>
+  <span class="data-badge" id="data-badge"></span>
+  <button class="hdr-btn" onclick="openUpdateTutorial()" title="Télécharger la dernière version du simulateur">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Mettre à jour</span></button>
+  <button class="hdr-btn" onclick="openPdfModal()" title="Générer le récapitulatif client en PDF">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><rect x="6" y="14" width="12" height="8"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/></svg><span>PDF client</span></button>
+  <button class="hdr-btn" onclick="openModal()" title="Données et paramètres">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Données</span></button>
+</header>
+
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="section-label">Type de vente</div>
+      <div class="toggle-group" id="contrat-group">
+        <button class="toggle-btn" data-c="nu" onclick="setContrat('nu')">Nu / vSIM<small>Prix du mobile seul</small></button>
+        <button class="toggle-btn" data-c="acq" onclick="setContrat('acq')">Acquisition<small>Nouvelle ligne avec forfait</small></button>
+        <button class="toggle-btn" data-c="pcm" onclick="setContrat('pcm')">PCM<small>Changement de mobile</small></button>
+      </div>
+      <div id="forfait-picker"></div>
+    </div>
+    <div class="sidebar-card">
+      <div class="section-label">Profil client</div>
+      <label class="switch-row"><span>Client box Orange<small>Remise Open</small></span>
+        <span class="switch"><input type="checkbox" id="sw-box" onchange="setFlag('box',this.checked)"><span class="switch-slider"></span></span></label>
+      <label class="switch-row"><span>Client −26 ans<small>Cheat Code 200 Go à 15,99 € + ODR 80 €</small></span>
+        <span class="switch"><input type="checkbox" id="sw-u26" onchange="setFlag('u26',this.checked)"><span class="switch-slider"></span></span></label>
+    </div>
+    <div class="sidebar-card">
+      <div class="section-label">Orange Reprise</div>
+      <label class="switch-row"><span>Reprise d'un mobile</span>
+        <span class="switch"><input type="checkbox" id="sw-reprise" onchange="setReprise(this.checked)"><span class="switch-slider"></span></span></label>
+      <div class="reprise-input" id="reprise-wrap">
+        <input type="number" id="reprise-val" min="0" step="1" placeholder="0" oninput="setRepriseVal(this.value)"> <span style="font-size:13px;color:var(--text-muted)">€</span>
+      </div>
+      <div class="sub-label" style="margin-bottom:0">Bonus reprise : reprise ≥ 10 € pour un iPhone, ≥ 1 € pour un Samsung, dès 0 € pour les autres marques.</div>
+    </div>
+    <div class="sidebar-card sb-forfait" id="forfait-card"></div>
+  </aside>
+
+  <main>
+    <div id="notices"></div>
+    <div class="phones-grid single" id="phones-grid"></div>
+
+    <div class="bottom-grid">
+      <div class="card palette-card">
+        <div class="section-label">Accessoires et prestations</div>
+        <div class="palette-intro">Glisser un élément vers un téléphone, ou cliquer pour l'ajouter au <b id="target-label">Téléphone 1</b>.</div>
+        <div class="palette-row"><div class="pack-tile" draggable="true" ondragstart="dragStart(event,'__packApple')" onclick="addPack('apple')">
+          <div class="pack-icon">3+1</div>
+          <div><div class="pack-title">Pack 3+1 Apple <span class="kind">iPhone</span></div>
+          <div class="pack-items">Coque officielle · Chargeur · Zagg · AirTag à 1 €</div></div>
+        </div>
+        <div class="pack-tile" draggable="true" ondragstart="dragStart(event,'__packTiers')" onclick="addPack('tiers')">
+          <div class="pack-icon">3+1</div>
+          <div><div class="pack-title">Pack 3+1 Tiers <span class="kind">Tous mobiles</span></div>
+          <div class="pack-items">Coque non officielle · Chargeur · Zagg · Accessoire bonus à 1 € (ou 19 €)</div></div>
+        </div></div>
+        <div class="palette-items" id="palette"></div>
+        <div class="promo-note"><b>Pack Apple :</b> AirTag à 1 € avec coque officielle + chargeur + Zagg — <b>2e Zagg à −50 %</b><br><b>Pack Tiers :</b> accessoire bonus à 1 € (gamme 49 €) ou 19 € (gamme 99 €) avec coque non officielle + chargeur + Zagg</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-panel">
+    <div class="modal-header"><span>Données et paramètres</span><button class="icon-btn" onclick="closeModal()" style="font-size:18px;line-height:1">×</button></div>
+    <div class="modal-body">
+      <h4 style="margin-top:0">Fichier de prix utilisé</h4>
+      <div id="data-info"></div>
+      <h4>Prix en ligne</h4>
+      <p style="margin-bottom:8px;color:var(--text-muted)">Les prix sont lus à chaque ouverture dans <code>prix-omni.js</code> (Orange, Bouygues, SFR), publié sur GitHub par OMNI ; seuls les prix Orange sont utilisés. Pour mettre les prix à jour, il suffit de publier un nouveau fichier : rien à changer ici.</p>
+      <div class="url-row"><input type="url" id="prix-url" spellcheck="false"><button class="btn" onclick="saveUrl()">Enregistrer et tester</button></div>
+      <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost" onclick="resetUrl()">Adresse par défaut</button>
+        <button class="btn ghost" onclick="reloadPrices()">Recharger les prix</button>
+      </div>
+      <h4>Secours : ouvrir un fichier de prix</h4>
+      <p style="margin-bottom:8px;color:var(--text-muted)">Si GitHub est inaccessible : ouvre un <code>prix-omni.js</code>, un ancien <code>prix-orange.js</code> ou un export JSON d'OMNI Scraper. Utilisé pour cette session seulement.</p>
+      <label class="drop-json" id="drop-json">
+        <input type="file" accept=".json,.js,application/json,text/javascript" style="display:none" onchange="openLocalFile(this.files[0])">
+        Glisser le fichier ici ou <u>cliquer pour choisir</u>
+      </label>
+      <h4>Patchnote</h4>
+      <div id="patchnote"></div>
+      <div style="margin-top:18px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div><div style="font-size:10px;color:var(--text-hint)">Conçu par</div>
+          <div style="font-weight:600">Abdelkader BESSAIH <span style="font-weight:400;color:var(--text-muted)">— DGP/DCGP</span></div>
+          <a href="mailto:abdelkader.bessaih@orange.com" style="font-size:12px;text-decoration:none">abdelkader.bessaih@orange.com</a></div>
+        <div style="font-size:11px;color:var(--text-hint);text-align:right">Simulateur interne Orange<br>Données à titre indicatif</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- Options du PDF client -->
+<div class="modal-overlay" id="pdf-modal" onclick="if(event.target===this)closePdfModal()">
+  <div class="modal-panel" style="width:420px">
+    <div class="modal-header"><span>Générer le PDF client</span><button class="icon-btn" onclick="closePdfModal()" style="font-size:18px;line-height:1">×</button></div>
+    <div class="modal-body">
+      <label class="fld">Nom du conseiller<input type="text" id="pdf-advisor" placeholder="Votre nom" autocomplete="off"></label>
+      <label class="fld">Information pour le client <span style="font-weight:400;color:var(--text-hint)">(optionnel)</span><textarea id="pdf-comment" rows="3" placeholder="Ex : stock disponible en boutique, rendez-vous de configuration…"></textarea></label>
+      <label class="chk"><input type="checkbox" id="pdf-color"><span>Couleur<small>Décoché : version noir et blanc pour les imprimantes sans couleur</small></span></label>
+      <label class="chk"><input type="checkbox" id="pdf-simple"><span>Parcours simplifié<small>Client déjà chez Orange : la pièce d'identité suffit</small></span></label>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn" style="flex:1" onclick="confirmPdf()">Générer le PDF</button>
+        <button class="btn ghost" onclick="closePdfModal()">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Tutoriel de mise à jour -->
+<div class="modal-overlay" id="tuto-modal" onclick="if(event.target===this)closeUpdateTutorial()">
+  <div class="modal-panel" style="width:440px">
+    <div class="modal-header"><span>⬇ Télécharger la dernière version</span><button class="icon-btn" onclick="closeUpdateTutorial()" style="font-size:18px;line-height:1">×</button></div>
+    <div class="modal-body">
+      <div class="ver-badge" style="display:flex;justify-content:center;margin-right:0">🆕 Version disponible : <b class="ver-num"></b> <small class="ver-data"></small></div>
+      <p style="color:var(--text-muted);margin-bottom:12px">Le simulateur est mis à jour régulièrement (prix, ODR, forfaits). Pour vérifier que vous avez la dernière version et la récupérer si besoin :</p>
+      <a class="btn update-link-btn" id="update-link" target="_blank" rel="noopener">Ouvrir le dossier partagé</a>
+      <h4>Détail des étapes</h4>
+      <ol class="tuto-steps">
+        <li>Ouvrez le dossier partagé via le bouton ci-dessus</li>
+        <li>Cliquez sur le fichier <b>SimulateurSmartphones.html</b> pour l'ouvrir en aperçu</li>
+        <li>Téléchargez-le via l'icône de téléchargement en haut à gauche de l'aperçu (voir capture ci-dessous)</li>
+        <li>Remplacez l'ancien fichier sur votre bureau par celui que vous venez de télécharger</li>
+      </ol>
+      <img class="tuto-img" id="tuto-img" alt="Icône de téléchargement dans l'aperçu Teams">
+    </div>
+  </div>
+</div>
+<div id="printArea"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════
+// VERSION
+// ═══════════════════════════════════════════════
+const VERSION = 'v2.0';
+const UPDATE_URL = 'https://orange0-my.sharepoint.com/:f:/g/personal/abdelkader_bessaih_orange_com/IgBdvcWNfQedSr8coQvVN1m2AThFN93LEq_TSdrxq84GrNc?e=ILbBm5';
+const UPDATE_TUTO_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIwAAABFCAYAAACYJw5CAAANQ0lEQVR4Xu1dB3QVxRr+kKIUaVIEBCkKIt2A0qQEUUQUpIQqoPQHjxpCpAoiSBJQkBaEUKVLlw76PFKUIgfpRYGn4kFRQHrz/d9d7stNSHJndvcmdy/5ztkTzmF2dmb2uzN/3zT/CJCK1BVQXIE0qYRRXKnUZq4VcAZhTp8Gzp0Dfv/d+MuLyJMn9sqdG3jyydTX6uMV8C/CrFsHbNgA7NoFnD1rEOPKFb0lyJIFIHny5QMqVQLq1TOuVNiyAilLmBMnAJKE11dfAdeu2TKp+zrJlAmoVQuoX9+4ihTxzXMegF6TlzAkxJdfAuvXGyQhYVICTz8NvPqqcdWuDTz8cEqMwpHPTB7C3L4NTJwIjBgB/PWXfy1UzpzAe+8B3boB6dL519j8cDS+J8zq1UD//sDRo344fY8hlSwJjB1r7DqpSHQFfEeYI0eAHj2ALVuctfx16hi74TPPOGvcyTRa3xAmKgp4912AR5ETkT49EBkJ9OrlxNH7dMz2EubiRaBlS0OgDQS88QYwZw6QLVsgzMaWOdhHmO+/Bxo1As6csWVgftNJoULAihVAhQp+M6SUHIg9hJkwwRBsb95Mybn47tlUuz/6yNCkHnBYI8zffwPt2wPLlvluGWn+f+yxuBctuQRdBefPx73cbgNfjKhZM2DGDODRR33RuyP6NE+YAweAhg2BH3+0d6JVqgAvvwy88grAf5vBjh2GcXDjRmDnTjM9JH7PU08BK1cCzz5rb78O6c0cYQ4fBqpXB/780/o0M2YEGjc2yEei2C1gcoybNgFr1gCff26P+4HGvm++AWi7ecCgT5jjx4Fq1YzjwAooF1AmGDQIyJXLSk/q9/7xB/D++8DUqdblLR6L27YBdDM8QNAjzE8/GWShJ9ks0qY15J7hw4ECBcz2Yu2+X34Bhg4FZs8G7twx3xc94t9+CxQsaL4Ph92pTpjLl4Hy5YGTJ81NMU0agELjBx8AlAP8AXR+DhwILF0KmA08pEWY4RgMq3gAoEYYLubrrwNffGFuSbJmBRYvNgRZfwRjcJo00Y+9cc/ltdcMGekBgBpheO5zCzeDEiUMohUrZubu5LuHzlG+eLM76KhRhjskwOGdMN99B1SubG7L5o5CzSRzZmcs46VLQEiIEfWnC8pmPJoC3CLsnTA8o82EJgwZYsS/OBHU3Lhj6IJrRZNDACNpwphduLAwYMwYr8tWrlw5r21SqkEf0QTbmzAdROfNi8lyBSoSJ8y+fUDFivpqJzWhRYskH0G0Ii/wZ8Jw9OMkWyGYHngN3JF5NxPbzMlHHtG4yzlNEydMcLARf6sDWn95j2Kooz8ThtNOL9phjAjBZa9e1VkF7BQVu0vRolr3OKVxwoSh/0XXj0NtiEKfhmPO3wnDl5hVDHufiXW7kKYnvp3YmvYxWyHAkDBhmMejoynwzN67F8ifX2t5nEAYTiifkGWhGPmya0QQbpMfzr8CMJ3lfsIwEOq557RevMt7y+g0TTiFMJxWHZFlKNPooIXIMofpXA0g3E+Ytm2BuXPVp1i1quGEMwEnEYbTmy9HUymNZLs1OXJgUID5meIS5vp1QCYJ/lXFnj36O9K9vp1GmAqStjtLwxJ85aGHUFviZm7I30BBXMIsWAC0aqU+N8ax0JJrEk4jDKc5/tQp1KJFWBFhEhO8IXt2xdb+3ywuYZo3N5yEKqApnN7ewoVVWifYxomEKXzjBpaL5Vt1z1gnZAlnIHmAIC5heBxduKA2NRs8tE4kDBdnqsQFVWE8swIuyg+rRqlSCi2d0SSWMLTs6jjOpk0DOnWyNEszhKlb9yV07dIFU6OjJfJys6Xnm705RALPBzEISxFNixfH8WSw/OaRgPnQ0H6oRAu9YNfu3YiKGitVU+7V01Ecb1LNYgnDbEWmiqiAZn/6WRjNbwFmCFNPPOBdunRGdPQ0rNexFVkYZ/xbc9+6hc0aTsYosU/NTYYw1L59+uDFF6tj+owY15A7dewgCux2RPLd2oRYwtCtv2SJWrcWVGnPBziVMJzDfJHfSim6DNaLHDPAZjkmImIMqvE9mMC27dsRFjbAxJ2eJcvKlgV++EGtE3qi6ZG2CCcTpqNs8//+7TelFTgqxrsQHwSLDxo0EMWl33bt31Yax+xZM3Hq1GkMY3kTk4jdYRjFr+ovYTC4Be3IPVYnE6ao2KqWHzumtOw35QivVKaMUludRjyCgioGIXxAOP77889J3lrwiScQERmBvWI3ixS5xiwMwtAYpRqYzWBnRQ3B26CcQphM4kSsUqUyypcrjzx586CAyCQ5JTepQDEJZlf8kTUWheKklQyFBBazY4cOoBIQERmFPTSgJoGgoCCE9Q91KQrTmb1pEgZhGHPboIFaF3So2ZTt6BTC1KhRAwMGhCG9hG2ckB/XGfEpHRFbTO+x45BDsWjjFPG1TRWjn52IrwB4apB8jqc2ybZdu3bBtE+nY+3ataaHYRBm+nR1Ffn5541cHBvgFMJwqo0aNRSto6NEqx7DYAk/vSoC70LxLZVU9C0NFZ/SStq5bERwcG306N4dn82fLwb3ZfAkEB/jqU02adIYrcWKP3HSJGzdqhnn5DFmgzCffAL07Kk2Fe5ELENmA1QI01y0t8xZMiMmZqbriQmp1W3atMb1a9ex1IKbQmU68Ukz9uBBVFU8nkdK0t4Si2aI+GOMf8wkRRid4yuptTAIExEB2XNV1gx4WyTyGEPPtwoVwnQW4+CbbzZynb3jpORGfMJwm20o2/3y5Stku/3U6pC83l9fyrZ2k2eelKPpRvMWqMf0WwVEitwzzwe2mHlz5+CAFEb4cExEkjtMuByppUuXRpu3JBrBAgzCMG1VVdVSDPBWGZMKYdiPmxQkzaFDh/6/1RYuUthFlpWrVkm6dLTKI21p4178fS/VxVuKgeLjH38cMSxdYjOmTJks3pwLkhI1MEnCjB49Cnnl+e906GhpBAZhmFLBDAEV9OsHsTertPTaRpUwnqTZLeZu/lL2SIQfDVfJTRaOZfzHUlxIcEZ2mLaKhJkghJnhA8KMk8qf6dKlRc9evV0ak1vQda2ZhwtlwviPJRv4H/Tq3cfre0mqgUEYVpBSLQDYujUwb56lh7pv1iGMmzQhkpWQXooW3hLz/GKxTCfnzuIet/sYyNa9B+orOms/FBlmgc0yDMejetR4Hl1WXp5BGMokotMrgWVJN9vj9NMljOdOkxI7C59fqVJF9A8NxfbtO9Bk8iRk3SOxzAoYIlrSKpu1JD6WMl6wZHiMGj0a+/fvT3AkZcWKP1iswv/5+mtMmjRZYbSJNzEIwxgYxsKogJWXRDuwA2YIY8dzrfRBobd3r56uXS5jUEVkVIzz7StfWtlid7EkmUgrUZVbNA9BzMyZUrtRYqsTALW7d0RZWbhoMeaLCm4FBmGEeahZU60fVl9iXTkb4I0wdeoEI1Rkpqys/uAFlyQKLkrO8y1btnpraun/qaXVrVtXtLZNGDJuHLIoWm99lXZCK/SwYUNR+YUXRJZJuPT9bcl22Cm2s+HDR7jsR1ZgEObXX/WK+9AczuLHFuGNMBa79+ntaWXZ9qo6a2UkwbIzn1dM8PPpwC12bhCG9V9YYUHRaikHuH6iWwIDdTJhdALCfeV8tPjuTd0e660WVVVZNgkPB0TIsgonE6avJOu3U1Spj0q0XYhE3QUCYgnDKt5MSFOBTYKvkwmzTj6+kV/RU71ZhN1+AfJ5wVjCjBwJsKaLKuixtpgK6lTCMHNgpUbNHF9ZeVVflZ3tYglDDzQrTamC3xbq21e1dYLtnEoY1o1h/RhVtJSouEMBkjIbSxgKvlSZFS2XLjWc32m0AKcSZrY4HssrxsFcljST6pJmEigfB4+bl8RKkqrfDWDmAKO8dFJT4pHLiYQpIZrkYha3VsRGCQDvb3MAuOKjfdLMWqosjzDW9TcJJxJmnmQLlNEwfvUXYXejDyy8Jpfc8m1xCSMOPdfHw1WPJT6eqSlNm5oaiNMIU0/WZYzG96B4HNUUjfK2Qvk2UwuYAjfdX+6DkXeMwFMF1UVu0SYsv04iTAaR8ahK5+KPShEMmGLgVCDhfsLw5bN86N276vOkEY/GPE04iTCdJQ+pu2IeEpeBq1dfvnZy1sQPSXMZk7X5/YTh4xnzouPVZE4TPwdzL6dXdQZOIQyLCM0S2YW7jCpWSyjD4AArJsS5J0wY7jIscqixQK5P2LDcmSRMqcIJhMnLQC1ZD536dtxdGsoufSZDBtWlcEy7hAnD4evUinFPlx+cYiVNxVLx/k6YjHIss0xZUbHs6iDQasJ4zj1xwjAdlnVNVD3Y7l4lVsT1+TyFMl3+TBgWDJos7o8q/OyPBlierIHszucCTHZxL0HihGELfuzbTNK95PxCgou8wZ8JEy4xQi0VU0g855lcpT28ra2v/j9pwvCpkpPrqsGrC34KxssHHvyVMD1FG+pgogjPQYl+a6Wao667nn7S3jthaP6X8D9Tn7rj528WLgQSKQrob4RhuOVYidGtrHkM8V3eFeNc0wD+xoCbr/8DtPOG0w19KIQAAAAASUVORK5CYII="; // capture de l'icône de téléchargement dans l'aperçu Teams (reprise de Simultoo)
+const PATCHNOTES = [
+  {v:'v2.0 — 12/10/2026', items:[
+    'Étalement mobile Orange (vSIM uniquement) : case « Étalement du mobile » en Nu / vSIM. Le client paie l\'apport en boutique, puis 4 à 8 €/mois pendant 24 mois, ajoutés à la mensualité comme une option.',
+    'Montant lu dans prix-omni.js ; à défaut, règle du fichier (paliers selon le prix du mobile).',
+    'Étalement repris dans le coût sur 24 mois et dans le PDF client.'
+  ]},
+  {v:'v1.9 — 11/10/2026', items:[
+    'Prix lus dans prix-omni.js (Orange, Bouygues et SFR) : seuls les prix Orange sont gardés.',
+    'Modèles regroupés par OMNI mais vendus séparément chez Orange (ex. Galaxy A17 5G / 4G, Fairphone 6 / 6+) : séparés grâce à leurs prix propres.',
+    'Date des prix = date du relevé Orange ; bandeau si les prix Orange n\'ont pas été relevés au dernier passage.'
+  ]},
+  {v:'v1.8 — 11/10/2026', items:[
+    'Plus aucun prix dans le fichier : ils sont chargés à chaque ouverture depuis prix-orange.js (GitHub Pages), généré par OMNI Scraper.',
+    'Écran « Chargement des prix Orange… », écran d\'erreur avec « Réessayer » et secours : ouvrir un prix-orange.js ou un JSON pour la session.',
+    'Bandeau rouge « Mise à jour nécessaire » si le simulateur est plus ancien que la version minimale publiée avec les prix, bandeau bleu pour le message général.',
+    'Fenêtre Données : adresse des prix en ligne (modifiable pour ce poste), rechargement des prix.'
+  ]},
+  {v:'v1.7 — 10/10/2026', items:['PDF par impression du navigateur : fonds (en-tête orange, bandeaux noirs, encarts) imprimés à l\'identique et sans marges ajoutées par le navigateur, pour retrouver le même contraste que le PDF téléchargé.']},
+  {v:'v1.6 — 10/10/2026', items:['PDF : photo du mobile (agrandie). Si le site d\'Orange refuse de la fournir pour un PDF téléchargé, le PDF passe par l\'impression du navigateur (« Enregistrer au format PDF ») pour garder la photo.']},
+  {v:'v1.5 — 10/10/2026', items:['PDF : détail des ODR (nom et montant) dans le bandeau noir, entre le prix payé en boutique et le prix après remboursement.']},
+  {v:'v1.4 — 10/10/2026', items:[
+    'Apple Watch (SE 3, Series 11, Ultra 3) et AirPods (4, 4 réduction de bruit, 5, 5 sans fil, Pro 3) ajoutés aux accessoires, comme dans le simulateur Apple.',
+    'ODR iPhone (19492) conditionnée : iPhone neuf éligible + Apple Watch ou AirPods Pro 3 = 100 €, AirPods 4 ou 5 = 50 €. Sans ces accessoires, une ligne indique quoi ajouter.',
+    'ODR iPhone non cumulable avec une autre ODR Orange sur le mobile : la plus avantageuse est retenue automatiquement.',
+    'Chargeurs : Apple 30W 27,99 €, Samsung 29,99 €, Belkin 24,99 € (choisi par défaut selon la marque du mobile).'
+  ]},
+  {v:'v1.3 — 10/10/2026', items:['Numérotation des versions en 1.x (une décimale de plus à chaque itération).']},
+  {v:'v1.2 — 10/10/2026', items:[
+    'Bouton « Mettre à jour » dans l\'en-tête : lien vers le dossier partagé et tutoriel de téléchargement.',
+    'Ouvert dans l\'aperçu Teams, le simulateur affiche un bandeau rouge qui invite à télécharger le fichier (outil grisé, tutoriel ouvert automatiquement, lien « Continuer quand même » en cas d\'erreur), comme Simultoo.'
+  ]},
+  {v:'v1.1 — 10/10/2026', items:[
+    'Bonus reprise : reprise d\'au moins 10 € pour un iPhone, 1 € pour un Samsung, dès 0 € pour les autres marques.',
+    '« CPM » renommé « PCM ». Ouverture par défaut sur PCM 200 Go.',
+    'Le bouton Client −26 ans sélectionne le forfait Cheat Code 200 Go (15,99 €/mois) ; l\'ODR 80 € ne s\'affiche qu\'avec ce forfait et un mobile à 300 € ou plus.',
+    'Le forfait passe dans la colonne de gauche, sous Orange Reprise (textes plus petits, options repliables).',
+    'Nouveau PDF client calqué sur celui de Simultoo : en-tête orange, cartes mobile et forfait à bandeau noir, encadré total, page annexe (caractéristiques, pièces justificatives, QR codes des ODR), version noir et blanc, nom du conseiller et commentaire.'
+  ]},
+  {v:'v1.0 — 10/10/2026', items:[
+    'Premier prototype : tous les smartphones du JSON OMNI Scraper (prix Nu, Acquisition 80/200/300 Go, CPM 200/300 Go).',
+    'Forfaits mobiles et remises repris de Simultoo v76 (Remise Open, code promo, ODR Bienvenue, ODR cross sell, ODR −26 / −18 ans) + Code Privilège du simulateur Apple.',
+    'Options mobile : Deezer, Cybersecure, assurances (palier conseillé selon le prix nu).',
+    'ODR terminaux du JSON avec lien vers le formulaire, bonus reprise, ODR 80 € −26 ans (19430).',
+    'Pack 3+1 Apple, Pack 3+1 Tiers, 2e Zagg −50 %, configuration experte (24 €) / personnalisée (39 €).',
+    'Import d\'un nouveau JSON depuis le bouton « Données ».'
+  ]}
+];
+
+// ═══════════════════════════════════════════════
+// DONNÉES TERMINAUX (export OMNI Scraper)
+// ═══════════════════════════════════════════════
+// Plus aucun prix dans ce fichier (v1.8) : ils sont lus à chaque ouverture dans prix-omni.js (GitHub Pages, v1.9),
+// régénéré par OMNI Scraper à chaque relevé. Script et non JSON : un navigateur accepte de charger un script
+// venant d'un autre site, pas de lire un JSON venant d'ailleurs.
+const PRIX_URL_DEFAUT = 'https://54s6h64wdz-web.github.io/omni-prix/prix-omni.js';
+const LS_URL = 'simuSmartphones.prixUrl';
+const LOAD_TIMEOUT = 15000;
+
+const BRAND_MAP = {apple:'Apple',iphone:'Apple',samsung:'Samsung',sasmung:'Samsung',samsun:'Samsung',google:'Google',pixel:'Google',honor:'Honor','600':'Honor',motorola:'Motorola',moto:'Motorola',xiaomi:'Xiaomi',crosscall:'Crosscall',doro:'Doro',fairphone:'Fairphone',mobiwire:'Mobiwire',tcl:'TCL',oppo:'Oppo',nothing:'Nothing',sony:'Sony',nokia:'Nokia'};
+// Marque telle que fournie par OMNI (« HONOR », « MobiWire »…) → même écriture que le reste de l'outil
+function normBrand(m) { const k = String(m).toLowerCase().trim(); return BRAND_MAP[k] || (k.length <= 3 ? k.toUpperCase() : cap(k)); }
+const BRAND_ORDER = ['Apple','Samsung','Google','Xiaomi','Honor','Motorola','Fairphone','Crosscall','Doro'];
+const SLUG_SKIP = new Set(['apple','iphone','samsung','sasmung','samsun','galaxy','google','pixel','honor','motorola','moto','xiaomi','crosscall','doro','fairphone','mobiwire','tcl','5g','4g','avec','gemini','sce','go','to','edition']);
+const COLOR_FIX = {deau:"d'eau", fonce:'foncé', peche:'pêche', sideral:'sidéral', neon:'néon'};
+
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+function parseFrDate(s) { if(!s) return null; const m = String(s).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m ? new Date(+m[3], +m[2]-1, +m[1], 23, 59, 59) : null; }
+const fmtDate = d => d ? String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') : '';
+const today = () => new Date();
+function eur(n, dec) {
+  if(n === null || n === undefined || isNaN(n)) return '—';
+  const r = Math.round(n * 100) / 100;
+  const s = (dec || r % 1 !== 0) ? r.toFixed(2).replace('.', ',') : String(r);
+  return s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €';
+}
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function stripHtml(s) { const d = document.createElement('div'); d.innerHTML = s || ''; return d.textContent; }
+
+// Prix d'un bloc {cat, promo, remise}. Quand cat=0 et promo=null, le prix réel est -remise (format du scraper).
+function readPrice(o, dateFin) {
+  if(!o) return null;
+  let price, cat, promo = 0;
+  if(o.promo !== null && o.promo !== undefined) { price = o.promo; cat = o.cat; promo = o.cat - o.promo; }
+  else if(o.cat > 0) { price = cat = o.cat; }
+  else if(o.remise < 0) { price = cat = -o.remise; }
+  else return null;
+  // Promo terminée (fichier ancien) → retour au prix catalogue
+  if(promo > 0 && dateFin && today() > dateFin) return {price: cat, cat, promo: 0, expired: true};
+  return {price, cat, promo};
+}
+
+let PHONES = [];   // variantes normalisées
+let MODELS = [];   // [{name, brand, variants:[...]}]
+
+function normalize(raw) {
+  return raw.filter(r => r && r.slug && r.model).map(r => {
+    const toks = r.slug.toLowerCase().split('-');
+    const brand = r.marque ? normBrand(r.marque) : (BRAND_MAP[toks[0]] || cap(toks[0]));
+    let model = r.model.trim();
+    if(brand === 'Fairphone') model = 'Fairphone ' + model.replace(/[()]/g,'').replace(/^Gen\.?\s*/i,'').trim();
+    const name = /^(iPhone|Galaxy|Pixel|Fairphone)/i.test(model) ? model : brand + ' ' + model;
+    const mt = new Set(model.toLowerCase().replace(/\+/g,' plus').split(/[\s\-.()]+/).filter(Boolean));
+    const color = toks.filter(t => !SLUG_SKIP.has(t) && !mt.has(t) && !/^\d+(go|to)?$/.test(t)).map(t => COLOR_FIX[t] || t).join(' ');
+    const dateFin = parseFrDate(r.dateFin);
+    const capa = (r.capacite && r.capacite !== '—') ? r.capacite.replace(/(\d)(Go|To)/, '$1 $2') : '';
+    return {
+      slug: r.slug, brand, name, color: cap(color) || 'Unique', capa, reseau: r.reseau || '',
+      isIphone: brand === 'Apple', dateFin, img: r.img, dispo: r.dispoEnLigne !== false,
+      prices: {
+        nu: readPrice(r.vsim, dateFin),
+        etal24: (r.vsim && r.vsim.paiements && r.vsim.paiements.etalement24) || null,
+        acq80: readPrice(r.acq80, dateFin), acq200: readPrice(r.acq200, dateFin), acq300: readPrice(r.acq300, dateFin),
+        pcm200: readPrice(r.pcm200, dateFin), pcm300: readPrice(r.pcm300, dateFin)
+      },
+      odr: (r.odr || []).map(o => ({nom: o.nom, montant: +o.montant || 0, debut: parseFrDate(o.debut), fin: parseFrDate(o.fin), lien: o.lien})),
+      bonusReprise: r.bonusReprise && r.bonusReprise.amountInCents ? {montant: r.bonusReprise.amountInCents / 100, condition: stripHtml(r.bonusReprise.condition)} : null
+    };
+  });
+}
+function capaSort(c) { const m = c.match(/(\d+)\s*(Go|To)/); return m ? +m[1] * (m[2] === 'To' ? 1024 : 1) : 0; }
+function buildModels() {
+  const map = new Map();
+  PHONES.forEach(p => { if(!map.has(p.name)) map.set(p.name, {name: p.name, brand: p.brand, variants: []}); map.get(p.name).variants.push(p); });
+  MODELS = [...map.values()];
+  MODELS.forEach(m => m.variants.sort((a,b) => capaSort(a.capa) - capaSort(b.capa) || a.color.localeCompare(b.color)));
+  const bi = b => { const i = BRAND_ORDER.indexOf(b); return i < 0 ? 99 : i; };
+  MODELS.sort((a,b) => bi(a.brand) - bi(b.brand) || a.brand.localeCompare(b.brand) || b.variants[0].prices.nu?.price - a.variants[0].prices.nu?.price);
+}
+
+// ═══════════════════════════════════════════════
+// FORFAITS MOBILES (repris de Simultoo v76)
+// k : perm | odr (12 mois) | odr26 (jusqu'aux 27 ans, compté permanent) | odr18 (jusqu'aux 18 ans, compté permanent) | m12
+// when : auto (actif d'office si éligible) | manual (décision conseiller) | open (actif si client box)
+// req : condition de visibilité/éligibilité
+// ═══════════════════════════════════════════════
+const CROSS_UNTIL = '19/10/2026';
+const FORFAITS = {
+  // vSIM — nouvelle ligne
+  ma1: {name:'2h 100 Mo (1 Go offert)', price:8.99, activ:10, eng:'Sans engagement', tag:'Réseau 4G · Sans engagement', group:'Nouvelle ligne (vSIM)',
+    features:['2h d\'appels + SMS/MMS illimités','100 Mo + option 1 Go offerte sur demande','Prêt de mobile inclus'],
+    rem:[{id:'open',l:'Remise Open',a:-3,k:'perm',when:'open'},{id:'cp',l:'Code promo permanent',a:-3.99,k:'perm',when:'auto',req:'box'},
+         {id:'cross',l:'ODR cross sell',a:-2,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19312',until:CROSS_UNTIL},
+         {id:'seul',l:'ODR mobile seul',a:-6,k:'odr',when:'auto',req:'nobox',url:'https://formulaires.odr.orange.fr/19298'}]},
+  ma2: {name:'Série Spéciale 20 Go', price:17.99, activ:10, eng:'Sans engagement', tag:'Réseau 4G · Sans engagement', group:'Nouvelle ligne (vSIM)',
+    features:['Appels et SMS/MMS illimités','20 Go (France + Europe)'],
+    rem:[{id:'open',l:'Remise Open',a:-7,k:'perm',when:'open'},{id:'cross',l:'ODR cross sell',a:-2,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19312',until:CROSS_UNTIL}]},
+  ma3: {name:'130 Go 5G', price:24.99, activ:10, eng:'Sans engagement', tag:'Réseau 5G · Sans engagement', group:'Nouvelle ligne (vSIM)',
+    features:['Appels et SMS/MMS illimités','130 Go + 50 Go depuis l\'Europe','MultiSIM Internet 5 €/mois'],
+    rem:[{id:'open',l:'Remise Open',a:-5,k:'perm',when:'open'},
+         {id:'cpo',l:'Code promo permanent (avec Remise Open)',a:-3,k:'perm',when:'auto',req:'openon'},
+         {id:'cpn',l:'Code promo permanent (sans Remise Open)',a:-4,k:'perm',when:'auto',req:'noopen'},
+         {id:'cross',l:'ODR cross sell',a:-5,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19392',until:CROSS_UNTIL}]},
+  ma4: {name:'Voyage 250 Go 5G', price:33.99, activ:10, eng:'Sans engagement', tag:'Réseau 5G+ · Sans engagement', group:'Nouvelle ligne (vSIM)',
+    features:['Appels et SMS/MMS illimités','250 Go (France + Europe)','+ 40 Go depuis 78 destinations','Option eSIM Watch sur demande'],
+    rem:[{id:'open',l:'Remise Open',a:-5,k:'perm',when:'open'},{id:'bienv',l:'ODR Bienvenue',a:-9,k:'odr',when:'auto',url:'https://formulaires.odr.orange.fr/19298'},
+         {id:'cross',l:'ODR cross sell',a:-5,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19392',until:CROSS_UNTIL}]},
+  ma5: {name:'Série Spéciale Cheat_Code 5G 200 Go', price:34.99, activ:10, eng:'Sans engagement', tag:'Réseau 5G · Cheat Code 18-26', group:'Nouvelle ligne (vSIM)',
+    features:['200 Go en France + 40 Go Europe/DOM','+ 40 Go depuis 78 destinations','Appels/SMS illimités France + Europe'],
+    rem:[{id:'open',l:'Remise Open',a:-5,k:'perm',when:'open'},{id:'cross',l:'ODR cross sell',a:-5,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19392',until:CROSS_UNTIL},
+         {id:'u26',l:'ODR −26 ans',a:-19,k:'odr26',when:'auto',req:'u26noopen',url:'https://formulaires.odr.orange.fr/19303'},
+         {id:'u26o',l:'ODR −26 ans (avec Remise Open)',a:-14,k:'odr26',when:'auto',req:'u26open',url:'https://formulaires.odr.orange.fr/19303'}]},
+  ma9: {name:'Saferphone 5 Go', price:17.99, activ:10, eng:'Sans engagement', tag:'Réseau 4G · Sans engagement', group:'Nouvelle ligne (vSIM)',
+    features:['Appels et SMS/MMS illimités','5 Go bloqués (+ option 35 Go à 4 €/mois)','Contrôle parental Safebear inclus'],
+    rem:[{id:'open',l:'Remise Open',a:-4,k:'perm',when:'open'},{id:'cross',l:'ODR cross sell',a:-2,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19312',until:CROSS_UNTIL},
+         {id:'u18',l:'ODR −18 ans',a:-6,k:'odr18',when:'manual',url:'https://formulaires.services.orange.fr/19296'}]},
+  // vSIM — client mobile Orange (migration)
+  mm1: {name:'2h 100 Mo (1 Go offert)', price:8.99, activ:0, eng:'Sans engagement', group:'Client mobile Orange (migration)', rem:[{id:'open',l:'Remise Open',a:-3,k:'perm',when:'open'}]},
+  mm2: {name:'2h 20 Go', price:19.99, activ:0, eng:'Sans engagement', group:'Client mobile Orange (migration)', rem:[{id:'open',l:'Remise Open',a:-5,k:'perm',when:'open'}]},
+  mm3: {name:'10 Go', price:27.99, activ:0, eng:'Sans engagement', group:'Client mobile Orange (migration)', rem:[{id:'open',l:'Remise Open',a:-7,k:'perm',when:'open'}]},
+  mm7: {name:'100 Go 5G', price:31.99, activ:0, eng:'Sans engagement', group:'Client mobile Orange (migration)', rem:[{id:'open',l:'Remise Open',a:-5,k:'perm',when:'open'}]},
+  mm4: {name:'Voyage 250 Go 5G', price:33.99, activ:0, eng:'Sans engagement', group:'Client mobile Orange (migration)', rem:[{id:'open',l:'Remise Open',a:-5,k:'perm',when:'open'}]},
+  // vSUB — Acquisition (engagement 24 mois)
+  ma6: {name:'Série Spéciale 80 Go 5G', price:29.99, activ:0, eng:'Engagement 24 mois', tag:'Réseau 5G · Engagement 24 mois',
+    features:['Appels et SMS/MMS illimités en France','80 Go (France + Europe)','MultiSIM Internet 5 €/mois'],
+    rem:[{id:'open',l:'Remise Open',a:-7,k:'perm',when:'open'},{id:'cross',l:'ODR cross sell',a:-5,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19392',until:CROSS_UNTIL}]},
+  ma7: {name:'200 Go 5G', price:47.99, activ:0, eng:'Engagement 24 mois', tag:'Réseau 5G · Engagement 24 mois',
+    features:['Appels et SMS/MMS illimités France + DOM','200 Go + 120 Go depuis l\'Europe','MultiSIM Internet inclus sur demande'],
+    rem:[{id:'open',l:'Remise Open',a:-8,k:'perm',when:'open'},{id:'bienv',l:'ODR Bienvenue',a:-10,k:'odr',when:'auto',url:'https://formulaires.odr.orange.fr/19298',excl:'priv'},
+         {id:'cross',l:'ODR cross sell',a:-5,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19392',until:CROSS_UNTIL},
+         {id:'priv',l:'Code Privilège',a:-15,k:'odr',when:'manual',excl:'bienv',note:'Non cumulable avec l\'ODR Bienvenue'}]},
+  ma8: {name:'300 Go 5G', price:67.99, activ:0, eng:'Engagement 24 mois', tag:'Réseau 5G+ · Engagement 24 mois',
+    features:['Appels illimités France, Europe, USA, Canada + fixes 100 destinations','300 Go + 150 Go depuis l\'Europe','+ 40 Go depuis 78 destinations','Configuration Flash offerte'],
+    rem:[{id:'open',l:'Remise Open',a:-15,k:'perm',when:'open'},{id:'bienv',l:'ODR Bienvenue',a:-10,k:'odr',when:'auto',url:'https://formulaires.odr.orange.fr/19298'},
+         {id:'cross',l:'ODR cross sell',a:-5,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19392',until:CROSS_UNTIL}]},
+  // vSUB — CPM / migration (re-engagement 24 mois)
+  mm5: {name:'200 Go 5G', price:47.99, activ:0, eng:'Re-engagement 24 mois', tag:'Réseau 5G · Re-engagement 24 mois',
+    features:['Appels et SMS/MMS illimités France + DOM','200 Go + 120 Go depuis l\'Europe','MultiSIM Internet inclus sur demande'],
+    rem:[{id:'open',l:'Remise Open',a:-8,k:'perm',when:'open'}]},
+  mm6: {name:'300 Go 5G', price:67.99, activ:0, eng:'Re-engagement 24 mois', tag:'Réseau 5G+ · Re-engagement 24 mois',
+    features:['Appels illimités France, Europe, USA, Canada + fixes 100 destinations','300 Go + 150 Go depuis l\'Europe','+ 40 Go depuis 78 destinations'],
+    rem:[{id:'open',l:'Remise Open',a:-15,k:'perm',when:'open'}]}
+};
+// Palier forfait → clé de prix terminal + forfait associé
+const TIERS = {
+  acq: [{key:'80', label:'80 Go', price:'acq80', forfait:'ma6'}, {key:'200', label:'200 Go', price:'acq200', forfait:'ma7'}, {key:'300', label:'300 Go', price:'acq300', forfait:'ma8'}],
+  pcm: [{key:'200', label:'200 Go', price:'pcm200', forfait:'mm5'}, {key:'300', label:'300 Go', price:'pcm300', forfait:'mm6'}]
+};
+const NU_FORFAITS = ['ma1','ma2','ma3','ma4','ma5','ma9','mm1','mm2','mm3','mm7','mm4'];
+
+const OPTIONS = [
+  {group:'Musique', items:[
+    {id:'dz1', name:'Deezer Premium', price:11.99, m3:-10.99},
+    {id:'dz2', name:'Deezer Famille', price:19.99, m3:-18.99}]},
+  {group:'Sécurité', items:[{id:'cs1', name:'Cybersecure', price:7}]},
+  {group:'Assurance mobile', single:true, items:[
+    {id:'a1', name:'Palier 100 €', price:2.99, max:100}, {id:'a2', name:'Palier 250 €', price:6.99, max:250},
+    {id:'a3', name:'Palier 400 €', price:9.99, max:400}, {id:'a4', name:'Palier 800 €', price:14.99, max:800},
+    {id:'a5', name:'Palier 1500 €', price:19.99, max:1500}, {id:'a6', name:'Palier 3000 €', price:21.99, max:3000},
+    {id:'a7', name:'Assurance Famille', price:24.99}]}
+];
+const ODR_JEUNES = {nom:'ODR −26 ans Cheat Code + mobile ≥ 300 €', montant:80, lien:'https://formulaires.odr.orange.fr/19430', fin:parseFrDate('18/11/2026'), seuil:300};
+
+// ═══════════════════════════════════════════════
+// ACCESSOIRES & PRESTATIONS (repris du simulateur Apple)
+// ═══════════════════════════════════════════════
+const ACCS = [
+  {id:'config', name:'Configuration', type:'model', models:[{key:'experte',label:'Experte',price:24},{key:'perso',label:'Personnalisée',price:39}]},
+  {id:'watch', name:'Apple Watch', type:'model', isApple:true, iphoneOnly:true, odrIphone:true, models:[
+    {key:'se3_40_gps', label:'SE 3 — 40 mm GPS', price:269, odr:100},
+    {key:'se3_40_5g', label:'SE 3 — 40 mm GPS + 5G', price:319, odr:100},
+    {key:'se3_44_gps', label:'SE 3 — 44 mm GPS', price:299, odr:100},
+    {key:'se3_44_5g', label:'SE 3 — 44 mm GPS + 5G', price:349, odr:100},
+    {key:'s11_42_5g', label:'Series 11 — 42 mm GPS + 5G', price:569, odr:100},
+    {key:'s11_46_5g', label:'Series 11 — 46 mm GPS + 5G', price:599, odr:100},
+    {key:'ultra3', label:'Ultra 3 — 49 mm GPS + 5G', price:899, odr:100}]},
+  {id:'airpods', name:'AirPods', type:'model', isApple:true, odrIphone:true, models:[
+    {key:'ap5', label:'AirPods 5', price:149, odr:50},
+    {key:'ap5sf', label:'AirPods 5 boîtier sans fil', price:169, odr:50},
+    {key:'ap4', label:'AirPods 4', price:139, odr:50},
+    {key:'ap4anc', label:'AirPods 4 réduction de bruit', price:199, odr:50},
+    {key:'appro3', label:'AirPods Pro 3', price:249, odr:100}]},
+  {id:'coque', name:'Coque officielle Apple', type:'simple', price:59.99, isApple:true, iphoneOnly:true},
+  {id:'coquetiers', name:'Coque non officielle', type:'model', models:[{key:'simple',label:'Simple',price:29.99},{key:'renforcee',label:'Renforcée',price:39.99}]},
+  {id:'chargeur', name:'Chargeur', type:'model', models:[
+    {key:'apple30', label:'Apple 30W', price:27.99, isApple:true},
+    {key:'samsung', label:'Samsung', price:29.99},
+    {key:'belkin', label:'Belkin', price:24.99}]},
+  {id:'zagg', name:'Protection écran Zagg', type:'simple', price:34.99},
+  {id:'airtag', name:'AirTag', type:'simple', price:35.99, iphoneOnly:true, packPrice:1},
+  {id:'bonus', name:'Accessoire bonus', type:'model', models:[{key:'g49',label:'Gamme 49 €',price:49,packPrice:1},{key:'g99',label:'Gamme 99 €',price:99,packPrice:19}]},
+  {id:'autre', name:'Autre', type:'custom', price:0}
+];
+const PACK_APPLE = ['coque','chargeur','zagg','airtag'];
+const PACK_TIERS = ['coquetiers','chargeur','zagg','bonus'];
+const APPLE_MULTI_REMISE = 10;
+// Accessoire de marque Apple : l'accessoire entier (coque, Watch, AirPods) ou le modèle choisi (chargeur Apple)
+function isAppleEntry(e) {
+  const a = accDef(e.id); if(!a) return false;
+  if(a.isApple) return true;
+  if(a.type === 'model') { const m = a.models.find(m => m.key === e.modelKey); return !!(m && m.isApple); }
+  return false;
+}
+// Modèle proposé par défaut à l'ajout (chargeur selon la marque du mobile)
+function defaultModelKey(a, v) {
+  if(a.id === 'chargeur') return v && v.isIphone ? 'apple30' : v && v.brand === 'Samsung' ? 'samsung' : 'belkin';
+  return a.models[0].key;
+}
+
+// ODR iPhone + accessoire Apple (formulaire 19492) — du 08/10 au 21/10/2026
+// iPhone neuf éligible + Apple Watch ou AirPods Pro 3 = 100 € ; AirPods 4 ou 5 = 50 €.
+// Non cumulable avec une autre ODR Orange sur l'achat d'un mobile.
+const ODR_IPHONE = {
+  ref: '19492',
+  models: ['iPhone 15','iPhone 16','iPhone 16e','iPhone 16 Plus','iPhone 17','iPhone 17e','iPhone 17 Pro','iPhone 17 Pro Max','iPhone 18 Pro','iPhone 18 Pro Max','iPhone Air']
+};
+const isOdrIphone = o => !!(o.lien && o.lien.includes(ODR_IPHONE.ref));
+function odrIphoneAmount(c) {
+  let best = 0;
+  state.cols[c].accs.forEach(e => {
+    const a = accDef(e.id); if(!a || !a.odrIphone) return;
+    const m = a.models.find(m => m.key === e.modelKey) || a.models[0];
+    best = Math.max(best, m.odr || 0);
+  });
+  return best;
+}
+const odrActive = o => !o.pending && !o.excluded && !state.odrOff[o.key];
+
+// ═══════════════════════════════════════════════
+// ÉTAT
+// ═══════════════════════════════════════════════
+const state = {
+  contrat: 'pcm', tier: '200', nuForfait: '',
+  flags: {box: false, u26: false},
+  reprise: false, repriseVal: 0,
+  cols: [newCol(), newCol()], showCol1: false, activeCol: 0,
+  remOverride: {},     // id remise → true/false (choix conseiller)
+  options: new Set(), assurance: '', odrOff: {}, etalement: false
+};
+function newCol() { return {model: '', slug: '', accs: []}; }
+let uidSeq = 1;
+
+function currentForfaitId() {
+  if(state.contrat === 'nu') return state.nuForfait || null;
+  const t = TIERS[state.contrat].find(t => t.key === state.tier);
+  return t ? t.forfait : null;
+}
+function priceKey() {
+  if(state.contrat === 'nu') return 'nu';
+  const t = TIERS[state.contrat].find(t => t.key === state.tier);
+  return t ? t.price : 'nu';
+}
+function contratLabel() {
+  if(state.contrat === 'nu') return 'Nu / vSIM';
+  return (state.contrat === 'acq' ? 'Acquisition ' : 'PCM ') + state.tier + ' Go';
+}
+const variantOf = c => PHONES.find(p => p.slug === state.cols[c].slug) || null;
+// Étalement mobile Orange : vSIM uniquement (jamais vSUB), 24 mois, mensualité selon le prix du mobile.
+// Montant lu dans prix-omni.js (nu.paiements.etalement24) ; à défaut, règle du fichier (regles.etalementOrange).
+let ETAL_REGLE = {mois: 24, apportMinimum: 1, canaux: ['vsim'], paliers: [
+  {mensualite: 8, prixMin: 193}, {mensualite: 7, prixMin: 169}, {mensualite: 6, prixMin: 145}, {mensualite: 5, prixMin: 121}, {mensualite: 4, prixMin: 97}]};
+function etalPossible(v) {
+  const pr = v && v.prices.nu; if(!pr) return null;
+  const e = v.etal24;
+  if(e && e.mensualite > 0 && Math.abs(e.apport + e.mensualite * e.mois - pr.price) < 0.05) return {mensualite: e.mensualite, mois: e.mois, apport: e.apport};
+  const mois = ETAL_REGLE.mois || 24;
+  const pal = [...ETAL_REGLE.paliers].sort((a, b) => b.prixMin - a.prixMin).find(p => pr.price >= p.prixMin);
+  if(!pal) return null;
+  const apport = Math.round((pr.price - pal.mensualite * mois) * 100) / 100;
+  if(apport < (ETAL_REGLE.apportMinimum ?? 1)) return null;
+  return {mensualite: pal.mensualite, mois, apport};
+}
+const etalOf = c => (state.contrat === 'nu' && state.etalement) ? etalPossible(variantOf(c)) : null;
+function setEtalement(on) { state.etalement = on; renderAll(); }
+
+// ODR 80 € (19430) : client −26 ans qui souscrit le forfait Cheat Code 200 Go (vSIM) avec un mobile ≥ 300 €
+const cheatCodeOn = () => state.flags.u26 && state.contrat === 'nu' && state.nuForfait === 'ma5';
+// Bonus reprise : montant de reprise minimum selon la marque
+const BONUS_SEUIL = {Apple: 10, Samsung: 1};
+const bonusSeuil = v => BONUS_SEUIL[v.brand] ?? 0;
+
+// ═══════════════════════════════════════════════
+// REMISES FORFAIT
+// ═══════════════════════════════════════════════
+function remState(f) {
+  const out = []; let openOn = false;
+  for(const r of f.rem) {
+    let vis = true, elig = true, auto = false;
+    const until = parseFrDate(r.until);
+    if(until && today() > until) continue;  // ODR expirée
+    switch(r.req) {
+      case 'box': elig = state.flags.box; vis = elig; break;
+      case 'nobox': elig = !state.flags.box; vis = elig; break;
+      case 'openon': elig = openOn; vis = elig; break;
+      case 'noopen': elig = !openOn; vis = elig; break;
+      case 'u26open': elig = state.flags.u26 && openOn; vis = elig; break;
+      case 'u26noopen': elig = state.flags.u26 && !openOn; vis = elig; break;
+    }
+    if(r.when === 'open') auto = state.flags.box;
+    else if(r.when === 'auto') auto = elig;
+    let on = (r.id in state.remOverride) ? state.remOverride[r.id] : auto;
+    if(!elig) on = false;
+    out.push({...r, vis, elig, on, until});
+    if(r.id === 'open') openOn = on;
+  }
+  // exclusivités (Code Privilège ⟷ ODR Bienvenue) : la dernière cochée gagne
+  out.forEach(r => { if(r.on && r.excl) { const o = out.find(x => x.id === r.excl); if(o && o.on) { if(state.lastToggled === r.id) o.on = false; else r.on = false; } } });
+  return out.filter(r => r.vis);
+}
+function forfaitCalc() {
+  const fid = currentForfaitId(); if(!fid) return null;
+  const f = FORFAITS[fid]; const rems = remState(f);
+  let y1 = f.price, y2 = f.price;
+  rems.forEach(r => { if(!r.on) return; y1 += r.a; if(r.k !== 'odr' && r.k !== 'm12') y2 += r.a; });
+  let opt = 0, optM3 = 0;
+  OPTIONS.forEach(g => g.items.forEach(o => { if(state.options.has(o.id) || state.assurance === o.id) { opt += o.price; if(o.m3) optM3 += o.m3; } }));
+  return {fid, f, rems, y1, y2, opt, optM3, activ: f.activ || 0};
+}
+
+// ═══════════════════════════════════════════════
+// CALCULS PAR COLONNE
+// ═══════════════════════════════════════════════
+function accDef(id) { return ACCS.find(a => a.id === id); }
+function hasAll(c, ids) { const have = state.cols[c].accs.map(x => x.id); return ids.every(id => have.includes(id)); }
+const packAppleOn = c => { const v = variantOf(c); return !!(v && v.isIphone && hasAll(c, PACK_APPLE)); };
+const packTiersOn = c => hasAll(c, PACK_TIERS);
+
+function accBasePrice(e, c) {
+  const a = accDef(e.id); if(!a) return 0;
+  const v = variantOf(c);
+  if(a.type === 'custom') return +e.price || 0;
+  if(a.id === 'airtag' && packAppleOn(c)) return a.packPrice;
+  if(a.id === 'zagg') { const z = state.cols[c].accs.filter(x => x.id === 'zagg'); if(z.indexOf(e) === 1) return Math.round(a.price * 50) / 100; }
+  if(a.id === 'coque' && v && /iPhone 1[67]e/.test(v.name)) return 45.99;
+  if(a.type === 'model') {
+    const m = a.models.find(m => m.key === e.modelKey) || a.models[0];
+    if(a.id === 'bonus' && packTiersOn(c)) return m.packPrice;
+    return m.price;
+  }
+  return a.price;
+}
+function accFullPrice(e) { const a = accDef(e.id); if(a.type === 'custom') return +e.price || 0; if(a.type === 'model') return (a.models.find(m => m.key === e.modelKey) || a.models[0]).price; return a.price; }
+function accPrice(e, c) {
+  const base = accBasePrice(e, c);
+  const a = accDef(e.id); const v = variantOf(c);
+  if(isAppleEntry(e) && v && v.isIphone) {
+    const apples = state.cols[c].accs.filter(isAppleEntry);
+    if(apples.indexOf(e) >= 1) return Math.max(0, Math.round((base - APPLE_MULTI_REMISE) * 100) / 100);
+  }
+  return base;
+}
+
+function calcCol(c) {
+  const v = variantOf(c); if(!v) return null;
+  const pr = v.prices[priceKey()];
+  if(!pr) return {v, na: true};
+  const accs = state.cols[c].accs.reduce((s, e) => s + accPrice(e, c), 0);
+  const accsFull = state.cols[c].accs.reduce((s, e) => s + accFullPrice(e), 0);
+  const reprise = state.reprise ? state.repriseVal : 0;
+  const bonus = state.reprise && v.bonusReprise && state.repriseVal >= bonusSeuil(v) ? v.bonusReprise.montant : 0;
+  const etal = etalOf(c);
+  const caisse = Math.max(0, (etal ? etal.apport : pr.price) + accs - reprise - bonus);
+  const etalM = etal ? etal.mensualite : 0;
+  const now = today();
+  const odrs = v.odr.filter(o => !(o.fin && now > o.fin) && !(o.debut && now.getTime() < o.debut.getTime() - 86399000)).map((o,i) => {
+    const x = {...o, key: v.slug + '#' + i};
+    if(isOdrIphone(o)) {
+      x.iphone = true; x.nom = 'ODR iPhone + accessoire Apple';
+      if(!ODR_IPHONE.models.includes(v.name)) return null;
+      const amt = odrIphoneAmount(c);
+      if(amt > 0) x.montant = amt;
+      else { x.pending = true; x.montant = 0; x.hint = 'Ajoute une Apple Watch ou des AirPods Pro 3 (100 €), ou des AirPods 4 / 5 (50 €) pour déclencher l\'ODR iPhone'; }
+    }
+    return x;
+  }).filter(Boolean);
+  if(cheatCodeOn() && pr.price >= ODR_JEUNES.seuil && now <= ODR_JEUNES.fin) odrs.push({...ODR_JEUNES, key: 'jeunes', cond: true});
+  // L'ODR iPhone n'est pas cumulable avec une autre ODR Orange sur le mobile : on garde la plus avantageuse
+  const ip = odrs.find(o => o.iphone && !o.pending && !state.odrOff[o.key]);
+  const others = odrs.filter(o => !o.iphone && !o.pending && !state.odrOff[o.key]);
+  if(ip && others.length) {
+    const bestOther = Math.max(...others.map(o => o.montant));
+    if(ip.montant >= bestOther) others.forEach(o => { o.excluded = true; o.why = 'Non cumulable avec l\'ODR iPhone'; });
+    else { ip.excluded = true; ip.why = 'Non cumulable : l\'autre ODR est plus avantageuse'; }
+  }
+  const odrTotal = odrs.reduce((s, o) => s + (odrActive(o) ? o.montant : 0), 0);
+  const fc = forfaitCalc();
+  let cost24 = null, equiv = null;
+  if(fc) {
+    cost24 = caisse - odrTotal + fc.activ + 12 * (fc.y1 + fc.opt + etalM) + 12 * (fc.y2 + fc.opt + etalM) + 3 * fc.optM3;
+    const nu = v.prices.nu ? v.prices.nu.price : null;
+    const odrNu = odrs.filter(o => !o.cond && odrActive(o)).reduce((s, o) => s + o.montant, 0);
+    if(nu !== null) equiv = (cost24 - Math.max(0, nu + accs - reprise - bonus) + odrNu) / 24;
+  }
+  return {v, pr, accs, accsFull, reprise, bonus, caisse, odrs, odrTotal, apres: caisse - odrTotal, fc, cost24, equiv, etal, etalM};
+}
+
+// ═══════════════════════════════════════════════
+// RENDU
+// ═══════════════════════════════════════════════
+function renderSidebar() {
+  document.querySelectorAll('#contrat-group .toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.c === state.contrat));
+  const el = document.getElementById('forfait-picker');
+  if(state.contrat === 'nu') {
+    const groups = {};
+    NU_FORFAITS.forEach(id => { const f = FORFAITS[id]; (groups[f.group] = groups[f.group] || []).push(id); });
+    el.innerHTML = `<div class="sub-label">Forfait associé (sans engagement)</div>
+      <select onchange="setNuForfait(this.value)"><option value="">Sans forfait / forfait conservé</option>
+      ${Object.entries(groups).map(([g, ids]) => `<optgroup label="${esc(g)}">${ids.map(id => `<option value="${id}" ${state.nuForfait === id ? 'selected' : ''}>${esc(FORFAITS[id].name)} — ${eur(FORFAITS[id].price, 1)}</option>`).join('')}</optgroup>`).join('')}
+      </select>
+      <label class="switch-row" style="margin-top:8px"><span>Étalement du mobile<small>24 mois, de 4 à 8 €/mois selon le prix</small></span>
+        <span class="switch"><input type="checkbox" ${state.etalement ? 'checked' : ''} onchange="setEtalement(this.checked)"><span class="switch-slider"></span></span></label>`;
+  } else {
+    el.innerHTML = `<div class="sub-label">Forfait ${state.contrat === 'acq' ? '(engagement 24 mois)' : '(re-engagement 24 mois)'}</div>
+      <div class="toggle-group row">${TIERS[state.contrat].map(t => `<button class="toggle-btn ${t.key === state.tier ? 'active' : ''}" onclick="setTier('${t.key}')">${t.label}</button>`).join('')}</div>`;
+  }
+  document.getElementById('sw-box').checked = state.flags.box;
+  document.getElementById('sw-u26').checked = state.flags.u26;
+  document.getElementById('sw-reprise').checked = state.reprise;
+  document.getElementById('reprise-wrap').style.display = state.reprise ? 'flex' : 'none';
+}
+
+function modelSelectHtml(c) {
+  const col = state.cols[c];
+  let html = `<select onchange="setModel(${c}, this.value)"><option value="">— Choisir un smartphone —</option>`;
+  let brand = null;
+  MODELS.forEach(m => {
+    if(m.brand !== brand) { if(brand !== null) html += '</optgroup>'; brand = m.brand; html += `<optgroup label="${esc(brand)}">`; }
+    const pr = m.variants.map(v => v.prices[priceKey()]).filter(Boolean).map(p => p.price);
+    const from = pr.length ? (Math.min(...pr) === Math.max(...pr) ? eur(Math.min(...pr)) : 'dès ' + eur(Math.min(...pr))) : 'non dispo';
+    html += `<option value="${esc(m.name)}" ${col.model === m.name ? 'selected' : ''}>${esc(m.name)} — ${from}</option>`;
+  });
+  return html + '</optgroup></select>';
+}
+
+function renderCol(c) {
+  const col = state.cols[c];
+  const m = MODELS.find(x => x.name === col.model);
+  const v = variantOf(c);
+  const r = calcCol(c);
+  const multi = state.showCol1;
+  let h = `<div class="col-header"><div class="section-label" style="margin:0">Téléphone ${c + 1}${multi && state.activeCol === c ? '<span class="active-pill">cible des accessoires</span>' : ''}</div>
+    <button class="icon-btn" title="${c === 1 ? 'Retirer ce téléphone' : 'Réinitialiser'}" onclick="event.stopPropagation();${c === 1 ? 'hideCol1()' : 'resetCol(0)'}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`;
+  h += modelSelectHtml(c);
+  if(m) {
+    const caps = [...new Set(m.variants.map(x => x.capa))];
+    if(caps.length > 1 || caps[0]) h += `<div class="chips">${caps.map(k => `<button class="chip ${v && v.capa === k ? 'active' : ''}" onclick="setCapa(${c}, '${esc(k)}')">${esc(k || '—')}</button>`).join('')}</div>`;
+    const colors = m.variants.filter(x => x.capa === (v ? v.capa : caps[0]));
+    if(colors.length > 1) h += `<div class="chips">${colors.map(x => `<button class="chip ${v && v.slug === x.slug ? 'active' : ''}" onclick="setVariant(${c}, '${x.slug}')" title="${x.dispo ? '' : 'Indisponible en ligne'}">${esc(x.color)}${x.dispo ? '' : ' ⚠'}</button>`).join('')}</div>`;
+  }
+  h += `<div class="phone-top"><div class="phone-visual">${v ? `<img src="${esc(v.img)}" alt="${esc(v.name)}" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'phone-placeholder'}))">` : '<div class="phone-placeholder"></div>'}</div>
+    <div class="phone-price-block">`;
+  if(!v) h += `<div class="pp-label">Choisis un modèle pour afficher les prix</div>`;
+  else if(r.na) h += `<div class="na-msg">Pas de tarif ${esc(contratLabel())} pour ce mobile.</div>`;
+  else {
+    h += `<div class="pp-amount">${eur(r.pr.price)}${r.pr.promo > 0 ? `<span class="pp-strike">${eur(r.pr.cat)}</span>` : ''}</div>
+      <div class="pp-label">${esc(v.name)} ${esc(v.capa)} · ${esc(v.color)} — ${esc(contratLabel())}</div>`;
+    if(r.pr.promo > 0) h += `<span class="badge orange">🏷 Offre Orange −${eur(r.pr.promo)}${v.dateFin ? ' jusqu\'au ' + fmtDate(v.dateFin) : ''}</span>`;
+    if(r.pr.expired) h += `<span class="badge red">Promo du fichier expirée</span>`;
+    if(v.reseau) h += `<span class="badge blue">${esc(v.reseau)}</span>`;
+    if(!v.dispo) h += `<span class="badge red">Indisponible en ligne</span>`;
+    if(r.odrTotal > 0) h += `<span class="badge green">ODR ${eur(r.odrTotal)}</span>`;
+    else if(r.odrs.some(o => o.pending)) h += `<span class="badge green">ODR jusqu'à 100 € avec Apple Watch / AirPods</span>`;
+  }
+  h += `</div></div>`;
+  if(v) {
+    const rows = [['Nu / vSIM','nu'],['Acquisition 80 Go','acq80'],['Acquisition 200 Go','acq200'],['Acquisition 300 Go','acq300'],['PCM 200 Go','pcm200'],['PCM 300 Go','pcm300']];
+    h += `<details class="all-prices"><summary>Tous les tarifs de ce mobile</summary><table class="prices-table">${rows.map(([l,k]) => { const p = v.prices[k]; return `<tr class="${k === priceKey() ? 'cur' : ''}"><th>${l}</th><td>${p ? (p.promo > 0 ? `<s>${eur(p.cat)}</s>` : '') + eur(p.price) : '—'}</td></tr>`; }).join('')}</table></details>`;
+  }
+  // accessoires
+  h += `<div class="acc-section-header">Accessoires et prestations <span>(glisser ou cliquer dans la palette)</span></div><div class="drop-zone">`;
+  if(!col.accs.length) h += `<div class="empty-hint">Aucun accessoire</div>`;
+  if(packAppleOn(c)) h += `<div class="pack-banner">✓ Pack 3+1 Apple actif — AirTag à 1 €</div>`;
+  if(packTiersOn(c)) h += `<div class="pack-banner">✓ Pack 3+1 Tiers actif — accessoire bonus à prix pack</div>`;
+  col.accs.forEach(e => {
+    const a = accDef(e.id); const p = accPrice(e, c); const full = accFullPrice(e);
+    const packed = (packAppleOn(c) && PACK_APPLE.includes(e.id)) || (packTiersOn(c) && PACK_TIERS.includes(e.id));
+    let inner = '';
+    if(a.type === 'model') inner = `${esc(a.name)} <select onchange="setAccModel(${c},${e.uid},this.value)">${a.models.map(m => `<option value="${m.key}" ${m.key === e.modelKey ? 'selected' : ''}>${esc(m.label)}</option>`).join('')}</select>`;
+    else if(a.type === 'custom') inner = `<input placeholder="Libellé" value="${esc(e.label || '')}" onchange="setAccCustom(${c},${e.uid},'label',this.value)"><input class="num" type="number" step="0.01" placeholder="Prix" value="${e.price || ''}" onchange="setAccCustom(${c},${e.uid},'price',this.value)">`;
+    else inner = esc(a.name);
+    h += `<div class="acc-tag ${packed ? 'packed' : ''}"><span>${inner}</span><span class="p">${p < full ? `<s>${eur(full)}</s><b>${eur(p)}</b>` : eur(p)}</span><button class="rm" onclick="removeAcc(${c},${e.uid})" title="Retirer">×</button></div>`;
+  });
+  h += `</div>`;
+  // totaux
+  if(r && !r.na) {
+    h += `<div class="total-block">
+      <div class="t-row"><span>Mobile</span><span class="v">${eur(r.pr.price)}</span></div>
+      ${r.etal ? `<div class="t-row" style="color:var(--blue-text)"><span>Étalé sur ${r.etal.mois} mois (${r.etal.mois} × ${eur(r.etal.mensualite)})</span><span class="v" style="color:var(--blue-text)">−${eur(r.etal.mensualite * r.etal.mois)}</span></div>` : ''}
+      ${state.contrat === 'nu' && state.etalement && !r.etal ? `<div class="t-row" style="font-size:11.5px"><span>Pas d'étalement possible pour ce mobile (prix inférieur à ${eur(Math.min(...ETAL_REGLE.paliers.map(p => p.prixMin)))})</span></div>` : ''}
+      ${col.accs.length ? `<div class="t-row"><span>Accessoires et prestations${r.accs < r.accsFull ? ` <small>(−${eur(r.accsFull - r.accs)} de remise)</small>` : ''}</span><span class="v">${eur(r.accs)}</span></div>` : ''}
+      ${state.reprise ? `<div class="t-row green"><span>Orange Reprise</span><span class="v">${r.reprise ? '−' + eur(r.reprise) : '0 €'}</span></div>` : ''}
+      ${r.bonus ? `<div class="t-row green" title="${esc(v.bonusReprise.condition)}"><span>Bonus reprise</span><span class="v">−${eur(r.bonus)}</span></div>` : ''}
+      ${!r.bonus && v.bonusReprise ? `<div class="t-row green" style="font-size:11.5px"><span>💡 Bonus reprise de ${eur(v.bonusReprise.montant)} ${bonusSeuil(v) ? `avec une reprise d'au moins ${eur(bonusSeuil(v))}` : 'avec une reprise, même à 0 €'}</span></div>` : ''}
+      <div class="final-row"><span class="final-label">Payé en caisse</span><span class="final-amount">${eur(r.caisse)}</span></div>
+      ${r.etal ? `<div class="t-row" style="color:var(--blue-text);font-weight:600"><span>puis ${eur(r.etal.mensualite)}/mois pendant ${r.etal.mois} mois, sur la facture mobile</span></div>` : ''}
+      ${r.odrs.map(o => o.pending ? `<div class="t-row odr off" style="font-weight:500"><span>💡 ${esc(o.hint)}${o.lien ? ` <a href="${esc(o.lien)}" target="_blank" rel="noopener">conditions ↗</a>` : ''}</span></div>`
+        : o.excluded ? `<div class="t-row odr off"><span>🏷 ${esc(o.nom)} <small style="font-weight:500">— ${esc(o.why)}</small></span><span class="v"><s>−${eur(o.montant)}</s></span></div>`
+        : `<div class="t-row odr ${state.odrOff[o.key] ? 'off' : ''}"><span><label style="cursor:pointer"><input type="checkbox" ${state.odrOff[o.key] ? '' : 'checked'} onchange="toggleOdr('${esc(o.key)}', this.checked)" style="accent-color:var(--orange);vertical-align:-1px"> 🏷 ${esc(o.nom)}${o.fin ? ' · jusqu\'au ' + fmtDate(o.fin) : ''}</label>${o.lien ? `<a href="${esc(o.lien)}" target="_blank" rel="noopener">formulaire ↗</a>` : ''}</span><span class="v">−${eur(o.montant)}</span></div>`).join('')}
+      ${r.odrTotal > 0 ? `<div class="final-row"><span class="final-label">Après remboursement</span><span class="final-amount sm">${eur(r.apres)}</span></div>` : ''}
+    </div>`;
+    if(r.fc) h += `<div class="cost-box">Sur 24 mois avec le forfait ${esc(r.fc.f.name)} : <b>${eur(r.cost24)}</b>${r.equiv !== null && state.contrat !== 'nu' ? `<br>Revient au même que le mobile acheté nu + un forfait à <b>${eur(r.equiv, 1)}/mois</b>` : ''}</div>`;
+  }
+  h += `<div id="diff-${c}"></div>`;
+  return h;
+}
+
+function renderPhones() {
+  const grid = document.getElementById('phones-grid');
+  grid.className = 'phones-grid' + (state.showCol1 ? '' : ' single');
+  const colHtml = c => `<div class="phone-col ${state.showCol1 && state.activeCol === c ? 'active-col' : ''}" id="col-${c}" onclick="setActive(${c})" ondragover="dragOver(event,${c})" ondragleave="dragLeave(event,${c})" ondrop="drop(event,${c})">${renderCol(c)}</div>`;
+  grid.innerHTML = colHtml(0) + (state.showCol1 ? colHtml(1) : `<button class="add-col-btn" onclick="showCol1()"><span class="add-col-icon">+</span>Comparer avec<br>un 2e smartphone</button>`);
+  // écart entre les deux
+  if(state.showCol1) {
+    const a = calcCol(0), b = calcCol(1);
+    if(a && b && !a.na && !b.na) {
+      const d = b.apres - a.apres;
+      const el = document.getElementById('diff-1');
+      el.innerHTML = Math.abs(d) < 0.005 ? `<span class="diff-badge" style="background:#F1EFE8;color:#5F5E5A">Même prix que le téléphone 1</span>`
+        : `<span class="diff-badge" style="background:${d < 0 ? 'var(--green-bg)' : 'var(--red-bg)'};color:${d < 0 ? 'var(--green-text)' : 'var(--red-text)'}">${d < 0 ? eur(-d) + ' de moins' : eur(d) + ' de plus'} que le téléphone 1 (après ODR)</span>`;
+    }
+  }
+  document.getElementById('target-label').textContent = 'Téléphone ' + (state.activeCol + 1);
+}
+
+function renderForfait() {
+  const el = document.getElementById('forfait-card');
+  const fc = forfaitCalc();
+  const etA = etalOf(state.activeCol);
+  const etLabel = state.showCol1 ? ` (téléphone ${state.activeCol + 1})` : '';
+  if(!fc) {
+    el.innerHTML = `<div class="section-label">Forfait mobile</div><div class="na-box">Mobile vendu seul, sans nouveau forfait. Pour simuler un forfait sans engagement, choisis-le dans « Forfait associé » plus haut.</div>
+      ${etA ? `<div class="forfait-sum"><div class="sum-cell wide"><span class="k">Étalement du mobile${etLabel}</span><span class="v">${eur(etA.mensualite)}<small>/mois × ${etA.mois}</small></span></div></div>` : ''}`;
+    return;
+  }
+  const {f, rems, y1, y2} = fc;
+  const kindLbl = r => r.k === 'perm' ? 'Permanente' : r.k === 'odr26' ? 'Jusqu\'à 27 ans' : r.k === 'odr18' ? 'Jusqu\'à 18 ans' : '12 mois';
+  let h = `<div class="section-label">Forfait mobile — ${esc(contratLabel())}</div>
+    <div class="forfait-head"><div><div class="forfait-name">${esc(f.name)}</div><div class="forfait-tag">${esc(f.tag || f.eng)}</div></div>
+    <div class="forfait-base">Base<br><b>${eur(f.price, 1)}</b></div></div>`;
+  h += `<div class="rem-list">${rems.map(r => `<label class="rem-row ${r.on ? 'on' : ''}">
+      <input type="checkbox" ${r.on ? 'checked' : ''} onchange="toggleRem('${r.id}', this.checked)">
+      <span class="l">${esc(r.l)} <span class="kind">${kindLbl(r)}</span>${r.until ? `<span class="kind until">jusqu'au ${fmtDate(r.until)}</span>` : ''}${r.when === 'manual' ? '<span class="kind">au choix</span>' : ''}
+      ${r.url ? ` <a href="${esc(r.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">formulaire ↗</a>` : ''}${r.note ? `<br><small style="color:var(--text-hint)">${esc(r.note)}</small>` : ''}</span>
+      <span class="a">${eur(r.a, 1)}</span></label>`).join('') || '<div class="muted-note">Aucune remise sur ce forfait.</div>'}</div>`;
+  // options mobile (repliées pour gagner de la place)
+  const v0 = variantOf(state.activeCol) || variantOf(0);
+  const nuRef = v0 && v0.prices.nu ? v0.prices.nu.price : null;
+  const assur = OPTIONS.find(g => g.single);
+  const suggested = nuRef !== null ? (assur.items.find(o => o.max && nuRef <= o.max) || {}).id : null;
+  const nbOpt = state.options.size + (state.assurance ? 1 : 0);
+  h += `<details ${state.optOpen ? 'open' : ''} ontoggle="state.optOpen=this.open"><summary>Options mobile${nbOpt ? ` (${nbOpt})` : ''}</summary><div class="opt-groups">`;
+  OPTIONS.forEach(g => {
+    h += `<div><div class="opt-group-title">${esc(g.group)}${g.single && suggested ? ` — conseillé : <b>${esc(assur.items.find(o => o.id === suggested).name)}</b>` : ''}</div><div class="chips">`;
+    g.items.forEach(o => {
+      const on = g.single ? state.assurance === o.id : state.options.has(o.id);
+      h += `<button class="chip ${on ? 'active' : ''}" onclick="toggleOption('${o.id}', ${!!g.single})" title="${o.m3 ? '1 € les 3 premiers mois' : ''}">${esc(o.name.replace('Palier ', ''))} · ${eur(o.price, 1)}${g.single && o.id === suggested && !on ? ' ★' : ''}</button>`;
+    });
+    h += `</div></div>`;
+  });
+  h += `</div></details>`;
+  const etM = etA ? etA.mensualite : 0;
+  if(etA) h += `<div class="rem-row on" style="margin-top:8px;cursor:default;background:var(--blue-bg);border-color:#B5D4F4;color:var(--blue-text)"><span class="l">Étalement du mobile${etLabel} <span class="kind">${etA.mois} mois</span></span><span class="a">+${eur(etM, 1)}</span></div>`;
+  const tot1 = y1 + fc.opt + etM, tot2 = y2 + fc.opt + etM;
+  h += `<div class="forfait-sum">
+    <div class="sum-cell"><div class="k">${tot1 === tot2 ? 'Mensualité' : '12 premiers mois'}</div><div class="v">${eur(tot1, 1)}</div></div>
+    <div class="sum-cell"><div class="k">${tot1 === tot2 ? 'Frais d\'activation' : 'Ensuite'}</div><div class="v">${tot1 === tot2 ? (fc.activ ? eur(fc.activ) : 'Offerts') : eur(tot2, 1)}</div></div>
+    ${tot1 === tot2 ? '' : `<div class="sum-cell wide"><span class="k">Frais d'activation</span><span class="v" style="font-size:12px">${fc.activ ? eur(fc.activ) : 'Offerts'}</span></div>`}
+  </div>
+  <div class="muted-note">${esc(f.eng)}${fc.opt ? ` · options incluses (+${eur(fc.opt, 1)}/mois)` : ''}${etM ? ` · étalement inclus (+${eur(etM, 1)}/mois pendant ${etA.mois} mois)` : ''}${fc.optM3 ? ' · Deezer à 1 € les 3 premiers mois' : ''}</div>`;
+  el.innerHTML = h;
+}
+
+function renderPalette() {
+  document.getElementById('palette').innerHTML = ACCS.map(a => {
+    const pr = a.type === 'model' ? 'dès ' + eur(Math.min(...a.models.map(m => m.price)), 1) : a.type === 'custom' ? 'prix libre' : eur(a.price, 1);
+    const label = a.id === 'config' ? 'Configuration experte / personnalisée' : a.name;
+    return `<div class="palette-item ${a.iphoneOnly ? 'ios' : ''}" draggable="true" ondragstart="dragStart(event,'${a.id}')" onclick="addAcc(state.activeCol,'${a.id}')"><span>${esc(label)}</span><span class="pr">${pr}</span></div>`;
+  }).join('');
+}
+
+function renderHeader() {
+  document.getElementById('version-badge').textContent = VERSION;
+  document.getElementById('data-badge').textContent = 'Prix : ' + DATA_LABEL + (DATA_SOURCE === 'online' ? ' (en ligne)' : ' (fichier)');
+}
+
+function renderAll() { renderSidebar(); renderPhones(); renderForfait(); renderHeader(); }
+
+// ═══════════════════════════════════════════════
+// PDF CLIENT (mise en forme reprise de Simultoo : blocs capturés un par un, jamais coupés entre deux pages)
+// ═══════════════════════════════════════════════
+function openPdfModal() {
+  if(!variantOf(0) && !(state.showCol1 && variantOf(1))) { toast('Choisis au moins un smartphone avant de générer le PDF'); return; }
+  document.getElementById('pdf-simple').checked = state.contrat === 'pcm';
+  document.getElementById('pdf-modal').classList.add('show');
+  setTimeout(() => document.getElementById('pdf-advisor').focus(), 50);
+}
+function closePdfModal() { document.getElementById('pdf-modal').classList.remove('show'); }
+function confirmPdf() {
+  const opts = {
+    advisor: document.getElementById('pdf-advisor').value.trim(),
+    comment: document.getElementById('pdf-comment').value.trim(),
+    color: document.getElementById('pdf-color').checked,
+    simple: document.getElementById('pdf-simple').checked
+  };
+  closePdfModal();
+  buildPdf(opts);
+}
+function accLabel(e) {
+  const a = accDef(e.id);
+  if(a.type === 'custom') return e.label || 'Autre accessoire';
+  if(a.type === 'model') { const m = a.models.find(m => m.key === e.modelKey) || a.models[0]; return a.id === 'config' ? 'Configuration ' + m.label.toLowerCase() : a.name + ' — ' + m.label; }
+  return a.name;
+}
+const prEur = (n, d) => eur(n, d).replace(' ', ' ');
+
+function prPhoneCard(c, multi, photos) {
+  const r = calcCol(c); if(!r || r.na) return '';
+  const v = r.v, col = state.cols[c];
+  const packs = [packAppleOn(c) ? 'Pack 3+1 Apple' : '', packTiersOn(c) ? 'Pack 3+1 Tiers' : ''].filter(Boolean);
+  const accLis = col.accs.map(e => {
+    const p = accPrice(e, c), full = accFullPrice(e);
+    return `<li><span class="pr-opt-dot">✓</span><span>${esc(accLabel(e))}</span><span class="pr-li-price">${p < full ? `<s>${prEur(full)}</s>` : ''}${prEur(p)}</span></li>`;
+  }).join('');
+  return `
+  <div class="pr-block pr-block-pad">
+    ${multi ? `<div class="pr-optlabel">Proposition ${c + 1}</div>` : ''}
+    <div class="pr-card">
+      <div class="pr-card-head">
+        <img class="pr-thumb pr-photo" src="${esc((photos && photos[c]) || v.img)}" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">
+        <div>
+          <div class="pr-cat">Smartphone — ${esc(contratLabel())}</div>
+          <h3>${esc(v.name)}</h3>
+          <div class="pr-meta">${esc([v.capa, v.color, v.reseau].filter(Boolean).join(' · '))}</div>
+          ${r.pr.promo > 0 ? `<div class="pr-promo">🎁 Offre Orange : −${prEur(r.pr.promo)} sur le prix du mobile${v.dateFin ? ' jusqu\'au ' + fmtDate(v.dateFin) : ''}</div>` : ''}
+          ${packs.length ? `<div style="margin-top:5px">${packs.map(p => `<span class="pr-pack">${p}</span>`).join(' ')}</div>` : ''}
+        </div>
+      </div>
+      ${accLis ? `<ul class="pr-opts">${accLis}</ul>` : ''}
+      <div class="pr-remline"><span>Prix du mobile${r.pr.promo > 0 ? ` <s style="opacity:.6">${prEur(r.pr.cat)}</s>` : ''}</span><b>${prEur(r.pr.price)}</b></div>
+      ${r.etal ? `<div class="pr-remline"><span>Étalement sur ${r.etal.mois} mois (${r.etal.mois} × ${prEur(r.etal.mensualite)}/mois sur la facture mobile)</span><b>− ${prEur(r.etal.mensualite * r.etal.mois)}</b></div>` : ''}
+      ${col.accs.length ? `<div class="pr-remline"><span>Accessoires et prestations</span><b>+ ${prEur(r.accs)}</b></div>` : ''}
+      ${r.reprise ? `<div class="pr-remline green"><span>Reprise de votre ancien mobile</span><b>− ${prEur(r.reprise)}</b></div>` : ''}
+      ${r.bonus ? `<div class="pr-remline green"><span>Bonus reprise</span><b>− ${prEur(r.bonus)}</b></div>` : ''}
+      <div class="pr-foot">
+        <div class="pr-foot-lbl">Payé en boutique <span>(aujourd'hui)</span></div>
+        <div class="pr-foot-right">
+          <div class="pr-amt">${prEur(r.caisse)}</div>
+          ${r.etal ? `<div class="pr-foot-row2">puis <b>${prEur(r.etal.mensualite)}/mois</b> pendant ${r.etal.mois} mois</div>` : ''}
+          ${r.odrTotal > 0 ? `<div class="pr-odr-list">${r.odrs.filter(odrActive).map(o => `<div class="pr-odr-line"><span>${esc(o.nom)}</span><b>− ${prEur(o.montant)}</b></div>`).join('')}</div>
+          <div class="pr-foot-row2">après remboursement${r.odrs.filter(odrActive).length > 1 ? 's' : ''} : <b>${prEur(r.apres)}</b></div>` : ''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function prForfaitCard(fc, etal) {
+  const {f, rems} = fc;
+  const etM = etal ? etal.mensualite : 0;
+  const tot1 = fc.y1 + fc.opt + etM, tot2 = fc.y2 + fc.opt + etM;
+  const lines = rems.filter(r => r.on).map(r => `<div class="pr-compact-opt"><span class="pr-opt-dot">✓</span>${esc(r.l)} : ${prEur(r.a, 1)}/mois${r.k === 'odr' || r.k === 'm12' ? ' pendant 12 mois' : ''}</div>`);
+  if(etal) lines.push(`<div class="pr-compact-opt"><span class="pr-opt-dot">+</span>Étalement du mobile : ${prEur(etM)}/mois pendant ${etal.mois} mois</div>`);
+  OPTIONS.forEach(g => g.items.forEach(o => { if(state.options.has(o.id) || state.assurance === o.id) lines.push(`<div class="pr-compact-opt"><span class="pr-opt-dot">+</span>${esc(g.single ? 'Assurance mobile ' + o.name.toLowerCase().replace('assurance ', '') : o.name)} : ${prEur(o.price, 1)}/mois${o.m3 ? ' (1 € les 3 premiers mois)' : ''}</div>`); }));
+  return `
+  <div class="pr-block pr-block-pad">
+    <div class="pr-card compact">
+      <div class="pr-compact-left">
+        <div class="pr-compact-text">
+          <div class="pr-cat">Forfait mobile</div>
+          <h3>${esc(f.name)}</h3>
+          <div class="pr-meta">${esc(f.tag || f.eng)} · prix de base ${prEur(f.price, 1)}/mois</div>
+          ${lines.join('')}
+        </div>
+      </div>
+      <div class="pr-compact-right">
+        <div class="lbl">Facture mobile <span>(options et remises incluses)</span></div>
+        <div class="pr-amt">${prEur(tot1, 1)}<small> /mois</small></div>
+        ${Math.abs(tot1 - tot2) > 0.004 ? `<div class="sub">pendant 12 mois puis <b>${prEur(tot2, 1)}/mois</b></div>` : ''}
+        <div class="sub2">Frais d'activation : ${fc.activ ? prEur(fc.activ) : 'offerts'}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function collectPdfOdrs(cols) {
+  const list = [], seen = new Set();
+  cols.forEach(c => { const r = calcCol(c); if(!r || r.na) return;
+    r.odrs.filter(o => odrActive(o) && o.lien).forEach(o => {
+      const k = o.lien + '|' + o.montant; if(seen.has(k)) return; seen.add(k);
+      list.push({label: `${o.nom} : ${prEur(o.montant)}`, sub: r.v.name, until: o.fin ? fmtDate(o.fin) + '/' + o.fin.getFullYear() : '', url: o.lien});
+    });
+  });
+  const fc = forfaitCalc();
+  if(fc) fc.rems.filter(r => r.on && r.url).forEach(r => {
+    if(seen.has(r.url + '|f')) return; seen.add(r.url + '|f');
+    list.push({label: `${r.l} : ${prEur(-r.a, 1)}/mois`, sub: fc.f.name, until: r.until ? r.until.toLocaleDateString('fr-FR') : '', url: r.url});
+  });
+  return list;
+}
+
+// Photos des mobiles : servies par le site d'Orange. Pour les mettre dans un PDF téléchargé, il faut
+// pouvoir les recopier en données (autorisation CORS du serveur). On essaie ; sinon on passe par
+// l'impression du navigateur, qui affiche toujours la photo.
+const PHOTO_CACHE = {};
+function withTimeout(promise, ms) { return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]); }
+function photoViaFetch(url) {
+  return fetch(url, {mode: 'cors', referrerPolicy: 'no-referrer'}).then(r => { if(!r.ok) throw new Error(r.status); return r.blob(); })
+    .then(b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); }));
+}
+function photoViaCanvas(url) {
+  return new Promise((res, rej) => {
+    const img = new Image(); img.crossOrigin = 'anonymous'; img.referrerPolicy = 'no-referrer';
+    img.onload = () => { try {
+      const k = Math.min(1, 400 / img.naturalHeight), cv = document.createElement('canvas');
+      cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+      const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0, cv.width, cv.height);
+      res(cv.toDataURL('image/jpeg', 0.9)); } catch(e) { rej(e); } };
+    img.onerror = rej; img.src = url;
+  });
+}
+async function getPhotoData(url) {
+  if(!url) return null;
+  if(url.startsWith('data:')) return url;
+  if(url in PHOTO_CACHE) return PHOTO_CACHE[url];
+  let data = null;
+  try { data = await withTimeout(photoViaFetch(url), 4000); }
+  catch(e) { try { data = await withTimeout(photoViaCanvas(url), 4000); } catch(e2) { data = null; } }
+  PHOTO_CACHE[url] = data;
+  return data;
+}
+
+async function buildPdf(opts) {
+  const cols = [0, 1].filter(c => (c === 0 || state.showCol1) && calcCol(c) && !calcCol(c).na);
+  if(!cols.length) { toast('Aucun tarif à afficher pour ce type de vente'); return; }
+  const multi = cols.length > 1;
+  const fc = forfaitCalc();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-FR');
+  const odrs = collectPdfOdrs(cols);
+  toast('Préparation du PDF…');
+  const photos = {};
+  for(const c of cols) photos[c] = await getPhotoData(calcCol(c).v.img);
+  // Une photo non récupérable → impression du navigateur (seul moyen de la garder dans le PDF)
+  const usePrint = cols.some(c => !photos[c]) || typeof html2canvas === 'undefined' || !window.jspdf;
+
+  const totalRows = cols.map(c => {
+    const r = calcCol(c);
+    const t1 = (fc ? fc.y1 + fc.opt : 0) + r.etalM, t2 = (fc ? fc.y2 + fc.opt : 0) + r.etalM;
+    return `<div class="pr-totalbox-row">
+      <span class="l">${multi ? `Proposition ${c + 1} — ` : ''}${esc(r.v.name)}<small>${r.odrTotal > 0 ? `Après remboursement : ${prEur(r.apres)}` : 'Payé en boutique aujourd\'hui'}${r.cost24 !== null ? ` · coût total sur 24 mois : ${prEur(r.cost24)}` : ''}</small></span>
+      <span class="v">${prEur(r.caisse)}${t1 ? `<small> + ${prEur(t1, 1)}/mois</small>` : ''}${Math.abs(t1 - t2) > 0.004 ? `<div class="sub">pendant 12 mois puis ${prEur(t2, 1)}/mois</div>` : ''}${multi && r.etal ? `<div class="sub" style="font-size:11px">dont étalement ${prEur(r.etalM)}/mois pendant ${r.etal.mois} mois</div>` : ''}</span>
+    </div>`;
+  }).join('');
+  let ecoHTML = '';
+  if(multi) {
+    const a = calcCol(cols[0]), b = calcCol(cols[1]);
+    const ka = a.cost24 ?? a.apres, kb = b.cost24 ?? b.apres;
+    const d = ka - kb;
+    if(Math.abs(d) > 0.5) ecoHTML = `<div class="pr-eco"><b>La proposition ${d > 0 ? 2 : 1} revient ${prEur(Math.abs(d))} moins cher</b> ${a.cost24 !== null ? 'sur 24 mois, forfait compris' : 'après remboursement'}.</div>`;
+  }
+  const featHTML = fc && fc.f.features ? `
+    <div class="pr-section">Caractéristiques de votre forfait</div>
+    <div class="pr-feat-block"><div class="pr-feat-head"><b>${esc(fc.f.name)}</b><span>${esc(fc.f.tag || fc.f.eng)}</span></div>
+    <ul class="pr-feat-list">${fc.f.features.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+  const qrHTML = odrs.map(o => `
+    <div class="pr-qr">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(o.url)}" alt="" crossorigin="anonymous">
+      <div class="pr-qr-lbl">${esc(o.label)}<span>${esc(o.sub)}</span>${o.until ? `<em>Valable jusqu'au ${esc(o.until)}</em>` : ''}<small>${esc(o.url)}</small></div>
+    </div>`).join('');
+
+  const html = `
+<div class="pr-block">
+  <div class="pr-header">
+    <div><div class="pr-title">Récapitulatif de votre ${multi ? 'simulation' : 'offre'} smartphone</div>
+    <div class="pr-advisor">Votre conseiller : ${esc(opts.advisor || '—')}</div></div>
+    <div class="pr-badges"><div class="pr-pill">Boutique Orange</div><div class="pr-date">Valable le ${dateStr}</div></div>
+  </div>
+  <div class="pr-spacer"></div>
+</div>
+${cols.map(c => prPhoneCard(c, multi, photos)).join('')}
+${fc ? prForfaitCard(fc, multi ? null : calcCol(cols[0]).etal) : ''}
+<div class="pr-block pr-block-pad">
+  <div class="pr-totalbox">${totalRows}</div>
+  ${ecoHTML}
+</div>
+${opts.comment ? `<div class="pr-block pr-block-pad"><div class="pr-comment"><div class="pr-comment-title">Information de votre conseiller</div><div class="pr-comment-body">${esc(opts.comment).replace(/\n/g, '<br>')}</div></div></div>` : ''}
+<div class="pr-block pr-newpage pr-page2">
+  <div class="pr-header-slim"><div class="t">Récapitulatif de votre offre smartphone</div><div class="pr-pill">Boutique Orange</div></div>
+  <main class="pr-main2">
+    ${featHTML}
+    <div class="pr-section">Pièces justificatives nécessaires</div>
+    ${opts.simple ? `<div class="pr-just simple"><p>Parcours simplifié : vous êtes déjà client Orange, votre pièce d'identité suffit.</p></div>` : `
+    <div class="pr-just">
+      <div><b>Pièce d'identité</b><p>CNI ou passeport en cours de validité (FR ou UE). Hors UE : titre de séjour en cours de validité.</p></div>
+      <div><b>Justificatif de domicile</b><p>Facture eau/gaz/électricité/téléphone de moins de 3 mois, ou avis d'imposition de moins d'un an.</p></div>
+      <div><b>RIB ou IBAN</b><p>RIB ou IBAN du titulaire du contrat.</p></div>
+    </div>`}
+    ${odrs.length ? `<div class="pr-section" style="margin-top:30px">Offres de remboursement (ODR) à demander</div><div class="pr-qrgrid">${qrHTML}</div>` : ''}
+    <div class="pr-validity">Prix des mobiles relevés le ${esc(DATA_LABEL)}, sous réserve de disponibilité. Formulaires de remboursement à compléter en ligne dans les délais indiqués sur chacun.</div>
+    <div class="pr-footline"><span>Établi le ${dateStr}</span><span>Document non contractuel — données à titre indicatif</span></div>
+  </main>
+</div>`;
+
+  const area = document.getElementById('printArea');
+  area.innerHTML = html;
+  area.classList.toggle('pr-bw', !opts.color);
+  const imgs = [...area.querySelectorAll('img')];
+  let pending = imgs.length, done = false;
+  const go = () => {
+    if(done) return; done = true;
+    if(usePrint) {
+      toast('Dans la fenêtre d\'impression, choisis « Enregistrer au format PDF »');
+      setTimeout(() => window.print(), 300);
+    } else renderPdfFromArea(area, dateStr);
+  };
+  if(!pending) { go(); return; }
+  const tick = () => { if(--pending <= 0) go(); };
+  imgs.forEach(img => { if(img.complete) tick(); else { img.addEventListener('load', tick); img.addEventListener('error', tick); } });
+  setTimeout(go, 3000);
+}
+
+async function renderPdfFromArea(area, dateStr) {
+  const filename = `Simulation_smartphone_${dateStr.replace(/\//g, '-')}.pdf`;
+  if(typeof html2canvas === 'undefined' || !window.jspdf) { window.print(); return; }   // pas de connexion : impression classique
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const W = 210, H = 297, GAP = 4, BOTTOM = 8;
+    let y = 0, first = true;
+    for(const block of area.querySelectorAll('.pr-block')) {
+      const canvas = await html2canvas(block, {scale: 2, backgroundColor: '#ffffff', useCORS: true, windowWidth: 794});
+      const h = canvas.height * W / canvas.width;
+      const img = canvas.toDataURL('image/jpeg', 0.95);
+      if(!first) {
+        if(block.classList.contains('pr-newpage') || y + GAP + h > H - BOTTOM) { pdf.addPage(); y = 0; }
+        else y += GAP;
+      }
+      pdf.addImage(img, 'JPEG', 0, y, W, Math.min(h, H));
+      y += h; first = false;
+    }
+    pdf.save(filename);
+    toast('PDF téléchargé');
+  } catch(err) {
+    console.error('PDF impossible, repli impression :', err);
+    window.print();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════
+function setContrat(c) {
+  state.contrat = c;
+  if(c !== 'nu' && !TIERS[c].some(t => t.key === state.tier)) state.tier = '200';
+  state.remOverride = {};
+  renderAll();
+}
+function setTier(t) { state.tier = t; state.remOverride = {}; renderAll(); }
+function setNuForfait(id) { state.nuForfait = id; state.remOverride = {}; renderAll(); }
+function setFlag(k, v) {
+  state.flags[k] = v; delete state.remOverride.open;
+  if(k === 'u26' && v) {
+    state.contrat = 'nu'; state.nuForfait = 'ma5'; state.remOverride = {};
+    toast('Forfait Cheat Code 200 Go sélectionné — ODR 80 € si le mobile coûte 300 € ou plus');
+  }
+  renderAll();
+}
+function setReprise(v) { state.reprise = v; renderAll(); if(v) document.getElementById('reprise-val').focus(); }
+function setRepriseVal(v) { state.repriseVal = Math.max(0, +v || 0); renderPhones(); }
+function toggleRem(id, on) { state.remOverride[id] = on; state.lastToggled = id; renderPhones(); renderForfait(); }
+function toggleOdr(key, on) { state.odrOff[key] = !on; renderPhones(); }
+function toggleOption(id, single) {
+  if(single) state.assurance = state.assurance === id ? '' : id;
+  else state.options.has(id) ? state.options.delete(id) : state.options.add(id);
+  renderPhones(); renderForfait();
+}
+function pickVariant(m, capa) {
+  const pool = m.variants.filter(v => capa === undefined || v.capa === capa);
+  return (pool.find(v => v.dispo) || pool[0] || m.variants[0]);
+}
+function setModel(c, name) {
+  const col = state.cols[c]; col.model = name;
+  const m = MODELS.find(x => x.name === name);
+  col.slug = m ? pickVariant(m).slug : '';
+  state.activeCol = c;
+  purgeIphoneOnly(c);
+  renderAll();
+}
+function setCapa(c, capa) {
+  const m = MODELS.find(x => x.name === state.cols[c].model); if(!m) return;
+  const cur = variantOf(c);
+  const same = m.variants.find(v => v.capa === capa && cur && v.color === cur.color);
+  state.cols[c].slug = (same || pickVariant(m, capa)).slug;
+  renderAll();
+}
+// Coque officielle Apple / AirTag retirés si le mobile choisi n'est pas un iPhone
+function purgeIphoneOnly(c) {
+  const v = variantOf(c); if(!v || v.isIphone) return;
+  const before = state.cols[c].accs.length;
+  state.cols[c].accs = state.cols[c].accs.filter(e => !accDef(e.id).iphoneOnly);
+  state.cols[c].accs.forEach(e => { if(e.id === 'chargeur' && e.modelKey === 'apple30') e.modelKey = defaultModelKey(accDef('chargeur'), v); });
+  if(state.cols[c].accs.length < before) toast('Apple Watch, coque officielle Apple et AirTag retirés : réservés aux iPhone');
+}
+function setVariant(c, slug) { state.cols[c].slug = slug; renderAll(); }
+function setActive(c) { if(state.activeCol !== c) { state.activeCol = c; renderPhones(); renderForfait(); } }
+function showCol1() { state.showCol1 = true; state.activeCol = 1; renderAll(); }
+function hideCol1() { state.showCol1 = false; state.cols[1] = newCol(); state.activeCol = 0; renderAll(); }
+function resetCol(c) { state.cols[c] = newCol(); renderAll(); }
+
+function addAcc(c, id, silent) {
+  const a = accDef(id); const v = variantOf(c);
+  if(!v) { toast('Choisis d\'abord un smartphone'); return false; }
+  if(a.iphoneOnly && !v.isIphone) { if(!silent) toast(a.name + ' : réservé aux iPhone'); return false; }
+  const e = {uid: uidSeq++, id};
+  if(a.type === 'model') e.modelKey = defaultModelKey(a, v);
+  state.cols[c].accs.push(e);
+  if(!silent) { renderPhones(); }
+  return true;
+}
+function addPack(type, c) {
+  c = c ?? state.activeCol;
+  const v = variantOf(c);
+  if(!v) { toast('Choisis d\'abord un smartphone'); return; }
+  if(type === 'apple' && !v.isIphone) { toast('Pack 3+1 Apple : réservé aux iPhone — utilise le Pack Tiers'); return; }
+  const ids = type === 'apple' ? PACK_APPLE : PACK_TIERS;
+  const have = state.cols[c].accs.map(x => x.id);
+  ids.forEach(id => { if(!have.includes(id)) addAcc(c, id, true); });
+  renderPhones();
+  toast(type === 'apple' ? 'Pack 3+1 Apple ajouté — AirTag à 1 €' : 'Pack 3+1 Tiers ajouté — accessoire bonus à prix pack');
+}
+function removeAcc(c, uid) { state.cols[c].accs = state.cols[c].accs.filter(x => x.uid !== uid); renderPhones(); }
+function setAccModel(c, uid, key) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) e.modelKey = key; renderPhones(); }
+function setAccCustom(c, uid, k, val) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) e[k] = k === 'price' ? (+val || 0) : val; renderPhones(); }
+
+// Drag & drop palette → colonne
+function dragStart(e, id) { e.dataTransfer.setData('text/plain', id); e.dataTransfer.effectAllowed = 'copy'; }
+function dragOver(e, c) { e.preventDefault(); document.getElementById('col-' + c).classList.add('drag-over'); }
+function dragLeave(e, c) { if(!e.currentTarget.contains(e.relatedTarget)) document.getElementById('col-' + c).classList.remove('drag-over'); }
+function drop(e, c) {
+  e.preventDefault();
+  document.getElementById('col-' + c).classList.remove('drag-over');
+  const id = e.dataTransfer.getData('text/plain');
+  state.activeCol = c;
+  if(id === '__packApple') addPack('apple', c);
+  else if(id === '__packTiers') addPack('tiers', c);
+  else if(accDef(id)) addAcc(c, id);
+  renderPhones();
+}
+
+let toastT;
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
+
+// ═══════════════════════════════════════════════
+// DONNÉES : chargement en ligne (prix-omni.js) / secours fichier
+// ═══════════════════════════════════════════════
+let DATA_LABEL = '—';
+let DATA_SOURCE = 'online';     // online | file
+let DATA_META = {};
+function prixUrl() { try { return localStorage.getItem(LS_URL) || PRIX_URL_DEFAUT; } catch(e) { return PRIX_URL_DEFAUT; } }
+function loadData(raw, label) {
+  PHONES = normalize(raw); buildModels(); DATA_LABEL = label;
+  // on garde les sélections encore valides
+  state.cols.forEach(col => { if(!PHONES.some(p => p.slug === col.slug)) { const m = MODELS.find(x => x.name === col.model); col.slug = m ? pickVariant(m).slug : ''; if(!m) col.model = ''; } });
+}
+function labelFromDate(iso) {
+  const d = new Date(iso); if(isNaN(d)) return null;
+  return d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+}
+function labelFromName(name) { const m = String(name || '').match(/(\d{4})(\d{2})(\d{2})/); return m ? `${m[3]}/${m[2]}/${m[1]}` : (name || 'fichier'); }
+const parseVer = v => String(v || '').replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+function verLess(a, b) { const x = parseVer(a), y = parseVer(b); for(let i = 0; i < Math.max(x.length, y.length); i++) { if((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) < (y[i] || 0); } return false; }
+
+function loaderShow(html) { const l = document.getElementById('loader'); l.classList.remove('hide'); document.getElementById('loader-box').innerHTML = html; }
+function loaderHide() { document.getElementById('loader').classList.add('hide'); }
+function loaderLoading() { loaderShow('<div class="spinner"></div><h2>Chargement des prix Orange…</h2><p>Lecture des derniers prix publiés par OMNI Scraper.</p>'); }
+function loaderError(why) {
+  loaderShow(`<div style="font-size:34px">⚠️</div><h2>Impossible de charger les prix Orange</h2>
+    <p>Vérifie la connexion internet du poste, puis réessaie. Si le réseau bloque GitHub, tu peux ouvrir un fichier de prix pour cette session.</p>
+    <button class="btn" onclick="startLoad()">Réessayer</button>
+    <button class="btn ghost" onclick="document.getElementById('loader-file').click()">Ouvrir un fichier de prix…</button>
+    <div class="loader-err">${esc(why)} — ${esc(prixUrl())}</div>`);
+}
+
+
+// ═══════════════════════════════════════════════
+// prix-omni.js (v1.9) : un fichier pour Orange, Bouygues et SFR.
+// On ne garde que les blocs « orange » et on les remet au format d'origine d'OMNI Scraper
+// (une ligne par couleur), celui que tout le reste de l'outil utilise.
+// ═══════════════════════════════════════════════
+// Bloc forfait OMNI {prix, cat, remise} → ancien bloc {cat, promo, remise}
+function omniBloc(f) {
+  if(!f) return null;
+  if(f.promo !== undefined) return f;                      // déjà à l'ancien format (bloc nu)
+  if(f.cat > 0) return {cat: f.cat, promo: f.prix > 0 && f.prix < f.cat ? f.prix : null, remise: f.remise || 0};
+  if(f.prix > 0) return {cat: f.prix, promo: null, remise: 0};
+  return {cat: 0, promo: null, remise: f.remise || 0};     // prix réel = −remise (habitude du scraper)
+}
+// Mots qui distinguent deux modèles qu'OMNI a regroupés (ex. Galaxy A17 5G et 4G, Fairphone 6 et 6+)
+const MODEL_TOKENS = {'4g': '4G', '5g': '5G', 'plus': 'Plus', 'pro': 'Pro', 'max': 'Max', 'lite': 'Lite', 'fe': 'FE', 'ultra': 'Ultra'};
+function omniToOrange(d) {
+  const out = [];
+  (d.produits || []).forEach(p => {
+    const o = p.orange; if(!o) return;
+    const vars = (o.variantes && o.variantes.length) ? o.variantes : [{slug: p.id, couleur: '', dispo: o.dispoEnLigne}];
+    const firstToks = new Set(String(vars[0].slug || '').split('-'));
+    vars.forEach((v, i) => {
+      const prix = v.prix || o;                             // une couleur n'a ses propres prix que s'ils diffèrent
+      let model = p.model;
+      if(v.prix && i > 0) {
+        const extra = String(v.slug || '').split('-').filter(t => MODEL_TOKENS[t] && !firstToks.has(t)).map(t => MODEL_TOKENS[t]);
+        if(extra.length) model += ' ' + extra.join(' ');
+      }
+      const f = prix.forfaits || {};
+      const slug = v.slug || p.id;
+      out.push({
+        slug, ean: v.ean || '', marque: p.marque, model, gamme: p.gamme, capacite: p.capacite,
+        reseau: /-5g(-|$)/.test(slug) ? '5G' : /-4g(-|$)/.test(slug) ? '4G' : '',
+        dateFin: o.dateFin || null,
+        vsim: omniBloc(prix.nu), acq80: omniBloc(f.acq80), acq200: omniBloc(f.acq200), acq300: omniBloc(f.acq300),
+        pcm200: omniBloc(f.pcm200), pcm300: omniBloc(f.pcm300),
+        bonusReprise: o.bonusReprise || null, odr: o.odr || [], img: o.img,
+        dispoEnLigne: v.dispo !== undefined ? v.dispo : o.dispoEnLigne !== false
+      });
+    });
+  });
+  return out;
+}
+// Accepte prix-omni.js (PRIX_OMNI), l'ancien prix-orange.js (PRIX_ORANGE) ou un export JSON (tableau)
+function toPrixData(raw) {
+  if(Array.isArray(raw)) return {modeles: raw};
+  if(raw && Array.isArray(raw.produits)) {
+    const or = (raw.operateurs || {}).orange || {};
+    return {modeles: omniToOrange(raw), versionMinimale: raw.versionMinimale, message: raw.message,
+            genereLe: or.releveLe || raw.genereLe, frais: or.frais, source: 'OMNI',
+            etalRegle: (raw.regles || {}).etalementOrange || null};
+  }
+  return raw;
+}
+
+// Charge prix-omni.js comme un script (avec un paramètre anti-cache)
+function fetchPrixScript(url) {
+  return new Promise((resolve, reject) => {
+    ['PRIX_OMNI', 'PRIX_ORANGE'].forEach(k => { try { delete window[k]; } catch(e) { window[k] = undefined; } });
+    const sc = document.createElement('script');
+    const t = setTimeout(() => { sc.remove(); reject(new Error('pas de réponse après ' + LOAD_TIMEOUT / 1000 + ' s')); }, LOAD_TIMEOUT);
+    sc.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+    sc.onload = () => { clearTimeout(t); sc.remove(); const d = toPrixData(window.PRIX_OMNI || window.PRIX_ORANGE);
+      if(d && Array.isArray(d.modeles) && d.modeles.length) resolve(d); else reject(new Error('fichier chargé mais sans prix Orange')); };
+    sc.onerror = () => { clearTimeout(t); sc.remove(); reject(new Error('fichier inaccessible')); };
+    document.head.appendChild(sc);
+  });
+}
+function applyPrix(d, source, labelOverride) {
+  DATA_META = {versionMinimale: d.versionMinimale || null, message: d.message || null, genereLe: d.genereLe || null, source: d.source || '', frais: d.frais};
+  DATA_SOURCE = source;
+  if(d.etalRegle && Array.isArray(d.etalRegle.paliers)) ETAL_REGLE = d.etalRegle;
+  loadData(d.modeles, labelOverride || labelFromDate(d.genereLe) || '—');
+}
+let firstRender = true;
+function afterLoad() {
+  loaderHide();
+  if(firstRender) { renderPalette(); firstRender = false; renderAll(); checkPreviewEnv(); }
+  else { renderAll(); fillVersionBadges(); }
+  renderNotices();
+}
+async function startLoad() {
+  loaderLoading();
+  try { applyPrix(await fetchPrixScript(prixUrl()), 'online'); afterLoad(); }
+  catch(e) { loaderError(e.message); }
+}
+async function reloadPrices() {
+  try { applyPrix(await fetchPrixScript(prixUrl()), 'online'); afterLoad(); renderModal(); toast(`Prix rechargés — ${PHONES.length} coloris au ${DATA_LABEL}`); }
+  catch(e) { toast('Prix en ligne inaccessibles : ' + e.message); }
+}
+function saveUrl() {
+  const v = document.getElementById('prix-url').value.trim();
+  try { if(v && v !== PRIX_URL_DEFAUT) localStorage.setItem(LS_URL, v); else localStorage.removeItem(LS_URL); } catch(e) {}
+  reloadPrices();
+}
+function resetUrl() { try { localStorage.removeItem(LS_URL); } catch(e) {} document.getElementById('prix-url').value = PRIX_URL_DEFAUT; reloadPrices(); }
+
+// Secours : prix-omni.js, prix-orange.js ou export JSON d'OMNI Scraper ouvert à la main (session uniquement)
+function openLocalFile(file) {
+  if(!file) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      let txt = String(rd.result).trim(), d;
+      const m = txt.match(/window\.PRIX_\w+\s*=/);
+      if(m) txt = txt.slice(m.index + m[0].length).replace(/;\s*$/, '');
+      d = toPrixData(JSON.parse(txt));
+      if(!d || !Array.isArray(d.modeles) || !d.modeles.length || !d.modeles[0].slug) throw new Error('format');
+      applyPrix(d, 'file', labelFromDate(d.genereLe) || labelFromName(file.name));
+      afterLoad(); if(document.getElementById('modal').classList.contains('show')) renderModal();
+      toast(`${d.modeles.length} coloris chargés depuis ${file.name} (session uniquement)`);
+    } catch(e) { toast('Fichier non reconnu : il faut prix-omni.js, prix-orange.js ou un export JSON d\'OMNI Scraper'); }
+  };
+  rd.readAsText(file);
+}
+
+function renderNotices() {
+  const out = [];
+  if(DATA_META.versionMinimale && verLess(VERSION, DATA_META.versionMinimale))
+    out.push(`<div class="notice red">⚠️ Mise à jour nécessaire : ce simulateur (${esc(VERSION)}) est plus ancien que la version minimale ${esc(DATA_META.versionMinimale)}. Les calculs peuvent être faux. <a href="${esc(UPDATE_URL)}" target="_blank" rel="noopener">Télécharger la dernière version ↗</a> <button class="btn ghost" style="background:#fff;color:#B30000;padding:4px 10px" onclick="openUpdateTutorial()">Tutoriel</button></div>`);
+  if(DATA_META.frais === false) out.push(`<div class="notice yellow">⚠️ Les prix Orange n'ont pas été relevés au dernier passage d'OMNI : ce sont ceux du ${esc(DATA_LABEL)}.</div>`);
+  if(DATA_META.message) out.push(`<div class="notice blue">ℹ️ ${esc(DATA_META.message)}</div>`);
+  if(DATA_SOURCE === 'file') out.push(`<div class="notice yellow">📂 Prix d'un fichier ouvert à la main (${esc(DATA_LABEL)}), pas des prix en ligne. Ils ne seront pas gardés à la fermeture. <button class="btn ghost" style="padding:3px 10px" onclick="reloadPrices()">Revenir aux prix en ligne</button></div>`);
+  document.getElementById('notices').innerHTML = out.join('');
+}
+function renderModal() {
+  const nbOdr = PHONES.filter(p => p.odr.length).length, nbNa = PHONES.filter(p => !p.dispo).length;
+  document.getElementById('data-info').innerHTML = `<div class="stat-grid"><div><b>${esc(DATA_LABEL)}</b>${DATA_SOURCE === 'online' ? 'prix en ligne' : 'fichier ouvert à la main'}</div><div><b>${MODELS.length}</b>modèles (${PHONES.length} coloris)</div><div><b>${nbOdr}</b>coloris avec ODR</div></div>
+    <div style="font-size:12px;color:var(--text-hint);margin-top:6px">${nbNa} coloris indisponibles en ligne (signalés ⚠)${DATA_META.versionMinimale ? ` · version minimale demandée : ${esc(DATA_META.versionMinimale)}` : ''}.</div>`;
+  document.getElementById('prix-url').value = prixUrl();
+  document.getElementById('patchnote').innerHTML = PATCHNOTES.map(p => `<div><b>${esc(p.v)}</b><ul class="patch">${p.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('');
+}
+function openModal() { renderModal(); document.getElementById('modal').classList.add('show'); }
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+(function setupJsonDrop() {
+  const z = document.getElementById('drop-json');
+  z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('over'); });
+  z.addEventListener('dragleave', () => z.classList.remove('over'));
+  z.addEventListener('drop', e => { e.preventDefault(); z.classList.remove('over'); openLocalFile(e.dataTransfer.files[0]); });
+})();
+document.addEventListener('keydown', e => { if(e.key === 'Escape') { closeModal(); closePdfModal(); closeUpdateTutorial(); } });
+
+// ═══════════════════════════════════════════════
+// MISE À JOUR & APERÇU TEAMS (repris de Simultoo v65)
+// ═══════════════════════════════════════════════
+function fillVersionBadges() {
+  document.querySelectorAll('.ver-num').forEach(e => e.textContent = VERSION);
+  document.querySelectorAll('.ver-data').forEach(e => e.textContent = '· prix au ' + DATA_LABEL);
+}
+function openUpdateTutorial() {
+  document.getElementById('update-link').href = UPDATE_URL;
+  document.getElementById('tuto-img').src = UPDATE_TUTO_IMG;
+  document.getElementById('tuto-modal').classList.add('show');
+}
+function closeUpdateTutorial() { document.getElementById('tuto-modal').classList.remove('show'); }
+// Deux indices, jamais vrais pour un fichier ouvert normalement depuis le bureau :
+// le fichier est affiché dans un cadre (aperçu Teams/SharePoint) ou le stockage local est bloqué.
+function checkPreviewEnv() {
+  fillVersionBadges();
+  let storageOK = true;
+  try { localStorage.setItem('__simusmart_probe__', '1'); localStorage.removeItem('__simusmart_probe__'); } catch(e) { storageOK = false; }
+  let inFrame = true;
+  try { inFrame = window.top !== window.self; } catch(e) { inFrame = true; }
+  if(!storageOK || inFrame) {
+    document.getElementById('previewBanner').classList.add('show');
+    document.body.classList.add('preview-locked');
+    syncPreviewBannerPadding();
+    openUpdateTutorial();
+  }
+}
+function syncPreviewBannerPadding() {
+  const b = document.getElementById('previewBanner');
+  const h = b.classList.contains('show') ? b.offsetHeight : 0;
+  document.querySelector('header').style.top = h + 'px';
+  document.querySelector('.app-layout').style.marginTop = h + 'px';
+  document.querySelector('.sidebar').style.top = (56 + h) + 'px';
+}
+function dismissPreviewBanner() {
+  document.getElementById('previewBanner').classList.remove('show');
+  document.body.classList.remove('preview-locked');
+  syncPreviewBannerPadding();
+}
+window.addEventListener('resize', syncPreviewBannerPadding);
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+startLoad();
+</script>
+</body>
+</html>
