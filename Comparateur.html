@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparateur Orange · Bouygues · SFR</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #16181D; --bg: #F3F3F1; --surface: #FFFFFF; --line: rgba(0,0,0,0.09); --line-strong: rgba(0,0,0,0.18);
+    --text: #1A1A1A; --muted: #646973; --hint: #9AA0A8;
+    --orange: #FF7900; --orange-l: #FFF2E6; --bouygues: #009DCC; --bouygues-l: #E5F6FB; --sfr: #E2001A; --sfr-l: #FDEBED;
+    --good: #2F7A32; --good-bg: #E8F4E6; --bad: #A32D2D; --bad-bg: #FCEBEB; --amber: #8A5A0B; --amber-bg: #FBF0DC;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.45; min-height: 100vh; }
+  button, select, input { font-family: inherit; }
+  a { color: inherit; }
+  b { font-weight: 650; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  header { background: var(--ink); height: 54px; padding: 0 1.4rem; display: flex; align-items: center; gap: 14px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+  .logo { color: #fff; font-weight: 750; font-size: 18px; letter-spacing: -.3px; display: flex; align-items: center; gap: 8px; }
+  .logo i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .header-title { color: rgba(255,255,255,.75); font-size: 13px; border-left: 1px solid rgba(255,255,255,.25); padding-left: 14px; }
+  .version-badge { color: rgba(255,255,255,.75); font-size: 11px; background: rgba(255,255,255,.1); padding: 3px 8px; border-radius: 10px; }
+  .data-badge { margin-left: auto; color: #fff; font-size: 11.5px; background: rgba(255,255,255,.08); padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+  .hdr-btn { font-size: 12px; font-weight: 600; color: #fff; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); padding: 5px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+  .hdr-btn:hover { background: rgba(255,255,255,.22); }
+  @media (max-width: 820px) { .header-title, .version-badge, .data-badge { display: none; } }
+
+  main { padding: 72px 1.4rem 3rem; max-width: 1320px; margin: 0 auto; }
+
+  .sources { font-size: 12px; color: var(--muted); margin: -4px 0 8px; text-align: right; }
+  .sources a { color: var(--ink); font-weight: 650; text-decoration: none; }
+  .sources a:hover { text-decoration: underline; }
+  .sources small { color: var(--hint); }
+  .topbar { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 980px) { .topbar { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
+  .plabel { font-size: 10.5px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .phone-pick { display: flex; gap: 12px; align-items: center; }
+  .phone-pick img, .phone-pick .ph { width: 58px; height: 72px; object-fit: contain; flex-shrink: 0; }
+  .phone-pick .ph { border: 1.5px dashed var(--line-strong); border-radius: 10px; }
+  .pick-fields { flex: 1; min-width: 0; }
+  .sel-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 6px; }
+  select { width: 100%; padding: 7px 26px 7px 10px; font-size: 13.5px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+  select:focus, input:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; align-items: center; }
+  .chip { font-size: 12px; padding: 3px 10px; border: 1px solid var(--line-strong); border-radius: 20px; background: var(--surface); cursor: pointer; color: var(--muted); }
+  .chip:hover { border-color: var(--ink); color: var(--ink); }
+  .chip.on { background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 600; }
+  .sold { font-size: 11px; color: var(--hint); margin-left: 4px; display: inline-flex; gap: 4px; align-items: center; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.off { background: transparent !important; border: 1.5px solid var(--line-strong); }
+
+  .client-grid { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; font-size: 12.5px; }
+  .client-grid > span { color: var(--muted); font-weight: 600; font-size: 11.5px; }
+  .seg { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+  .seg button { border: none; background: var(--surface); padding: 5px 11px; font-size: 12.5px; cursor: pointer; color: var(--muted); border-right: 1px solid var(--line); display: inline-flex; align-items: center; gap: 5px; }
+  .seg button:last-child { border-right: none; }
+  .seg button:hover { color: var(--ink); }
+  .seg button.on { background: var(--ink); color: #fff; font-weight: 600; }
+  .seg button small { opacity: .75; font-size: 10.5px; }
+  .switch { position: relative; display: inline-block; width: 36px; height: 20px; vertical-align: middle; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; background: #C9CED6; border-radius: 20px; cursor: pointer; transition: background .2s; }
+  .switch span::before { content: ''; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .2s; }
+  .switch input:checked + span { background: var(--ink); }
+  .switch input:checked + span::before { transform: translateX(16px); }
+  .boxes { display: flex; flex-wrap: wrap; gap: 6px; }
+  .boxchip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line-strong); border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 12.5px; color: var(--muted); background: var(--surface); user-select: none; }
+  .boxchip input { accent-color: var(--ink); margin: 0; }
+  .boxchip small { font-size: 10.5px; opacity: .8; }
+  .boxchip.on { border-color: var(--ink); color: var(--ink); font-weight: 600; background: #F6F6F4; }
+  .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; vertical-align: middle; }
+  .stepper button { border: none; background: var(--bg); width: 28px; height: 26px; font-size: 16px; cursor: pointer; color: var(--ink); }
+  .stepper button:disabled { color: var(--hint); cursor: default; }
+  .stepper b { min-width: 30px; text-align: center; font-variant-numeric: tabular-nums; }
+  .big-hint { font-size: 11px; color: var(--hint); margin-left: 8px; }
+  .sw-lbl { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .sw-lbl small { color: var(--hint); }
+
+  .scen-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; }
+  .scen-bar .plabel { margin: 0 6px 0 0; }
+  .scen { border: 1px solid var(--line-strong); background: var(--surface); border-radius: 8px; padding: 6px 12px; cursor: pointer; text-align: left; font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .scen small { display: block; font-size: 10.5px; font-weight: 450; color: var(--muted); }
+  .scen:hover { border-color: var(--ink); }
+  .scen.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .scen.on small { color: rgba(255,255,255,.75); }
+  .scen.perso { border-style: dashed; cursor: default; }
+
+  .verdict { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 18px; align-items: center; }
+  @media (max-width: 900px) { .verdict { grid-template-columns: 1fr; } }
+  .v-title { font-size: 18px; font-weight: 750; line-height: 1.25; letter-spacing: -.2px; }
+  .v-sub { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .v-metric { margin-top: 10px; }
+  .bars { display: flex; flex-direction: column; gap: 7px; }
+  .bar-row { display: grid; grid-template-columns: 82px minmax(0, 1fr) 96px; align-items: center; gap: 10px; font-size: 13px; }
+  .bar-row .n { font-weight: 650; }
+  .bar-track { height: 18px; background: #EEEFEC; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width .35s; }
+  .bar-row .v { text-align: right; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .bar-row.best .v { color: var(--good); }
+  .bar-row.none .v { color: var(--hint); font-weight: 500; font-size: 12px; }
+  .v-warn { font-size: 11.5px; color: var(--amber); background: var(--amber-bg); padding: 5px 9px; border-radius: 6px; margin-top: 9px; }
+
+  .cmp-wrap { overflow-x: auto; }
+  .cmp { display: grid; grid-template-columns: 148px repeat(3, minmax(250px, 1fr)); min-width: 900px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+  .cell { padding: 10px 12px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); min-width: 0; }
+  .rl { padding: 10px 12px; border-top: 1px solid var(--line); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+  .rl small { text-transform: none; letter-spacing: 0; font-weight: 450; font-size: 11px; color: var(--hint); }
+  .rl.key { color: var(--ink); }
+  .hd { border-top: none; background: var(--surface); }
+  .hd.op { border-top: 4px solid var(--c); padding-top: 9px; }
+  .hd.corner { border-top: none; }
+  .op-name { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-weight: 750; font-size: 15px; margin-bottom: 7px; }
+  .op-name a { font-size: 11px; font-weight: 500; color: var(--hint); text-decoration: none; }
+  .op-name a:hover { color: var(--ink); text-decoration: underline; }
+  .op-sel { display: flex; flex-direction: column; gap: 5px; }
+  .op-sel select { padding: 6px 26px 6px 9px; font-size: 13px; background-color: var(--surface); }
+  .op-sel select.pay { font-size: 12px; padding: 4px 26px 4px 9px; color: var(--muted); background-color: var(--bg); }
+  .na { color: var(--hint); font-size: 13px; font-style: italic; }
+  .cell.dim { background: repeating-linear-gradient(135deg, #FAFAF8, #FAFAF8 7px, #F4F4F1 7px, #F4F4F1 14px); }
+
+  .big { font-size: 21px; font-weight: 750; line-height: 1.15; font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
+  .big.xl { font-size: 26px; }
+  .big small { font-size: 12px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .big s { font-size: 13px; color: var(--hint); font-weight: 450; margin-left: 5px; }
+  .sub { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .sub b { color: var(--text); font-weight: 600; }
+  .cell.best { background: var(--good-bg); }
+  .cell.best .big { color: var(--good); }
+  .crown { display: inline-block; font-size: 10px; font-weight: 750; color: #fff; background: var(--good); padding: 1px 7px; border-radius: 10px; vertical-align: 4px; margin-left: 6px; letter-spacing: .2px; }
+  .gap { font-size: 11px; font-weight: 650; color: var(--bad); margin-left: 6px; }
+
+  .plan-name { font-weight: 700; font-size: 14px; line-height: 1.25; }
+  .plan-meta { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+  .tag { font-size: 10.5px; font-weight: 650; padding: 1px 7px; border-radius: 10px; background: #EEEFEC; color: var(--muted); white-space: nowrap; }
+  .tag.eng { background: var(--ink); color: #fff; }
+  .rems { display: flex; flex-direction: column; gap: 3px; margin-top: 7px; }
+  .rem { font-size: 11.5px; display: flex; justify-content: space-between; gap: 6px; padding: 2px 7px; border-radius: 5px; }
+  .rem.on { background: var(--good-bg); color: var(--good); font-weight: 600; }
+  .rem.off { color: var(--hint); }
+  .rem.off .a { text-decoration: line-through; }
+  .rem.ck { cursor: pointer; }
+  .rem.ck input { accent-color: var(--good); vertical-align: -2px; margin-right: 2px; }
+  .rem.ck:hover { outline: 1px solid var(--line-strong); }
+  .rem a { color: inherit; opacity: .7; font-size: 10.5px; font-weight: 500; }
+  .rem .a { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .rep { display: flex; gap: 6px; align-items: center; }
+  .rep input { width: 86px; padding: 5px 8px; font-size: 14px; font-weight: 650; text-align: right; border: 1.5px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--bg); }
+  .rep input:not(:placeholder-shown) { border-color: var(--ink); background: #fff; }
+  .rep a { font-size: 11.5px; font-weight: 650; text-decoration: none; padding: 4px 8px; border-radius: 6px; background: var(--cl); color: var(--c); white-space: nowrap; }
+  .rep a:hover { text-decoration: underline; }
+  .bonus { font-size: 11.5px; margin-top: 5px; }
+  .bonus.on { color: var(--good); font-weight: 650; }
+  .bonus.off { color: var(--hint); }
+  .copy-rep { background: none; border: none; color: var(--muted); font-size: 10.5px; text-decoration: underline; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; text-align: left; padding: 0; }
+
+  .odrs { display: flex; flex-direction: column; gap: 3px; margin-top: 5px; }
+  .odr { display: flex; align-items: flex-start; gap: 6px; font-size: 11.5px; cursor: pointer; padding: 2px 0; }
+  .odr input { margin-top: 2px; accent-color: var(--ink); }
+  .odr .l { flex: 1; min-width: 0; }
+  .odr .a { font-weight: 650; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .odr.off { color: var(--hint); }
+  .odr.off .a { text-decoration: line-through; }
+  .odr a { color: var(--hint); font-size: 10.5px; }
+  .odr .cond { display: block; font-size: 10.5px; color: var(--amber); }
+
+  .months { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; align-items: baseline; }
+  .months .w { font-size: 10.5px; color: var(--muted); font-weight: 650; text-transform: uppercase; letter-spacing: .3px; }
+  .notes { display: flex; flex-direction: column; gap: 4px; }
+  .note { font-size: 11.5px; color: var(--muted); padding-left: 14px; position: relative; line-height: 1.4; }
+  .note::before { content: '•'; position: absolute; left: 3px; }
+  .note.warn { color: var(--amber); }
+  .note.bad { color: var(--bad); }
+  .note.good { color: var(--good); }
+  .foot-note { font-size: 11.5px; color: var(--hint); margin-top: 10px; line-height: 1.5; }
+
+  .notice { border-radius: var(--radius-sm); padding: 9px 14px; font-size: 13px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .notice.red { background: #CC0000; color: #fff; font-weight: 600; }
+  .notice.red a { color: #fff; font-weight: 800; }
+  .notice.blue { background: #E6F1FB; color: #185FA5; }
+  .notice.yellow { background: var(--amber-bg); color: var(--amber); }
+  .loader { position: fixed; inset: 0; z-index: 350; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .loader.hide { display: none; }
+  .loader-box { background: var(--surface); border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,.12); padding: 28px 30px; width: 460px; max-width: 100%; text-align: center; }
+  .loader-box h2 { font-size: 18px; margin: 10px 0 6px; }
+  .loader-box p { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .loader-err { font-size: 11.5px; color: var(--hint); margin-top: 10px; word-break: break-all; }
+  .spinner { width: 36px; height: 36px; border: 4px solid #E4E4E0; border-top-color: var(--ink); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn { background: var(--ink); color: #fff; border: none; border-radius: var(--radius-sm); padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer; margin: 3px; }
+  .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line-strong); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: center; justify-content: center; z-index: 300; padding: 16px; }
+  .modal-overlay.show { display: flex; }
+  .modal-panel { background: var(--surface); border-radius: var(--radius); width: 600px; max-width: 100%; max-height: 86vh; overflow: auto; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); font-weight: 650; }
+  .modal-header button { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
+  .modal-body { padding: 16px 18px; font-size: 13px; }
+  .modal-body h4 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin: 16px 0 6px; }
+  .modal-body h4:first-child { margin-top: 0; }
+  .modal-body ul { margin-left: 18px; }
+  .modal-body li { margin: 3px 0; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .stat-grid div { background: var(--bg); border-radius: 6px; padding: 7px 9px; font-size: 11.5px; color: var(--muted); border-top: 3px solid var(--c); }
+  .stat-grid b { display: block; font-size: 15px; color: var(--text); }
+  .url-row { display: flex; gap: 6px; }
+  .url-row input { flex: 1; padding: 7px 9px; font-size: 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); }
+  .drop-json { display: block; border: 2px dashed var(--line-strong); border-radius: var(--radius); padding: 14px; text-align: center; color: var(--muted); cursor: pointer; }
+  .drop-json:hover { border-color: var(--ink); color: var(--ink); }
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 13px; padding: 9px 16px; border-radius: 20px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 500; max-width: 90vw; }
+  .toast.show { opacity: 1; transform: translateX(-50%); }
+
+  .preview-banner { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 400; background: #CC0000; color: #fff; padding: 16px 24px 16px 64px; box-shadow: 0 2px 14px rgba(0,0,0,.35); }
+  .preview-banner.show { display: block; }
+  .pb-arrow { position: absolute; left: 14px; top: 14px; font-size: 34px; line-height: 1; transform: rotate(-8deg); }
+  .pb-title { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+  .pb-sub { font-size: 13px; font-weight: 600; margin-bottom: 10px; max-width: 820px; }
+  .pb-pill { display: inline-block; background: #fff; color: #B30000; font-weight: 800; font-size: 13px; padding: 8px 13px; border-radius: 3px; margin-bottom: 10px; }
+  .pb-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .pb-btn { background: #7A0000; color: #fff; border: 1px solid #9c0000; padding: 9px 15px; font-size: 13px; font-weight: 800; cursor: pointer; }
+  .pb-skip { background: none; border: none; color: rgba(255,255,255,.75); font-size: 11.5px; text-decoration: underline; cursor: pointer; }
+  body.preview-locked > header, body.preview-locked main { filter: grayscale(65%); opacity: .42; pointer-events: none; user-select: none; }
+  .ver-badge { display: inline-flex; align-items: center; gap: 10px; background: #FFD400; color: #000; font-weight: 800; font-size: 14px; padding: 7px 13px; border-radius: 3px; margin-bottom: 12px; }
+  .ver-badge b { background: #000; color: #FFD400; padding: 2px 9px; border-radius: 2px; }
+  .tuto-steps { margin: 6px 0 14px 18px; line-height: 1.6; }
+  .tuto-img { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  #tuto-modal { z-index: 500; }
+</style>
+</head>
+<body>
+<div class="loader" id="loader"><div class="loader-box" id="loader-box"></div>
+  <input type="file" id="loader-file" accept=".js,.json" style="display:none" onchange="openLocalFile(this.files[0])"></div>
+<div class="preview-banner" id="previewBanner">
+  <div class="pb-arrow">↖</div>
+  <div class="pb-title">⚠️ Téléchargez le fichier pour utiliser le Comparateur</div>
+  <div class="pb-sub">Vous êtes dans l'aperçu Teams : ici, les liens et le chargement des prix peuvent ne pas fonctionner.</div>
+  <div class="pb-pill">👉 Cliquez sur le bouton Télécharger ↓ en haut à gauche de l'aperçu, puis ouvrez le fichier téléchargé.</div>
+  <div class="pb-actions"><button class="pb-btn" onclick="openTuto()">Voir le tutoriel en images</button>
+    <button class="pb-skip" onclick="dismissPreview()">Le comparateur ne devrait pas être bloqué ? Continuer quand même</button></div>
+</div>
+<header>
+  <div class="logo"><i style="background:var(--orange)"></i><i style="background:var(--bouygues)"></i><i style="background:var(--sfr)"></i>OMNI · Comparateur</div>
+  <div class="header-title">Orange · Bouygues Telecom · SFR</div>
+  <span class="version-badge" id="version-badge"></span>
+  <span class="data-badge" id="data-badge"></span>
+  <button class="hdr-btn" onclick="openTuto()">⬇ Mettre à jour</button>
+  <button class="hdr-btn" onclick="openModal()">Données</button>
+</header>
+
+<main>
+  <div class="sources" id="sources"></div>
+  <div id="notices"></div>
+  <div class="topbar">
+    <div class="panel">
+      <div class="plabel">Le mobile</div>
+      <div class="phone-pick">
+        <div id="phone-img"></div>
+        <div class="pick-fields">
+          <select id="pick-model" onchange="setModel(this.value)" aria-label="Modèle"></select>
+          <div class="chips" id="pick-cap"></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="plabel">Le client</div>
+      <div class="client-grid">
+        <span>Box internet<br><small style="font-weight:400;color:var(--hint)">plusieurs possibles</small></span><div class="boxes" id="seg-box"></div>
+        <span id="big-lbl"></span><div id="big-row"></div>
+        <span>Numéro</span><label class="sw-lbl"><span class="switch"><input type="checkbox" id="sw-porta" onchange="setPorta(this.checked)"><span></span></span>Garde son numéro <small>(portabilité)</small></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="scen-bar" id="scen-bar"></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="cmp-wrap"><div class="cmp" id="cmp"></div></div>
+  <p class="foot-note">Prix relevés sur les sites des opérateurs (boutique en ligne). Reprise et bonus reprise déduits en boutique ; remboursements (ODR) versés après l'achat. Frais d'activation et de carte SIM non comptés. Prix de renouvellement Bouygues et SFR non publics.</p>
+</main>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-panel">
+    <div class="modal-header"><span>Données et paramètres</span><button onclick="closeModal()">×</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="tuto-modal" onclick="if(event.target===this)closeTuto()">
+  <div class="modal-panel" style="width:440px">
+    <div class="modal-header"><span>⬇ Télécharger la dernière version</span><button onclick="closeTuto()">×</button></div>
+    <div class="modal-body">
+      <div class="ver-badge">🆕 Version : <b class="ver-num"></b></div>
+      <p style="color:var(--muted);margin-bottom:12px">Le comparateur est mis à jour régulièrement. Les prix, eux, se mettent à jour tout seuls.</p>
+      <a class="btn" id="update-link" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin:0 0 14px">Ouvrir le dossier partagé</a>
+      <ol class="tuto-steps">
+        <li>Ouvrez le dossier partagé via le bouton ci-dessus</li>
+        <li>Cliquez sur <b>Comparateur.html</b> pour l'ouvrir en aperçu</li>
+        <li>Téléchargez-le avec l'icône en haut à gauche de l'aperçu (capture ci-dessous)</li>
+        <li>Remplacez l'ancien fichier sur votre bureau</li>
+      </ol>
+      <img class="tuto-img" id="tuto-img" alt="Icône de téléchargement dans l'aperçu Teams">
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// Comparateur Orange · Bouygues · SFR — prix lus dans prix-omni.js
+// ════════════════════════════════════════════════════════════════════
+const VERSION = 'v1.1';
+const PRIX_URL_DEFAUT = 'https://54s6h64wdz-web.github.io/omni-prix/prix-omni.js';
+const UPDATE_URL = 'https://orange0-my.sharepoint.com/:f:/g/personal/abdelkader_bessaih_orange_com/IgBdvcWNfQedSr8coQvVN1m2AThFN93LEq_TSdrxq84GrNc?e=ILbBm5';
+const LS_URL = 'comparateur.prixUrl';
+const LOAD_TIMEOUT = 20000;
+const UPDATE_TUTO_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIwAAABFCAYAAACYJw5CAAANQ0lEQVR4Xu1dB3QVxRr+kKIUaVIEBCkKIt2A0qQEUUQUpIQqoPQHjxpCpAoiSBJQkBaEUKVLlw76PFKUIgfpRYGn4kFRQHrz/d9d7stNSHJndvcmdy/5ztkTzmF2dmb2uzN/3zT/CJCK1BVQXIE0qYRRXKnUZq4VcAZhTp8Gzp0Dfv/d+MuLyJMn9sqdG3jyydTX6uMV8C/CrFsHbNgA7NoFnD1rEOPKFb0lyJIFIHny5QMqVQLq1TOuVNiyAilLmBMnAJKE11dfAdeu2TKp+zrJlAmoVQuoX9+4ihTxzXMegF6TlzAkxJdfAuvXGyQhYVICTz8NvPqqcdWuDTz8cEqMwpHPTB7C3L4NTJwIjBgB/PWXfy1UzpzAe+8B3boB6dL519j8cDS+J8zq1UD//sDRo344fY8hlSwJjB1r7DqpSHQFfEeYI0eAHj2ALVuctfx16hi74TPPOGvcyTRa3xAmKgp4912AR5ETkT49EBkJ9OrlxNH7dMz2EubiRaBlS0OgDQS88QYwZw6QLVsgzMaWOdhHmO+/Bxo1As6csWVgftNJoULAihVAhQp+M6SUHIg9hJkwwRBsb95Mybn47tlUuz/6yNCkHnBYI8zffwPt2wPLlvluGWn+f+yxuBctuQRdBefPx73cbgNfjKhZM2DGDODRR33RuyP6NE+YAweAhg2BH3+0d6JVqgAvvwy88grAf5vBjh2GcXDjRmDnTjM9JH7PU08BK1cCzz5rb78O6c0cYQ4fBqpXB/780/o0M2YEGjc2yEei2C1gcoybNgFr1gCff26P+4HGvm++AWi7ecCgT5jjx4Fq1YzjwAooF1AmGDQIyJXLSk/q9/7xB/D++8DUqdblLR6L27YBdDM8QNAjzE8/GWShJ9ks0qY15J7hw4ECBcz2Yu2+X34Bhg4FZs8G7twx3xc94t9+CxQsaL4Ph92pTpjLl4Hy5YGTJ81NMU0agELjBx8AlAP8AXR+DhwILF0KmA08pEWY4RgMq3gAoEYYLubrrwNffGFuSbJmBRYvNgRZfwRjcJo00Y+9cc/ltdcMGekBgBpheO5zCzeDEiUMohUrZubu5LuHzlG+eLM76KhRhjskwOGdMN99B1SubG7L5o5CzSRzZmcs46VLQEiIEfWnC8pmPJoC3CLsnTA8o82EJgwZYsS/OBHU3Lhj6IJrRZNDACNpwphduLAwYMwYr8tWrlw5r21SqkEf0QTbmzAdROfNi8lyBSoSJ8y+fUDFivpqJzWhRYskH0G0Ii/wZ8Jw9OMkWyGYHngN3JF5NxPbzMlHHtG4yzlNEydMcLARf6sDWn95j2Kooz8ThtNOL9phjAjBZa9e1VkF7BQVu0vRolr3OKVxwoSh/0XXj0NtiEKfhmPO3wnDl5hVDHufiXW7kKYnvp3YmvYxWyHAkDBhmMejoynwzN67F8ifX2t5nEAYTiifkGWhGPmya0QQbpMfzr8CMJ3lfsIwEOq557RevMt7y+g0TTiFMJxWHZFlKNPooIXIMofpXA0g3E+Ytm2BuXPVp1i1quGEMwEnEYbTmy9HUymNZLs1OXJgUID5meIS5vp1QCYJ/lXFnj36O9K9vp1GmAqStjtLwxJ85aGHUFviZm7I30BBXMIsWAC0aqU+N8ax0JJrEk4jDKc5/tQp1KJFWBFhEhO8IXt2xdb+3ywuYZo3N5yEKqApnN7ewoVVWifYxomEKXzjBpaL5Vt1z1gnZAlnIHmAIC5heBxduKA2NRs8tE4kDBdnqsQFVWE8swIuyg+rRqlSCi2d0SSWMLTs6jjOpk0DOnWyNEszhKlb9yV07dIFU6OjJfJys6Xnm705RALPBzEISxFNixfH8WSw/OaRgPnQ0H6oRAu9YNfu3YiKGitVU+7V01Ecb1LNYgnDbEWmiqiAZn/6WRjNbwFmCFNPPOBdunRGdPQ0rNexFVkYZ/xbc9+6hc0aTsYosU/NTYYw1L59+uDFF6tj+owY15A7dewgCux2RPLd2oRYwtCtv2SJWrcWVGnPBziVMJzDfJHfSim6DNaLHDPAZjkmImIMqvE9mMC27dsRFjbAxJ2eJcvKlgV++EGtE3qi6ZG2CCcTpqNs8//+7TelFTgqxrsQHwSLDxo0EMWl33bt31Yax+xZM3Hq1GkMY3kTk4jdYRjFr+ovYTC4Be3IPVYnE6ao2KqWHzumtOw35QivVKaMUludRjyCgioGIXxAOP77889J3lrwiScQERmBvWI3ixS5xiwMwtAYpRqYzWBnRQ3B26CcQphM4kSsUqUyypcrjzx586CAyCQ5JTepQDEJZlf8kTUWheKklQyFBBazY4cOoBIQERmFPTSgJoGgoCCE9Q91KQrTmb1pEgZhGHPboIFaF3So2ZTt6BTC1KhRAwMGhCG9hG2ckB/XGfEpHRFbTO+x45BDsWjjFPG1TRWjn52IrwB4apB8jqc2ybZdu3bBtE+nY+3ataaHYRBm+nR1Ffn5541cHBvgFMJwqo0aNRSto6NEqx7DYAk/vSoC70LxLZVU9C0NFZ/SStq5bERwcG306N4dn82fLwb3ZfAkEB/jqU02adIYrcWKP3HSJGzdqhnn5DFmgzCffAL07Kk2Fe5ELENmA1QI01y0t8xZMiMmZqbriQmp1W3atMb1a9ex1IKbQmU68Ukz9uBBVFU8nkdK0t4Si2aI+GOMf8wkRRid4yuptTAIExEB2XNV1gx4WyTyGEPPtwoVwnQW4+CbbzZynb3jpORGfMJwm20o2/3y5Stku/3U6pC83l9fyrZ2k2eelKPpRvMWqMf0WwVEitwzzwe2mHlz5+CAFEb4cExEkjtMuByppUuXRpu3JBrBAgzCMG1VVdVSDPBWGZMKYdiPmxQkzaFDh/6/1RYuUthFlpWrVkm6dLTKI21p4178fS/VxVuKgeLjH38cMSxdYjOmTJks3pwLkhI1MEnCjB49Cnnl+e906GhpBAZhmFLBDAEV9OsHsTertPTaRpUwnqTZLeZu/lL2SIQfDVfJTRaOZfzHUlxIcEZ2mLaKhJkghJnhA8KMk8qf6dKlRc9evV0ak1vQda2ZhwtlwviPJRv4H/Tq3cfre0mqgUEYVpBSLQDYujUwb56lh7pv1iGMmzQhkpWQXooW3hLz/GKxTCfnzuIet/sYyNa9B+orOms/FBlmgc0yDMejetR4Hl1WXp5BGMokotMrgWVJN9vj9NMljOdOkxI7C59fqVJF9A8NxfbtO9Bk8iRk3SOxzAoYIlrSKpu1JD6WMl6wZHiMGj0a+/fvT3AkZcWKP1iswv/5+mtMmjRZYbSJNzEIwxgYxsKogJWXRDuwA2YIY8dzrfRBobd3r56uXS5jUEVkVIzz7StfWtlid7EkmUgrUZVbNA9BzMyZUrtRYqsTALW7d0RZWbhoMeaLCm4FBmGEeahZU60fVl9iXTkb4I0wdeoEI1Rkpqys/uAFlyQKLkrO8y1btnpraun/qaXVrVtXtLZNGDJuHLIoWm99lXZCK/SwYUNR+YUXRJZJuPT9bcl22Cm2s+HDR7jsR1ZgEObXX/WK+9AczuLHFuGNMBa79+ntaWXZ9qo6a2UkwbIzn1dM8PPpwC12bhCG9V9YYUHRaikHuH6iWwIDdTJhdALCfeV8tPjuTd0e660WVVVZNgkPB0TIsgonE6avJOu3U1Spj0q0XYhE3QUCYgnDKt5MSFOBTYKvkwmzTj6+kV/RU71ZhN1+AfJ5wVjCjBwJsKaLKuixtpgK6lTCMHNgpUbNHF9ZeVVflZ3tYglDDzQrTamC3xbq21e1dYLtnEoY1o1h/RhVtJSouEMBkjIbSxgKvlSZFS2XLjWc32m0AKcSZrY4HssrxsFcljST6pJmEigfB4+bl8RKkqrfDWDmAKO8dFJT4pHLiYQpIZrkYha3VsRGCQDvb3MAuOKjfdLMWqosjzDW9TcJJxJmnmQLlNEwfvUXYXejDyy8Jpfc8m1xCSMOPdfHw1WPJT6eqSlNm5oaiNMIU0/WZYzG96B4HNUUjfK2Qvk2UwuYAjfdX+6DkXeMwFMF1UVu0SYsv04iTAaR8ahK5+KPShEMmGLgVCDhfsLw5bN86N276vOkEY/GPE04iTCdJQ+pu2IeEpeBq1dfvnZy1sQPSXMZk7X5/YTh4xnzouPVZE4TPwdzL6dXdQZOIQyLCM0S2YW7jCpWSyjD4AArJsS5J0wY7jIscqixQK5P2LDcmSRMqcIJhMnLQC1ZD536dtxdGsoufSZDBtWlcEy7hAnD4evUinFPlx+cYiVNxVLx/k6YjHIss0xZUbHs6iDQasJ4zj1xwjAdlnVNVD3Y7l4lVsT1+TyFMl3+TBgWDJos7o8q/OyPBlierIHszucCTHZxL0HihGELfuzbTNK95PxCgou8wZ8JEy4xQi0VU0g855lcpT28ra2v/j9pwvCpkpPrqsGrC34KxssHHvyVMD1FG+pgogjPQYl+a6Wao667nn7S3jthaP6X8D9Tn7rj528WLgQSKQrob4RhuOVYidGtrHkM8V3eFeNc0wD+xoCbr/8DtPOG0w19KIQAAAAASUVORK5CYII=";
+const PATCHNOTES = [
+  {v: 'v1.1 — 13/10/2026', items: [
+    'Orange : remises du forfait cochables — ODR cross sell (−5 €, −2 € sur le 20 Go, jusqu\'au 19/10), Code Privilège −15 € sur le 200 Go (non cumulable avec l\'ODR Bienvenue), ODR Bienvenue.',
+    'Correction : plus d\'ODR Bienvenue sur le 300 Go en acquisition (Simultoo v86).',
+    'Quand l\'offre Orange change, Bouygues et SFR suivent : forfait avec engagement (version SUB) le plus proche en data si Orange est en Acquisition/PCM, téléphone seul si Orange est en téléphone seul, forfait sans engagement si Orange est en vSIM.',
+    'Box : plusieurs cases possibles (Orange, Bbox, SFR) ; nombre de forfaits Bouygues déjà détenus (− / +) pour calculer la B.iG (5 / 8 / 10 € par forfait), y compris le gain sur les forfaits déjà détenus.',
+    'Verdict du point de vue Orange : « Bénéficiez du service Orange pour seulement X € de plus sur 24 mois (soit X €/mois) », ou « Orange est le moins cher : au moins X € d\'économie » avec l\'écart face à chaque concurrent.',
+    'Aucun mobile choisi à l\'ouverture ; liste unique des mobiles groupée par marque.',
+    'Sources en haut de page : Orange.fr / sfr.fr / bouyguestelecom.fr, avec la date de relevé.'
+  ]},
+  {v: 'v1.0 — 12/10/2026', items: [
+    'Premier comparateur Orange / Bouygues Telecom / SFR, prix lus dans prix-omni.js (GitHub).',
+    'Un mobile, trois colonnes alignées : forfait, prix du téléphone, reprise, payé aujourd\'hui, chaque mois, remboursements, coût du téléphone, total sur 24 mois. Le moins cher de chaque ligne en vert.',
+    'Scénarios en un clic (nouvelle ligne 24 mois, téléphone seul, petites mensualités, changement de mobile), puis réglage libre de l\'offre et du paiement de chaque opérateur.',
+    'Box du client : Remise Open (Orange), B.iG (Bouygues) ou SFR Multi appliquée au seul opérateur de la box ; les autres montrent ce qu\'ils offriraient.',
+    'Reprise saisie par opérateur, avec le lien vers l\'outil d\'estimation de chacun ; bonus reprise et remboursements cochables.'
+  ]}
+];
+
+const OPS = {
+  orange:   {nom: 'Orange', c: 'var(--orange)', cl: 'var(--orange-l)', hex: '#FF7900', box: 'Remise Open', boxClient: 'box Orange',
+             reprise: 'https://boutique.orange.fr/bon-plan-promo/orange-reprise/#estimation', repriseNom: 'Orange Reprise'},
+  bouygues: {nom: 'Bouygues', c: 'var(--bouygues)', cl: 'var(--bouygues-l)', hex: '#009DCC', box: 'B.iG', boxClient: 'Bbox',
+             reprise: 'https://tradein.recommerce.com/#/bouyguestelecom/fr/', repriseNom: 'outil Bouygues'},
+  sfr:      {nom: 'SFR', c: 'var(--sfr)', cl: 'var(--sfr-l)', hex: '#E2001A', box: 'SFR Multi', boxClient: 'box SFR',
+             reprise: 'https://www.sfr.fr/offre-mobile/reprise-mobile', repriseNom: 'site SFR'}
+};
+const OP_KEYS = ['orange', 'bouygues', 'sfr'];
+
+// ── Utilitaires ─────────────────────────────────────────────────────
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const r2 = (n) => Math.round(n * 100) / 100;
+function eur(n, dec) {
+  if (n == null || isNaN(n)) return '—';
+  const neg = n < 0, v = Math.abs(r2(n));
+  const d = dec != null ? dec : (Number.isInteger(v) ? 0 : 2);
+  return (neg ? '−' : '') + v.toLocaleString('fr-FR', {minimumFractionDigits: d, maximumFractionDigits: d}).replace(/\u202f|\u00a0/g, ' ') + ' €';
+}
+const eurM = (n) => eur(n, 2);
+const pct = (t) => String(t).replace('.', ',') + ' %';
+function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2600); }
+// Dates du fichier : "21/10/2026", "16-11-2026", "2026-10-31"
+function parseDate(s) {
+  const t = String(s || ''); let m;
+  if ((m = t.match(/^(\d{4})-(\d{2})-(\d{2})/))) return new Date(+m[1], +m[2] - 1, +m[3], 23, 59, 59);
+  if ((m = t.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/))) return new Date(+m[3], +m[2] - 1, +m[1], 23, 59, 59);
+  return null;
+}
+const fmtDate = (d) => d ? String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') : '';
+const expired = (d) => d && new Date() > d;
+function capOrder(c) { const m = String(c).match(/(\d+)\s*(Go|To)/i); return m ? +m[1] * (/to/i.test(m[2]) ? 1024 : 1) : 0; }
+const capLabel = (c) => (!c || c === '—') ? 'Capacité unique' : String(c).replace(/(\d)\s*(Go|To)/i, '$1 $2');
+
+// ════════════════════════════════════════════════════════════════════
+// FORFAITS ORANGE (prix et remises repris de Simultoo v76 / Simulateur Smartphones)
+// open : Remise Open (client box Orange) ; rem : remises du forfait (mois = durée)
+// ════════════════════════════════════════════════════════════════════
+const BIENV = 'https://formulaires.odr.orange.fr/19298';
+// Remises cochables (Simultoo v86) : auto = cochée d'office ; manual = au choix du conseiller ;
+// excl = non cumulable avec (la dernière cochée l'emporte) ; until = date de fin de l'offre.
+const CROSS5 = {id: 'cross', l: 'ODR cross sell', a: 5, mois: 12, manual: true, url: 'https://formulaires.odr.orange.fr/19392', until: '19/10/2026'};
+const CROSS2 = {id: 'cross', l: 'ODR cross sell', a: 2, mois: 12, manual: true, url: 'https://formulaires.odr.orange.fr/19312', until: '19/10/2026'};
+const FORFAITS_ORANGE = {
+  acq80:  {nom: 'Série Spéciale 80 Go 5G', data: '80 Go', eng: 24, prix: 29.99, open: 7, rem: [CROSS5]},
+  acq200: {nom: '200 Go 5G', data: '200 Go', eng: 24, prix: 47.99, open: 8, rem: [
+    {id: 'bienv', l: 'ODR Bienvenue', a: 10, mois: 12, url: BIENV, excl: 'priv'}, CROSS5,
+    {id: 'priv', l: 'Code Privilège', a: 15, mois: 12, manual: true, excl: 'bienv'}]},
+  // ODR Bienvenue non compatible avec le 300 Go en acquisition (Simultoo v83)
+  acq300: {nom: '300 Go 5G', data: '300 Go', eng: 24, prix: 67.99, open: 15, rem: [CROSS5]},
+  pcm200: {nom: '200 Go 5G', data: '200 Go', eng: 24, reeng: true, prix: 47.99, open: 8, rem: []},
+  pcm300: {nom: '300 Go 5G', data: '300 Go', eng: 24, reeng: true, prix: 67.99, open: 15, rem: []},
+  ma2:    {nom: 'Série Spéciale 20 Go', data: '20 Go', eng: 0, prix: 17.99, open: 7, rem: [CROSS2]},
+  ma3:    {nom: '130 Go 5G', data: '130 Go', eng: 0, prix: 24.99, open: 5, rem: [{id: 'code130', l: 'Code promo permanent', a: 4, aOpen: 3}, CROSS5]},
+  ma4:    {nom: 'Voyage 250 Go 5G', data: '250 Go', eng: 0, prix: 33.99, open: 5, rem: [{id: 'bienv', l: 'ODR Bienvenue', a: 9, mois: 12, url: BIENV}, CROSS5]}
+};
+const BIG_PAR = [0, 5, 8, 10];   // B.iG par forfait selon le nombre de forfaits Bouygues du foyer (1, 2, 3 et +)
+const ODR_IPHONE_REF = '19492';   // ODR iPhone + Apple Watch / AirPods : sous condition, non comptée d'office
+const BONUS_SEUIL_ORANGE = {Apple: 10, Samsung: 1};
+let ETAL_REGLE = {mois: 24, apportMinimum: 1, paliers: [{mensualite: 8, prixMin: 193}, {mensualite: 7, prixMin: 169}, {mensualite: 6, prixMin: 145}, {mensualite: 5, prixMin: 121}, {mensualite: 4, prixMin: 97}]};
+const BIG_INCLUS = 5;   // le prix Bouygues affiché suppose un client Bbox (B.iG 5 € déjà déduits)
+
+const LIB_PAY = {comptant: 'Comptant', etalement24: 'Étalement 24 mois', credit3: '3 fois', credit12: '12 fois', credit24: '24 fois', credit24SansFrais: '24 fois sans frais', cb4x: '4 fois CB'};
+const ORDRE_PAY = ['comptant', 'etalement24', 'credit24SansFrais', 'credit3', 'credit12', 'credit24', 'cb4x'];
+
+// ════════════════════════════════════════════════════════════════════
+// DONNÉES
+// ════════════════════════════════════════════════════════════════════
+let O = null;            // window.PRIX_OMNI
+let PRODUITS = [];       // produits vendus chez Orange
+let MODELES = [];        // [{key, marque, nom, produits:[…]}]
+let DATA_SOURCE = 'online';
+
+function nomModele(p) {
+  let m = String(p.model || '').replace(/\s+/g, ' ').trim();
+  const marque = String(p.marque || '').trim();
+  if (/^\(?gen\.?\s{0,}/i.test(m) && /fairphone/i.test(marque)) return 'Fairphone ' + m.replace(/[()]/g, '').replace(/^gen\.?\s{0,}/i, '');
+  if (/^(iPhone|Galaxy|Pixel)/i.test(m) || m.toLowerCase().startsWith(marque.toLowerCase())) return m;
+  return marque + ' ' + m;
+}
+function marqueAff(m) { const k = String(m || '').trim(); return /^(honor|tcl)$/i.test(k) ? k.toUpperCase() : k.charAt(0).toUpperCase() + k.slice(1); }
+function preparer(raw) {
+  O = raw;
+  if (O.regles && O.regles.etalementOrange && Array.isArray(O.regles.etalementOrange.paliers)) ETAL_REGLE = O.regles.etalementOrange;
+  PRODUITS = (O.produits || []).filter((p) => p.orange);
+  const map = new Map();
+  for (const p of PRODUITS) {
+    const marque = marqueAff(p.marque), nom = nomModele(p), key = marque + '|' + nom;
+    if (!map.has(key)) map.set(key, {key, marque, nom, produits: []});
+    map.get(key).produits.push(p);
+  }
+  MODELES = [...map.values()];
+  MODELES.forEach((m) => m.produits.sort((a, b) => capOrder(a.capacite) - capOrder(b.capacite)));
+  const ordre = ['Apple', 'Samsung', 'Google', 'Xiaomi'];
+  const bi = (b) => { const i = ordre.indexOf(b); return i < 0 ? 99 : i; };
+  MODELES.sort((a, b) => bi(a.marque) - bi(b.marque) || a.marque.localeCompare(b.marque, 'fr') || a.nom.localeCompare(b.nom, 'fr', {numeric: true}));
+}
+
+// Bloc de prix → {prix, cat}. Le scraper Orange met parfois le prix en négatif dans « remise » (cat = 0).
+function lirePrix(bl, dateFin) {
+  if (!bl) return null;
+  let prix = bl.prix > 0 ? bl.prix : (bl.promo != null && bl.promo > 0 ? bl.promo : null);
+  let cat = bl.cat > 0 ? bl.cat : null;
+  if (prix == null && cat != null) prix = cat;
+  if (prix == null && bl.remise < 0) prix = -bl.remise;
+  if (prix == null) return null;
+  cat = Math.max(cat || prix, prix);
+  if (cat > prix && expired(dateFin)) return {prix: cat, cat, promoFinie: true};
+  return {prix, cat};
+}
+// Paiements du fichier → liste triée [{cle, lib, apport, n, m, cout, taeg, interets}]
+function lirePaiements(obj, prixTel, libs) {
+  const res = [];
+  for (const [cle, x] of Object.entries(obj || {})) {
+    if (typeof x === 'number') { res.push({cle, lib: (libs && libs[cle]) || LIB_PAY[cle] || cle, apport: x, n: 0, m: 0, cout: x, taeg: 0, interets: 0}); continue; }
+    if (!x || x.apport == null) continue;
+    const n = x.mois || 0, m = x.mensualite || 0, credit = (x.taeg || 0) > 0 || (x.interets || 0) > 0;
+    res.push({cle, lib: (libs && libs[cle]) || LIB_PAY[cle] || cle, apport: x.apport, n, m, cout: credit || prixTel == null ? r2(x.apport + n * m) : prixTel, taeg: x.taeg || 0, interets: x.interets || 0});
+  }
+  if (!res.some((x) => x.cle === 'comptant') && prixTel != null) res.push({cle: 'comptant', lib: 'Comptant', apport: prixTel, n: 0, m: 0, cout: prixTel, taeg: 0, interets: 0});
+  return res.sort((a, b) => (ORDRE_PAY.indexOf(a.cle) + 1 || 99) - (ORDRE_PAY.indexOf(b.cle) + 1 || 99));
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ÉTAT
+// ════════════════════════════════════════════════════════════════════
+const state = {
+  pid: null, scen: 'engage', box: {orange: false, bouygues: false, sfr: false}, bigHeld: 0, porta: true, metric: 'auto',
+  oRem: {}, oLast: null,   // remises Orange cochées à la main
+  conf: {orange: {offre: null, pay: 'comptant'}, bouygues: {offre: null, pay: 'comptant'}, sfr: {offre: null, pay: 'comptant'}},
+  reprise: {orange: '', bouygues: '', sfr: ''},
+  odr: {}   // id → true/false (choix du conseiller)
+};
+const produitCourant = () => PRODUITS.find((p) => p.id === state.pid) || null;
+const repriseVal = (op) => state.reprise[op] === '' ? null : Math.max(0, +state.reprise[op] || 0);
+
+// ════════════════════════════════════════════════════════════════════
+// OFFRES PAR OPÉRATEUR
+// Une offre = {key, label, group, plan|null, tel:{prix, cat}, nu, pays[], odrs[], bonus, code, sc, notes[]}
+// plan = {nom, data, eng, mois:[24 montants], rems:[{l, a, on, detail}]}
+// ════════════════════════════════════════════════════════════════════
+function odrItem(op, i, o, opts = {}) {
+  const fin = parseDate(o.fin);
+  return {id: op + ':' + (opts.id || i), nom: opts.nom || o.nom || 'Remboursement', montant: +o.montant || 0, lien: o.lien || null, fin, cond: opts.cond || null};
+}
+
+// ── Orange ──
+function planOrange(id) {
+  const f = FORFAITS_ORANGE[id], box = state.box.orange;
+  const mois = Array(24).fill(f.prix), rems = [];
+  rems.push({l: 'Remise Open', a: f.open, on: box, detail: box ? 'client box Orange' : 'si client box Orange', toggle: "setBoxOp('orange', this.checked)"});
+  if (box) for (let i = 0; i < 24; i++) mois[i] -= f.open;
+  const liste = f.rem.filter((r) => !expired(parseDate(r.until))).map((r) => ({...r, on: r.id in state.oRem ? state.oRem[r.id] : !r.manual}));
+  // Non cumulables (ODR Bienvenue ⟷ Code Privilège) : la dernière cochée l'emporte
+  for (const r of liste) if (r.on && r.excl) { const x = liste.find((y) => y.id === r.excl); if (x && x.on) { if (state.oLast === r.id) x.on = false; else r.on = false; } }
+  for (const r of liste) {
+    const a = box && r.aOpen != null ? r.aOpen : r.a;
+    const det = [r.mois ? `${r.mois} mois` : 'permanent', r.until ? `jusqu'au ${fmtDate(parseDate(r.until))}` : '', r.excl && !r.on ? 'non cumulable' : ''].filter(Boolean).join(' · ');
+    rems.push({l: r.l, a, on: r.on, detail: det, url: r.url, toggle: `setORem('${r.id}', this.checked)`});
+    if (r.on) for (let i = 0; i < (r.mois || 24); i++) mois[i] -= a;
+  }
+  return {nom: f.nom, data: f.data, eng: f.eng, reeng: f.reeng, mois: mois.map(r2), rems};
+}
+function etalOrange(nuBl, prix) {
+  const e = nuBl && nuBl.paiements && nuBl.paiements.etalement24;
+  if (e && e.mensualite > 0 && Math.abs(e.apport + e.mensualite * e.mois - prix) < 0.05) return {apport: e.apport, n: e.mois, m: e.mensualite};
+  const mois = ETAL_REGLE.mois || 24;
+  const pal = [...ETAL_REGLE.paliers].sort((a, b) => b.prixMin - a.prixMin).find((p) => prix >= p.prixMin);
+  if (!pal) return null;
+  const apport = r2(prix - pal.mensualite * mois);
+  return apport >= (ETAL_REGLE.apportMinimum ?? 1) ? {apport, n: mois, m: pal.mensualite} : null;
+}
+function offresOrange(p) {
+  const b = p.orange; if (!b) return [];
+  const dateFin = parseDate(b.dateFin);
+  const nu = lirePrix(b.nu, dateFin);
+  const seuil = BONUS_SEUIL_ORANGE[marqueAff(p.marque)] ?? 0;
+  const bonusMontant = b.bonusReprise && b.bonusReprise.amountInCents ? b.bonusReprise.amountInCents / 100 : 0;
+  const odrs = (b.odr || []).filter((o) => !expired(parseDate(o.fin))).map((o, i) => (o.lien || '').includes(ODR_IPHONE_REF)
+    ? odrItem('orange', i, o, {nom: 'ODR iPhone + accessoire Apple', cond: 'seulement avec Apple Watch ou AirPods achetés avec l\'iPhone'})
+    : odrItem('orange', i, o));
+  const base = (key, label, group, tel, plan, pays) => ({key, label, group, tel, nu: nu ? nu.prix : null, plan, pays, odrs,
+    bonus: bonusMontant ? {montant: bonusMontant, min: seuil, texte: seuil ? `reprise d'au moins ${eur(seuil)}` : 'même avec une reprise à 0 €'} : null,
+    code: null, sc: null, notes: []});
+  const res = [];
+  if (nu) {
+    const pays = [{cle: 'comptant', lib: 'Comptant', apport: nu.prix, n: 0, m: 0, cout: nu.prix, taeg: 0, interets: 0}];
+    const et = etalOrange(b.nu, nu.prix);
+    if (et) pays.push({cle: 'etalement24', lib: 'Étalement 24 mois', apport: et.apport, n: et.n, m: et.m, cout: nu.prix, taeg: 0, interets: 0});
+    res.push(base('nu', 'Téléphone seul', 'Sans forfait', nu, null, pays));
+    for (const id of ['ma4', 'ma3', 'ma2']) res.push(base('v:' + id, FORFAITS_ORANGE[id].nom + ' (vSIM)', 'Mobile nu + forfait sans engagement', nu, planOrange(id), pays));
+  }
+  const groupes = {acq: 'Nouvelle ligne — engagement 24 mois', pcm: 'Client Orange (PCM) — re-engagement 24 mois'};
+  for (const k of ['acq200', 'acq300', 'acq80', 'pcm200', 'pcm300']) {
+    const t = lirePrix((b.forfaits || {})[k], dateFin); if (!t) continue;
+    const o = base(k, (k.startsWith('pcm') ? 'PCM ' : 'Acquisition ') + FORFAITS_ORANGE[k].data, groupes[k.slice(0, 3)], t, planOrange(k),
+      [{cle: 'comptant', lib: 'Comptant', apport: t.prix, n: 0, m: 0, cout: t.prix, taeg: 0, interets: 0}]);
+    o.notes.push('Avec engagement, le mobile se paie comptant chez Orange (étalement en vSIM seulement).');
+    res.push(o);
+  }
+  if (nu && nu.promoFinie) res.forEach((o) => o.notes.push('Promo du fichier terminée : prix catalogue affiché.'));
+  return res;
+}
+
+// ── Bouygues ──
+const isIntegral = (nom) => /int[ée]gral/i.test(nom);
+function planBouygues(cle) {
+  const f = ((O.forfaits || {}).bouygues || {})[cle] || {};
+  const box = state.box.bouygues;
+  const mois = Array(24).fill(f.prix || 0), rems = [];
+  const tg = "setBoxOp('bouygues', this.checked)";
+  if (f.multiligne) {
+    const c = (f.conditions || []).find((x) => x.condition === 'multiligne');
+    if (c) { rems.push({l: 'Offre client Bbox', a: c.montant, on: box, detail: 'réservé aux clients Bbox', toggle: tg}); if (box) for (let i = 0; i < 24; i++) mois[i] -= c.montant; }
+  } else {
+    // Le prix du site suppose un client Bbox avec 1 forfait (B.iG 5 € déjà déduits) : on repart du prix sans B.iG.
+    for (let i = 0; i < 24; i++) mois[i] += BIG_INCLUS;
+    if (box) {
+      const n = Math.min(3, state.bigHeld + 1), b = BIG_PAR[n];
+      rems.push({l: `B.iG · ${state.bigHeld + 1} forfait${n > 1 ? 's' : ''} Bouygues`, a: b, on: true, detail: 'sur ce forfait', toggle: tg});
+      for (let i = 0; i < 24; i++) mois[i] -= b;
+      // Le nouveau forfait fait monter la remise B.iG des forfaits déjà détenus
+      const avant = BIG_PAR[Math.min(3, state.bigHeld)], gain = state.bigHeld * (b - avant);
+      if (gain > 0) { rems.push({l: `B.iG en plus sur ${state.bigHeld > 1 ? 'les ' + state.bigHeld + ' autres forfaits' : "l'autre forfait"}`, a: gain, on: true, detail: `${avant} → ${b} € chacun`}); for (let i = 0; i < 24; i++) mois[i] -= gain; }
+    } else rems.push({l: 'B.iG', a: BIG_INCLUS, on: false, detail: 'si client Bbox', toggle: tg});
+  }
+  const porta = (f.conditions || []).find((x) => x.condition === 'portabilite');
+  if (porta) {
+    rems.push({l: 'Portabilité', a: porta.montant, on: state.porta, detail: `${porta.duree || 12} mois${state.porta ? '' : ' (si le client garde son numéro)'}`, toggle: 'setPorta(this.checked)'});
+    if (state.porta) for (let i = 0; i < (porta.duree || 12); i++) mois[i] -= porta.montant;
+  }
+  const nom = String(f.nom || cle).replace(/\s*Smart Change.*$/i, '').replace(/(\d)\s*Go/g, '$1 Go');
+  return {nom, data: String(f.data || '').replace(/(\d)\s*Go/i, '$1 Go'), eng: 24, mois: mois.map(r2), rems, multiligne: !!f.multiligne};
+}
+function porteeCode(t) { if (/sans forfait|avec ou sans/i.test(t)) return 'tous'; if (/int[ée]gral|150\s*go/i.test(t)) return 'integral'; return 'forfait'; }
+function offresBouygues(p) {
+  const b = p.bouygues; if (!b) return [];
+  const cat = (O.forfaits || {}).bouygues || {};
+  const nu = lirePrix(b.nu);
+  const cp = b.codePromo && b.codePromo.montant ? {code: b.codePromo.code, montant: +b.codePromo.montant, portee: porteeCode(b.codePromo.texte || '')} : null;
+  const odrs = (b.odr || []).filter((o) => o.montant > 0 && !expired(parseDate(o.fin))).map((o, i) => odrItem('bouygues', i, o));
+  const res = [];
+  if (nu) {
+    const o = {key: 'nu', label: 'Téléphone seul', group: 'Sans forfait', tel: nu, nu: nu.prix, plan: null,
+      pays: [{cle: 'comptant', lib: 'Comptant', apport: nu.prix, n: 0, m: 0, cout: nu.prix, taeg: 0, interets: 0}],
+      odrs, bonus: null, code: cp && cp.portee === 'tous' ? cp : null, sc: null, notes: []};
+    res.push(o);
+  }
+  const entries = Object.entries(b.forfaits || {}).sort(([a], [c]) => (isIntegral(a) ? 0 : 1) - (isIntegral(c) ? 0 : 1) || ((cat[c] || {}).prix || 0) - ((cat[a] || {}).prix || 0));
+  for (const [cle, f] of entries) {
+    const fc = cat[cle] || {}, plan = planBouygues(cle), integ = isIntegral(fc.nom || cle);
+    const tel = {prix: f.prix, cat: nu ? Math.max(nu.prix, f.prix) : f.prix};
+    const bonus = f.bonusReprise > 0 ? {montant: f.bonusReprise, min: 10, texte: 'reprise d\'au moins 10 €'} : null;
+    let myOdrs = odrs;
+    if (!odrs.length && f.odr > 0) myOdrs = [{id: 'bouygues:f', nom: 'Remboursement fabricant', montant: f.odr, lien: null, fin: null, cond: null}];
+    const o = {key: cle, tel, nu: nu ? nu.prix : null, plan, odrs: myOdrs, bonus, code: null, sc: null, notes: [], indispo: plan.multiligne && !state.box.bouygues};
+    if (f.smartChange) {
+      const sc = f.smartChange;
+      o.label = `${plan.nom} + Smart Change`;
+      o.group = 'Smart Change — téléphone en 36 fois';
+      o.sc = {rendDes: sc.repriseApres || 24, apport: sc.apport, n: sc.mois || 36, m: sc.mensualite, cout: sc.coutTotal || r2(sc.apport + (sc.mois || 36) * sc.mensualite)};
+      const interets = Math.max(0, r2(o.sc.cout - f.prix));
+      o.pays = [{cle: 'sc', lib: `Smart Change ${o.sc.n} mois`, apport: sc.apport, n: o.sc.n, m: sc.mensualite, cout: o.sc.cout, taeg: interets > 0.5 ? 14.89 : 0, interets}];
+      if (cp && (cp.portee === 'forfait' || (cp.portee === 'integral' && integ))) o.notes.push(`Code ${cp.code} (−${eur(cp.montant)}) non déduit en Smart Change : la fiche ne dit pas s'il s'applique.`);
+    } else {
+      o.label = plan.nom + (plan.multiligne ? ' (client Bbox)' : '');
+      o.group = 'Avec forfait — engagement 24 mois';
+      o.pays = lirePaiements(f.paiements, f.prix, {etalement24: 'Étalement 24 mois', credit12: '12 fois (crédit)', credit24: '24 fois (crédit)'});
+      if (cp && (cp.portee !== 'integral' || integ)) o.code = cp;
+    }
+    res.push(o);
+  }
+  return res;
+}
+
+// ── SFR ──
+function planSfr(id) {
+  const f = ((O.forfaits || {}).sfr || {})[id] || {}, box = state.box.sfr;
+  const remise = f.remiseClientBox || 0;
+  const mois = Array(24).fill(r2((f.prix || 0) - (box ? remise : 0)));
+  const rems = remise ? [{l: 'SFR Multi', a: remise, on: box, detail: box ? 'client box SFR' : 'si client box SFR', toggle: "setBoxOp('sfr', this.checked)"}] : [];
+  return {nom: String(f.nom || id).replace(/^Offre spéciale\s{0,}/i, ''), data: String(f.data || '').replace(/(\d)\s*Go/i, '$1 Go'), eng: f.engagement || 0, mois, rems};
+}
+function offresSfr(p) {
+  const b = p.sfr; if (!b) return [];
+  const cat = (O.forfaits || {}).sfr || {};
+  const nu = lirePrix(b.nu);
+  const liste = (b.odr || []).filter((o) => o.montant > 0 && !expired(parseDate(o.fin)));
+  const odrSfr = liste.find((o) => /sfr/i.test(o.nom));
+  const odrMarque = liste.filter((o) => !/sfr/i.test(o.nom)).map((o, i) => odrItem('sfr', 'm' + i, o));
+  const res = [];
+  if (nu) res.push({key: 'nu', label: 'Téléphone seul', group: 'Sans forfait', tel: nu, nu: nu.prix, plan: null,
+    pays: [{cle: 'comptant', lib: 'Comptant', apport: nu.prix, n: 0, m: 0, cout: nu.prix, taeg: 0, interets: 0}],
+    odrs: odrMarque, bonus: null, code: null, sc: null, notes: ['Sans forfait : pas d\'ODR SFR ni de bonus reprise.']});
+  const entries = Object.entries(b.forfaits || {}).sort(([a], [c]) => ((cat[c] || {}).engagement || 0) - ((cat[a] || {}).engagement || 0) || ((cat[c] || {}).prix || 0) - ((cat[a] || {}).prix || 0));
+  for (const [id, f] of entries) {
+    const plan = planSfr(id);
+    const prix = f.prix != null ? f.prix : (f.promo != null ? f.promo : f.cat);
+    const odrs = [...(f.odr > 0 ? [{id: 'sfr:sfr', nom: 'Remboursement SFR', montant: f.odr, lien: odrSfr && odrSfr.lien, fin: odrSfr && parseDate(odrSfr.fin), cond: null}] : []), ...odrMarque];
+    const o = {key: id, label: plan.nom, group: plan.eng ? `Avec forfait — engagement ${plan.eng} mois` : 'Forfait sans engagement',
+      tel: {prix, cat: nu ? Math.max(nu.prix, prix) : prix}, nu: nu ? nu.prix : null, plan,
+      pays: lirePaiements(f.paiements, prix, {etalement24: 'Facilité 24 mois', credit24: '24 fois (crédit)'}),
+      odrs, bonus: f.bonusReprise > 0 ? {montant: f.bonusReprise, min: 0, texte: 'avec un forfait, quel que soit le mobile repris'} : null, code: null, sc: null, notes: []};
+    if (plan.eng) o.notes.push('Prix de l\'Illimité après 24 mois non connu (« offre spéciale »).');
+    res.push(o);
+  }
+  return res;
+}
+
+const BUILDERS = {orange: offresOrange, bouygues: offresBouygues, sfr: offresSfr};
+function offresDe(op, p) { return p && p[op] ? BUILDERS[op](p).filter((o) => o.tel && o.tel.prix != null) : []; }
+
+// ════════════════════════════════════════════════════════════════════
+// CALCUL D'UNE COLONNE
+// ════════════════════════════════════════════════════════════════════
+function calculer(op, o, payKey) {
+  const pm = o.pays.find((x) => x.cle === payKey) || o.pays.find((x) => x.cle === 'comptant') || o.pays[0];
+  const rv = repriseVal(op);
+  const reprise = rv || 0;
+  const bonus = o.bonus && o.plan !== null && rv !== null && rv >= o.bonus.min ? o.bonus.montant : 0;
+  const bonusManque = o.bonus && rv !== null && rv < o.bonus.min ? o.bonus : null;
+  const code = o.code ? o.code.montant : 0;
+  const odrs = o.odrs.map((x) => ({...x, on: x.id in state.odr ? state.odr[x.id] : !x.cond}));
+  const odrTot = odrs.reduce((s, x) => s + (x.on ? x.montant : 0), 0);
+  const immed = reprise + bonus + code;
+  const aujourdhui = r2(pm.apport - immed);
+  const telMois = (i) => (i <= pm.n ? pm.m : 0);   // i : 1..24
+  const forf = o.plan ? o.plan.mois : null;
+  const forf24 = forf ? forf.reduce((s, x) => s + x, 0) : 0;
+  // Toutes les mensualités du téléphone (36 en Smart Change : téléphone gardé, pour comparer à prix égal)
+  const telTout = r2(pm.n * pm.m);
+  const coutTel = r2(pm.cout - immed - odrTot);
+  const total24 = forf ? r2(aujourdhui + telTout + forf24 - odrTot) : null;
+  const res = {pm, reprise, bonus, bonusManque, code, odrs, odrTot, aujourdhui, paye: Math.max(0, aujourdhui), coutTel, total24,
+    mois1: forf ? r2(forf[0] + telMois(1)) : (pm.n ? pm.m : null), mois13: forf ? r2(forf[12] + telMois(13)) : (pm.n >= 13 ? pm.m : null),
+    forf1: forf ? forf[0] : null, forf13: forf ? forf[12] : null, tel1: telMois(1), tel13: telMois(13), notes: [...o.notes]};
+  if (o.sc) {
+    res.rendu = r2(pm.apport + o.sc.rendDes * pm.m - immed - odrTot);
+    res.notes.unshift(`Il peut rendre le téléphone au mois ${o.sc.rendDes} : il l'aura payé <b>${eur(res.rendu)}</b> au total. Pour le garder : encore ${o.sc.n - 24} × ${eurM(pm.m)} après les 24 mois.`);
+  }
+  if (pm.taeg || pm.interets > 0.5) res.notes.push(`Crédit${pm.taeg ? ' TAEG ' + pct(pm.taeg) : ''} : ${eur(pm.interets)} d'intérêts ou de frais compris.`);
+  if (bonusManque) res.notes.push(`Bonus reprise de ${eur(bonusManque.montant)} : il faut une ${bonusManque.texte}.`);
+  if (o.bonus && o.plan === null && rv !== null) res.notes.push('Bonus reprise seulement avec un forfait.');
+  return res;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SCÉNARIOS : choix d'offre par opérateur (premier qui existe)
+// ════════════════════════════════════════════════════════════════════
+const has = (re) => (o) => re.test(o.key);
+const SCENARIOS = {
+  engage: {lib: 'Nouvelle ligne 24 mois', sub: 'le forfait qui fait baisser le prix', pref: {
+    orange: [has(/^acq200/), has(/^acq300/), has(/^acq80/)], bouygues: [(o) => isIntegral(o.label) && !o.sc], sfr: [(o) => o.plan && o.plan.eng]}, pay: 'comptant'},
+  pcm: {lib: 'Client qui change de mobile', sub: 'PCM Orange vs nouvelle ligne', pref: {
+    orange: [has(/^pcm200/), has(/^pcm300/)], bouygues: [(o) => isIntegral(o.label) && !o.sc], sfr: [(o) => o.plan && o.plan.eng]}, pay: 'comptant',
+    note: {bouygues: 'Prix renouvellement Bouygues non publics : offre nouvelle ligne affichée.', sfr: 'Prix renouvellement SFR non publics : offre nouvelle ligne affichée.'}},
+  mensualites: {lib: 'Petites mensualités', sub: 'étalement, facilité, Smart Change', pref: {
+    orange: [has(/^v:ma4/), has(/^nu$/)], bouygues: [(o) => o.sc && isIntegral(o.label), (o) => isIntegral(o.label)], sfr: [(o) => o.plan && o.plan.eng]}, pay: 'etalement24'},
+  nu: {lib: 'Téléphone seul', sub: 'sans forfait', pref: {orange: [has(/^nu$/)], bouygues: [has(/^nu$/)], sfr: [has(/^nu$/)]}, pay: 'comptant'}
+};
+function appliquerScenario(s) {
+  state.scen = s;
+  const sc = SCENARIOS[s], p = produitCourant();
+  for (const op of OP_KEYS) {
+    const offres = offresDe(op, p).filter((o) => !o.indispo);
+    let o = null;
+    for (const f of sc.pref[op]) { o = offres.find(f); if (o) break; }
+    o = o || offres.find((x) => x.plan) || offres[0] || null;
+    state.conf[op].offre = o ? o.key : null;
+    state.conf[op].pay = o && o.pays.some((x) => x.cle === sc.pay) ? sc.pay : (o && o.sc ? 'sc' : 'comptant');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// RENDU
+// ════════════════════════════════════════════════════════════════════
+function renderPicker() {
+  const p = produitCourant(); const mod = MODELES.find((m) => m.produits.includes(p));
+  let html = `<option value="" ${mod ? '' : 'selected'}>— Choisir un smartphone —</option>`, marque = null;
+  for (const m of MODELES) {
+    if (m.marque !== marque) { if (marque !== null) html += '</optgroup>'; marque = m.marque; html += `<optgroup label="${esc(marque)}">`; }
+    const ops = OP_KEYS.filter((op) => m.produits.some((x) => x[op])).length;
+    html += `<option value="${esc(m.key)}" ${m === mod ? 'selected' : ''}>${esc(m.nom)}${ops < 3 ? ` (${ops === 1 ? 'Orange seul' : ops + ' opérateurs'})` : ''}</option>`;
+  }
+  $('pick-model').innerHTML = html + '</optgroup>';
+  const caps = mod ? mod.produits : [];
+  $('pick-cap').innerHTML = !p ? '<span class="sold" style="margin:0">Choisis le mobile du client pour comparer les trois opérateurs.</span>'
+    : caps.map((x) => `<button class="chip ${x === p ? 'on' : ''}" onclick="setProduit('${esc(x.id)}')">${esc(capLabel(x.capacite))}</button>`).join('') +
+    `<span class="sold">Vendu chez ${OP_KEYS.map((op) => `<span class="dot ${p[op] ? '' : 'off'}" style="background:${OPS[op].hex}" title="${OPS[op].nom}${p[op] ? '' : ' : non vendu'}"></span>`).join('')}</span>`;
+  const img = p && (p.img || (p.orange && p.orange.img));
+  $('phone-img').innerHTML = img ? `<img src="${esc(img)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=ph></div>'">` : '<div class="ph"></div>';
+}
+function renderClient() {
+  $('seg-box').innerHTML = OP_KEYS.map((op) => `<label class="boxchip ${state.box[op] ? 'on' : ''}"><input type="checkbox" ${state.box[op] ? 'checked' : ''} onchange="setBoxOp('${op}', this.checked)"><span class="dot" style="background:${OPS[op].hex}"></span>${op === 'bouygues' ? 'Bbox' : OPS[op].nom} <small>${OPS[op].box}</small></label>`).join('');
+  if (state.box.bouygues) {
+    const n = Math.min(3, state.bigHeld + 1);
+    $('big-lbl').innerHTML = 'Forfaits Bouygues<br><small style="font-weight:400;color:var(--hint)">déjà détenus</small>';
+    $('big-row').innerHTML = `<span class="stepper"><button onclick="setBigHeld(-1)" ${state.bigHeld ? '' : 'disabled'} aria-label="Moins">−</button><b>${state.bigHeld}</b><button onclick="setBigHeld(1)" aria-label="Plus">+</button></span>
+      <span class="big-hint">avec le nouveau : ${state.bigHeld + 1} forfait${state.bigHeld ? 's' : ''} → B.iG <b>${BIG_PAR[n]} €/mois</b> par forfait (20 Go et +)</span>`;
+  } else { $('big-lbl').innerHTML = ''; $('big-row').innerHTML = ''; }
+  $('sw-porta').checked = state.porta;
+}
+function renderScen() {
+  $('scen-bar').innerHTML = '<span class="plabel">Comparer</span>' + Object.entries(SCENARIOS).map(([k, s]) =>
+    `<button class="scen ${state.scen === k ? 'on' : ''}" onclick="setScen('${k}')">${s.lib}<small>${s.sub}</small></button>`).join('') +
+    (state.scen === 'perso' ? '<span class="scen on perso">Personnalisé<small>offres choisies à la main</small></span>' : '');
+}
+
+function colonnes() {
+  const p = produitCourant();
+  return OP_KEYS.map((op) => {
+    const offres = offresDe(op, p);
+    const o = offres.find((x) => x.key === state.conf[op].offre && !x.indispo) || null;
+    const r = o ? calculer(op, o, state.conf[op].pay) : null;
+    if (r && SCENARIOS[state.scen] && SCENARIOS[state.scen].note && SCENARIOS[state.scen].note[op]) r.notes.unshift(SCENARIOS[state.scen].note[op]);
+    return {op, offres, o, r};
+  });
+}
+
+function metricChoisie(cols) {
+  if (state.metric !== 'auto') return state.metric;
+  const actives = cols.filter((c) => c.r);
+  return actives.length && actives.every((c) => c.o.plan) ? 'total24' : 'coutTel';
+}
+const METRICS = {
+  total24: {lib: 'Total sur 24 mois', court: 'Total 24 mois', sub: 'téléphone + forfait, reprise et remboursements déduits'},
+  coutTel: {lib: 'Coût du téléphone', court: 'Téléphone', sub: 'tout ce que coûte le mobile, forfait non compris'},
+  paye: {lib: 'Payé aujourd\'hui', court: 'Aujourd\'hui', sub: 'en boutique, reprise et bonus déduits'}
+};
+
+function renderVerdict(cols) {
+  const mk = metricChoisie(cols);
+  const vals = cols.map((c) => c.r ? c.r[mk] : null);
+  const ok = vals.filter((v) => v != null);
+  const max = Math.max(1, ...ok.map((v) => Math.abs(v)));
+  const min = ok.length ? Math.min(...ok) : null;
+  const sorted = cols.map((c, i) => ({c, v: vals[i]})).filter((x) => x.v != null).sort((a, b) => a.v - b.v);
+  // Formulation pour le conseiller Orange : tout est dit par rapport à Orange.
+  const quand = {total24: 'sur 24 mois', coutTel: 'sur le téléphone', paye: "aujourd'hui en boutique"}[mk];
+  const parMois = (d) => mk === 'total24' ? ` (soit ${eurM(Math.abs(d) / 24)} de ${d >= 0 ? 'plus' : 'moins'} par mois pendant 24 mois)` : '';
+  let title = 'Choisissez un mobile', sub = '';
+  const or = sorted.find((x) => x.c.op === 'orange'), conc = sorted.filter((x) => x.c.op !== 'orange');
+  if (!produitCourant()) title = 'Choisissez le mobile du client';
+  else if (!or) title = conc.length ? `Orange n'a pas d'offre ici : ${OPS[conc[0].c.op].nom} à ${eur(conc[0].v)}` : 'Aucune offre à comparer';
+  else if (!conc.length) title = `Seul Orange propose ce mobile : ${eur(or.v)} ${quand}`;
+  else {
+    const best = conc[0], d = r2(or.v - best.v);
+    const autres = conc.map((x) => { const e = r2(x.v - or.v); return Math.abs(e) < 0.5 ? `même prix que ${OPS[x.c.op].nom}` : e > 0 ? `${eur(e)} de moins que ${OPS[x.c.op].nom}` : `${eur(-e)} de plus que ${OPS[x.c.op].nom}`; });
+    if (Math.abs(d) < 0.5) { title = `Orange au même prix que ${OPS[best.c.op].nom} ${quand}, avec le service Orange en plus`; sub = conc.length > 1 ? 'Orange : ' + autres.join(' · ') + '.' : ''; }
+    else if (d > 0) { title = `Bénéficiez du service Orange pour seulement ${eur(d)} de plus ${quand}${parMois(d)}`; sub = `Par rapport à ${OPS[best.c.op].nom}, l'offre la moins chère${conc.length > 1 && autres[1] ? ` · Orange : ${autres[1]}` : ''}.`; }
+    else { title = `Orange est le moins cher : ${conc.length > 1 ? 'au moins ' : ''}${eur(-d)} d'économie ${quand}${parMois(d)}`; sub = `Orange : ${autres.join(' · ')}.`; }
+  }
+  const bars = cols.map((c, i) => {
+    const v = vals[i];
+    if (v == null) return `<div class="bar-row none"><span class="n">${OPS[c.op].nom}</span><div class="bar-track"></div><span class="v">${c.offres.length ? (c.o && mk === 'total24' ? 'sans forfait' : '—') : 'non vendu'}</span></div>`;
+    return `<div class="bar-row ${v === min && ok.length > 1 ? 'best' : ''}"><span class="n">${OPS[c.op].nom}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(2, Math.abs(v) / max * 100)}%;background:${OPS[c.op].hex}"></div></div><span class="v">${eur(v)}</span></div>`;
+  }).join('');
+  const datas = cols.filter((c) => c.r && c.o.plan).map((c) => c.o.plan.data);
+  const warn = [];
+  if (datas.length > 1 && new Set(datas).size > 1 && mk === 'total24') warn.push(`Forfaits comparés : ${cols.filter((c) => c.r && c.o.plan).map((c) => `${OPS[c.op].nom} ${c.o.plan.data}${c.o.plan.eng ? '' : ' sans engagement'}`).join(' · ')}.`);
+  const sansForfait = cols.filter((c) => c.r && !c.o.plan).length;
+  if (mk === 'total24' && sansForfait) warn.push('Une offre sans forfait n\'a pas de total sur 24 mois : compare plutôt le coût du téléphone.');
+  $('verdict').innerHTML = `<div><div class="v-title">${esc(title)}</div><div class="v-sub">${sub ? esc(sub.charAt(0).toUpperCase() + sub.slice(1)) + '<br>' : ''}<span style="color:var(--hint)">${esc(METRICS[mk].lib)} — ${esc(METRICS[mk].sub)}</span></div>
+      <div class="v-metric"><div class="seg">${['auto', 'total24', 'coutTel', 'paye'].map((k) => `<button class="${state.metric === k ? 'on' : ''}" onclick="setMetric('${k}')">${k === 'auto' ? 'Auto' : METRICS[k].court}</button>`).join('')}</div></div></div>
+    <div><div class="bars">${bars}</div>${warn.map((w) => `<div class="v-warn">${esc(w)}</div>`).join('')}</div>`;
+}
+
+function renderTable(cols) {
+  const p = produitCourant();
+  const best = (key) => { const v = cols.filter((c) => c.r && c.r[key] != null).map((c) => c.r[key]); return v.length > 1 ? Math.min(...v) : null; };
+  const cls = (c, key, b) => (c.r && b != null && c.r[key] != null && Math.abs(c.r[key] - b) < 0.005 ? ' best' : '');
+  const ecart = (c, key, b) => (c.r && b != null && c.r[key] != null && c.r[key] - b > 0.5 ? `<span class="gap">+${eur(c.r[key] - b)}</span>` : '');
+  const crown = (c, key, b) => cls(c, key, b) ? '<span class="crown">MOINS CHER</span>' : ecart(c, key, b);
+  let h = '';
+  // En-têtes : opérateur + choix de l'offre et du paiement
+  h += '<div class="rl hd corner"></div>';
+  for (const c of cols) {
+    const op = OPS[c.op];
+    let inner = `<div class="op-name"><span>${op.nom}</span>${p && p[c.op] && p[c.op].url ? `<a href="${esc(p[c.op].url)}" target="_blank" rel="noopener">fiche ↗</a>` : ''}</div>`;
+    if (!c.offres.length) inner += '<div class="na">Mobile non vendu chez ' + op.nom + '</div>';
+    else {
+      const groups = [];
+      for (const o of c.offres) { let g = groups.find((x) => x.g === o.group); if (!g) groups.push(g = {g: o.group, l: []}); g.l.push(o); }
+      inner += `<div class="op-sel"><select onchange="setOffre('${c.op}', this.value)" aria-label="Offre ${op.nom}">${groups.map((g) => `<optgroup label="${esc(g.g)}">${g.l.map((o) => `<option value="${esc(o.key)}" ${c.o && o.key === c.o.key ? 'selected' : ''} ${o.indispo ? 'disabled' : ''}>${esc(o.label)}</option>`).join('')}</optgroup>`).join('')}</select>`;
+      if (c.o && c.o.pays.length > 1) inner += `<select class="pay" onchange="setPay('${c.op}', this.value)" aria-label="Paiement ${op.nom}">${c.o.pays.map((x) => `<option value="${x.cle}" ${x.cle === c.r.pm.cle ? 'selected' : ''}>${esc(x.lib)}${x.n ? ` — ${eur(x.apport)} + ${x.n} × ${eurM(x.m)}` : ''}${x.taeg ? ` (crédit ${pct(x.taeg)})` : x.interets > 0.5 ? ' (avec frais)' : ''}</option>`).join('')}</select>`;
+      else if (c.o) inner += `<div class="sub" style="margin:0">${esc(c.r.pm.lib)}${c.r.pm.n ? ` — ${eur(c.r.pm.apport)} + ${c.r.pm.n} × ${eurM(c.r.pm.m)}` : ''}</div>`;
+      inner += '</div>';
+    }
+    h += `<div class="cell hd op" style="--c:${op.c}">${inner}</div>`;
+  }
+  const row = (label, sub, fn, key) => {
+    h += `<div class="rl ${key ? 'key' : ''}">${label}${sub ? `<small>${sub}</small>` : ''}</div>`;
+    for (const c of cols) h += c.r ? fn(c) : `<div class="cell dim"></div>`;
+  };
+
+  // 1. Forfait
+  row('Forfait', 'prix et remises', (c) => {
+    const pl = c.o.plan;
+    if (!pl) return `<div class="cell"><div class="plan-name">Sans forfait</div><div class="sub">Le client garde ou choisit son forfait librement.</div></div>`;
+    const rems = pl.rems.map((x) => x.toggle
+      ? `<label class="rem ${x.on ? 'on' : 'off'} ck"><span><input type="checkbox" ${x.on ? 'checked' : ''} onchange="${x.toggle}"> ${esc(x.l)} <small style="font-weight:400">· ${esc(x.detail)}</small>${x.url ? ` <a href="${esc(x.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">formulaire ↗</a>` : ''}</span><span class="a">−${eurM(x.a)}</span></label>`
+      : `<div class="rem ${x.on ? 'on' : 'off'}"><span>${esc(x.l)} <small style="font-weight:400">· ${esc(x.detail)}</small></span><span class="a">−${eurM(x.a)}</span></div>`).join('');
+    return `<div class="cell"><div class="plan-name">${esc(pl.nom)}</div>
+      <div class="plan-meta"><span class="tag">${esc(pl.data)}</span><span class="tag ${pl.eng ? 'eng' : ''}">${pl.eng ? (pl.reeng ? 're-engagement ' : 'engagement ') + pl.eng + ' mois' : 'sans engagement'}</span></div>
+      ${rems ? `<div class="rems">${rems}</div>` : ''}</div>`;
+  });
+  // 2. Téléphone
+  const bTel = best('telPrix');
+  cols.forEach((c) => { if (c.r) c.r.telPrix = c.o.tel.prix - c.r.code; });
+  const bTel2 = best('telPrix');
+  row('Prix du téléphone', 'avec cette offre', (c) => {
+    const t = c.o.tel, remise = c.o.nu != null ? r2(c.o.nu - t.prix) : null;
+    const lignes = [];
+    if (c.o.nu != null && c.o.plan) lignes.push(remise > 0.5 ? `prix nu ${eur(c.o.nu)} · <b>−${eur(remise)}</b> avec ce forfait` : `même prix que le téléphone nu (${eur(c.o.nu)})`);
+    else if (t.cat > t.prix + 0.5) lignes.push(`promo −${eur(t.cat - t.prix)} (au lieu de ${eur(t.cat)})`);
+    if (c.o.code) lignes.push(`<b>Code ${esc(c.o.code.code)}</b> −${eur(c.o.code.montant)} en caisse`);
+    if (c.o.sc) lignes.push(`Smart Change : ${eur(c.o.sc.apport)} + ${c.o.sc.n} × ${eurM(c.o.sc.m)}`);
+    return `<div class="cell${cls(c, 'telPrix', bTel2)}"><div class="big">${eur(c.r.telPrix)}${c.o.code ? `<s>${eur(t.prix)}</s>` : ''}${crown(c, 'telPrix', bTel2)}</div><div class="sub">${lignes.join('<br>')}</div></div>`;
+  });
+  void bTel;
+  // 3. Reprise
+  h += `<div class="rl">Reprise<small>valeur estimée chez chaque opérateur</small><button class="copy-rep" onclick="copierReprise()">même valeur partout</button></div>`;
+  for (const c of cols) {
+    if (!c.r) { h += '<div class="cell dim"></div>'; continue; }
+    const op = OPS[c.op], b = c.o.bonus;
+    let bonus = '';
+    if (c.r.bonus) bonus = `<div class="bonus on">+ bonus reprise −${eur(c.r.bonus)}</div>`;
+    else if (b && c.o.plan) bonus = `<div class="bonus off">Bonus reprise ${eur(b.montant)} possible (${esc(b.texte)})</div>`;
+    else if (b) bonus = `<div class="bonus off">Bonus reprise ${eur(b.montant)} avec un forfait</div>`;
+    else bonus = '<div class="bonus off">Pas de bonus reprise</div>';
+    h += `<div class="cell" style="--c:${op.c};--cl:${op.cl}"><div class="rep"><input type="number" min="0" step="1" placeholder="—" value="${esc(state.reprise[c.op])}" oninput="setReprise('${c.op}', this.value)" aria-label="Reprise ${op.nom}"><span style="color:var(--muted)">€</span>
+      <a href="${op.reprise}" target="_blank" rel="noopener" title="Estimer la reprise sur le ${esc(op.repriseNom)}">Estimer ↗</a></div>${bonus}</div>`;
+  }
+  // 4. Payé aujourd'hui
+  const bAuj = best('paye');
+  row('Payé aujourd\'hui', 'en boutique', (c) => {
+    const r = c.r, d = [];
+    if (r.pm.n) d.push(`apport ${eur(r.pm.apport)}`);
+    if (r.code) d.push(`code −${eur(r.code)}`);
+    if (r.reprise) d.push(`reprise −${eur(r.reprise)}`);
+    if (r.bonus) d.push(`bonus −${eur(r.bonus)}`);
+    const v = r.aujourdhui < 0 ? `0 €<small> (+${eur(-r.aujourdhui)} pour le client)</small>` : eur(r.aujourdhui);
+    return `<div class="cell${cls(c, 'paye', bAuj)}"><div class="big">${v}${crown(c, 'paye', bAuj)}</div>${d.length > 1 || r.pm.n ? `<div class="sub">${d.join(' · ')}</div>` : ''}</div>`;
+  });
+  // 5. Chaque mois
+  row('Chaque mois', 'forfait + téléphone', (c) => {
+    const r = c.r;
+    if (r.mois1 == null) return `<div class="cell"><div class="sub" style="margin:0">Rien à payer chaque mois pour le téléphone.</div></div>`;
+    const det = (f, t) => [f != null ? `forfait ${eurM(f)}` : null, t ? `tél. ${eurM(t)}` : null].filter(Boolean).join(' + ');
+    const same = Math.abs(r.mois1 - r.mois13) < 0.005;
+    return `<div class="cell"><div class="months">
+      <span class="w">${same ? 'Mois 1–24' : 'Mois 1–12'}</span><span class="big" style="font-size:18px">${eurM(r.mois1)}<small>/mois</small></span>
+      ${same ? '' : `<span class="w">Mois 13–24</span><span class="big" style="font-size:18px">${r.mois13 != null ? eurM(r.mois13) : '—'}<small>/mois</small></span>`}</div>
+      <div class="sub">${det(r.forf1, r.tel1)}${same ? '' : ' puis ' + det(r.forf13, r.tel13)}${r.pm.n > 24 ? `<br>puis ${eurM(r.pm.m)}/mois jusqu'au mois ${r.pm.n}` : ''}</div></div>`;
+  });
+  // 6. Remboursements
+  row('Remboursé ensuite', 'ODR, cochables', (c) => {
+    const r = c.r;
+    if (!r.odrs.length) return `<div class="cell"><div class="sub" style="margin:0">Aucun remboursement</div></div>`;
+    return `<div class="cell"><div class="big" style="font-size:18px">${r.odrTot ? '−' + eur(r.odrTot) : '0 €'}</div><div class="odrs">${r.odrs.map((x) =>
+      `<label class="odr ${x.on ? '' : 'off'}"><input type="checkbox" ${x.on ? 'checked' : ''} onchange="setOdr('${esc(x.id)}', this.checked)"><span class="l">${esc(x.nom)}${x.fin ? ` · jusqu'au ${fmtDate(x.fin)}` : ''}${x.lien ? ` <a href="${esc(x.lien)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">formulaire ↗</a>` : ''}${x.cond ? `<span class="cond">${esc(x.cond)}</span>` : ''}</span><span class="a">−${eur(x.montant)}</span></label>`).join('')}</div></div>`;
+  });
+  // 7. Coût du téléphone
+  const bCout = best('coutTel');
+  row('Le téléphone revient à', 'tout compris, forfait à part', (c) => `<div class="cell${cls(c, 'coutTel', bCout)}"><div class="big">${eur(c.r.coutTel)}${crown(c, 'coutTel', bCout)}</div>
+    <div class="sub">${c.r.pm.n ? `apport + ${c.r.pm.n} mensualités` : 'payé'} − reprise − remboursements${c.o.sc ? ` · s'il le garde (${eur(c.r.rendu)} s'il le rend au mois ${c.o.sc.rendDes})` : ''}</div></div>`, true);
+  // 8. Total 24 mois
+  const b24 = best('total24');
+  row('Total sur 24 mois', 'téléphone + forfait', (c) => c.r.total24 == null
+    ? `<div class="cell"><div class="sub" style="margin:0">Sans forfait : pas de total sur 24 mois.</div></div>`
+    : `<div class="cell${cls(c, 'total24', b24)}"><div class="big xl">${eur(c.r.total24)}${crown(c, 'total24', b24)}</div><div class="sub">soit ${eurM(c.r.total24 / 24)}/mois en moyenne${c.r.pm.n > 24 ? `<br>dont ${c.r.pm.n - 24} mensualités après le mois 24 (téléphone gardé)` : ''}</div></div>`, true);
+  // 9. Bon à savoir
+  if (cols.some((c) => c.r && c.r.notes.length)) row('Bon à savoir', '', (c) => `<div class="cell"><div class="notes">${c.r.notes.map((n) => `<div class="note ${/^Crédit|non connu/.test(n) ? 'warn' : ''}">${n}</div>`).join('')}</div></div>`);
+  $('cmp').innerHTML = h;
+}
+
+const SITES = [['orange', 'Orange.fr', 'https://boutique.orange.fr'], ['sfr', 'sfr.fr', 'https://www.sfr.fr'], ['bouygues', 'bouyguestelecom.fr', 'https://www.bouyguestelecom.fr']];
+function renderHeader() {
+  $('version-badge').textContent = VERSION;
+  const date = (op) => { const x = (O.operateurs || {})[op]; const dt = x && x.releveLe ? new Date(x.releveLe) : null; return dt && !isNaN(dt) ? dt.toLocaleDateString('fr-FR', {day: '2-digit', month: '2-digit'}) : '?'; };
+  $('sources').innerHTML = 'Sources : ' + SITES.map(([op, nom, url]) => `<a href="${url}" target="_blank" rel="noopener">${nom}</a> <small>(${date(op)})</small>`).join(' / ') + (DATA_SOURCE === 'file' ? ' <small>· fichier ouvert à la main</small>' : '');
+  $('data-badge').textContent = '';
+  $('data-badge').style.visibility = 'hidden';
+}
+function render() {
+  if (!O) return;
+  renderPicker(); renderClient(); renderScen();
+  if (!produitCourant()) {
+    $('verdict').innerHTML = '<div><div class="v-title">Choisissez le mobile du client</div><div class="v-sub">Les offres Orange, Bouygues Telecom et SFR s\'affichent côte à côte.</div></div><div></div>';
+    $('cmp').innerHTML = ''; $('cmp').style.display = 'none'; return;
+  }
+  $('cmp').style.display = '';
+  const cols = colonnes();
+  renderVerdict(cols); renderTable(cols);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ACTIONS
+// ════════════════════════════════════════════════════════════════════
+function setProduit(id) {
+  state.pid = id;
+  if (state.scen === 'perso') {
+    // Garde les choix quand ils existent pour ce mobile, sinon repart du scénario par défaut.
+    const p = produitCourant();
+    const keep = OP_KEYS.every((op) => !p[op] || offresDe(op, p).some((o) => o.key === state.conf[op].offre));
+    if (!keep) appliquerScenario('engage');
+  } else appliquerScenario(state.scen);
+  render();
+}
+function setModel(k) { const m = MODELES.find((x) => x.key === k); if (!m) { state.pid = null; render(); return; } if (m) setProduit((m.produits.find((x) => x.capacite === (produitCourant() || {}).capacite) || m.produits[0]).id); }
+function setScen(s) { appliquerScenario(s); render(); }
+function choisirPay(op, o, voulu) {
+  const pay = voulu || state.conf[op].pay;
+  if (o.pays.some((x) => x.cle === pay)) return pay;
+  return o.pays.some((x) => x.cle === 'etalement24') && pay !== 'comptant' ? 'etalement24' : o.pays[0].cle;
+}
+const dataGo = (d) => /illimit/i.test(d || '') ? 10000 : (parseFloat(String(d || '').replace(',', '.')) || 0);
+// Offre concurrente qui correspond au choix fait côté Orange :
+// vSUB (Acquisition / PCM) → forfait avec engagement le plus proche en data ; téléphone seul → téléphone seul ;
+// mobile nu + forfait sans engagement → forfait sans engagement le plus proche en data (SFR).
+function equivalent(op, oOrange) {
+  const offres = offresDe(op, produitCourant()).filter((o) => !o.indispo && !o.sc);
+  if (!offres.length || !oOrange) return null;
+  if (oOrange.key === 'nu') return offres.find((o) => o.key === 'nu') || null;
+  const sub = !!(oOrange.plan && oOrange.plan.eng);
+  const cands = offres.filter((o) => o.plan && (sub ? o.plan.eng > 0 : o.plan.eng === 0) && !(o.plan.multiligne));
+  if (!cands.length) return null;
+  const cible = dataGo(oOrange.plan.data);
+  return cands.slice().sort((a, b) => Math.abs(dataGo(a.plan.data) - cible) - Math.abs(dataGo(b.plan.data) - cible) || dataGo(b.plan.data) - dataGo(a.plan.data))[0];
+}
+function setOffre(op, k) {
+  state.conf[op].offre = k; state.scen = 'perso';
+  const o = offresDe(op, produitCourant()).find((x) => x.key === k);
+  if (o) state.conf[op].pay = choisirPay(op, o);
+  if (op === 'orange' && o) {
+    // Les concurrents suivent : forfait version SUB si Orange est en SUB, etc.
+    for (const c of ['bouygues', 'sfr']) {
+      const e = equivalent(c, o);
+      if (e) { state.conf[c].offre = e.key; state.conf[c].pay = choisirPay(c, e); }
+    }
+  }
+  render();
+}
+function setPay(op, k) { state.conf[op].pay = k; state.scen = 'perso'; render(); }
+function setBoxOp(op, on) {
+  state.box[op] = on;
+  // Petit BiG / Mega BiG : plus disponibles si la Bbox disparaît
+  const p = produitCourant(), cur = offresDe('bouygues', p).find((o) => o.key === state.conf.bouygues.offre);
+  if (cur && cur.indispo) appliquerScenario(state.scen === 'perso' ? 'engage' : state.scen);
+  render();
+}
+function setBigHeld(d) { state.bigHeld = Math.max(0, Math.min(9, state.bigHeld + d)); render(); }
+function setORem(id, on) { state.oRem[id] = on; state.oLast = id; render(); }
+function setPorta(v) { state.porta = v; render(); }
+function setMetric(k) { state.metric = k; render(); }
+function setOdr(id, on) { state.odr[id] = on; render(); }
+let repT;
+function setReprise(op, v) {
+  state.reprise[op] = v;
+  clearTimeout(repT);
+  repT = setTimeout(() => { const a = document.activeElement, sel = a && a.getAttribute('aria-label'); render(); if (sel) { const el = document.querySelector(`[aria-label="${sel}"]`); if (el) { el.focus(); const n = el.value.length; try { el.setSelectionRange(n, n); } catch (e) {} } } }, 350);
+}
+function copierReprise() {
+  const v = OP_KEYS.map((op) => state.reprise[op]).find((x) => x !== '');
+  if (v == null) { toast('Saisis d\'abord une valeur de reprise'); return; }
+  OP_KEYS.forEach((op) => { state.reprise[op] = v; });
+  render(); toast(`Reprise de ${eur(+v)} appliquée aux trois opérateurs`);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CHARGEMENT DES PRIX (prix-omni.js sur GitHub Pages) / secours fichier
+// ════════════════════════════════════════════════════════════════════
+function urlVersPages(u) {
+  u = String(u || '').trim(); let m;
+  if ((m = u.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:blob|raw)\/[^/]+\/(.+)$/i))) return `https://${m[1].toLowerCase()}.github.io/${m[2]}/${m[3]}`;
+  if ((m = u.match(/^https?:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/[^/]+\/(.+)$/i))) return `https://${m[1].toLowerCase()}.github.io/${m[2]}/${m[3]}`;
+  return u;
+}
+function prixUrl() { try { return urlVersPages(localStorage.getItem(LS_URL)) || PRIX_URL_DEFAUT; } catch (e) { return PRIX_URL_DEFAUT; } }
+function chargerScript(url) {
+  return new Promise((resolve, reject) => {
+    try { delete window.PRIX_OMNI; } catch (e) { window.PRIX_OMNI = undefined; }
+    const sc = document.createElement('script');
+    const t = setTimeout(() => { sc.remove(); reject(new Error('pas de réponse après ' + LOAD_TIMEOUT / 1000 + ' s')); }, LOAD_TIMEOUT);
+    sc.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+    sc.onload = () => { clearTimeout(t); sc.remove(); const d = window.PRIX_OMNI; if (d && Array.isArray(d.produits)) resolve(d); else reject(new Error('le fichier ne contient pas PRIX_OMNI')); };
+    sc.onerror = () => { clearTimeout(t); sc.remove(); reject(new Error('fichier inaccessible ou bloqué par le réseau')); };
+    document.head.appendChild(sc);
+  });
+}
+function loaderShow(html) { $('loader').classList.remove('hide'); $('loader-box').innerHTML = html; }
+function loaderHide() { $('loader').classList.add('hide'); }
+function loaderError(why) {
+  loaderShow(`<div style="font-size:34px">⚠️</div><h2>Impossible de charger les prix</h2>
+    <p>Vérifie la connexion internet du poste, puis réessaie. Si le réseau bloque GitHub, ouvre un fichier prix-omni.js pour cette session.</p>
+    <button class="btn" onclick="startLoad()">Réessayer</button><button class="btn ghost" onclick="$('loader-file').click()">Ouvrir un fichier…</button>
+    <div class="loader-err">${esc(why)} — ${esc(prixUrl())}</div>`);
+}
+let premier = true;
+function apresChargement(raw, source) {
+  DATA_SOURCE = source;
+  preparer(raw);
+  if (!MODELES.length) { loaderError('aucun mobile Orange dans le fichier'); return; }
+  if (state.pid && !produitCourant()) state.pid = null;   // le champ reste vide tant que le conseiller n'a pas choisi
+  loaderHide(); renderHeader(); render(); renderNotices();
+  if (premier) { premier = false; checkPreview(); }
+}
+async function startLoad() {
+  loaderShow('<div class="spinner"></div><h2>Chargement des prix…</h2><p>Orange, Bouygues Telecom et SFR, depuis prix-omni.js.</p>');
+  try { apresChargement(await chargerScript(prixUrl()), 'online'); }
+  catch (e) { loaderError(e.message); }
+}
+async function reloadPrices() {
+  try { apresChargement(await chargerScript(prixUrl()), 'online'); if ($('modal').classList.contains('show')) renderModal(); toast('Prix rechargés'); }
+  catch (e) { toast('Prix en ligne inaccessibles : ' + e.message); }
+}
+function openLocalFile(file) {
+  if (!file) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      let t = String(rd.result).trim(); const m = t.match(/window\.PRIX_OMNI\s*=/);
+      if (m) t = t.slice(m.index + m[0].length).replace(/;\s*$/, '');
+      const d = JSON.parse(t); if (!Array.isArray(d.produits)) throw new Error();
+      apresChargement(d, 'file'); if ($('modal').classList.contains('show')) renderModal();
+      toast(`${file.name} chargé (session uniquement)`);
+    } catch (e) { toast('Fichier non reconnu : il faut prix-omni.js'); }
+  };
+  rd.readAsText(file);
+}
+const parseVer = (v) => String(v || '').replace(/^v/i, '').split('.').map((n) => parseInt(n, 10) || 0);
+function verLess(a, b) { const x = parseVer(a), y = parseVer(b); for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) < (y[i] || 0); return false; }
+function renderNotices() {
+  const out = [];
+  const vm = O.versionMinimale && typeof O.versionMinimale === 'object' ? O.versionMinimale.comparateur : O.versionMinimale;
+  const msg = O.message && typeof O.message === 'object' ? O.message.comparateur : O.message;
+  if (vm && verLess(VERSION, vm)) out.push(`<div class="notice red">⚠️ Mise à jour nécessaire : ce comparateur (${esc(VERSION)}) est plus ancien que la version ${esc(vm)}. <a href="${esc(UPDATE_URL)}" target="_blank" rel="noopener">Télécharger la dernière version ↗</a></div>`);
+  const vieux = OP_KEYS.filter((op) => O.operateurs && O.operateurs[op] && O.operateurs[op].frais === false);
+  if (vieux.length) out.push(`<div class="notice yellow">⚠️ Prix ${vieux.map((op) => OPS[op].nom).join(' et ')} non mis à jour au dernier relevé.</div>`);
+  if (msg) out.push(`<div class="notice blue">ℹ️ ${esc(msg)}</div>`);
+  if (DATA_SOURCE === 'file') out.push(`<div class="notice yellow">📂 Prix d'un fichier ouvert à la main, pas des prix en ligne. <button class="btn ghost" onclick="reloadPrices()">Revenir aux prix en ligne</button></div>`);
+  $('notices').innerHTML = out.join('');
+}
+
+function renderModal() {
+  const stats = OP_KEYS.map((op) => {
+    const x = (O.operateurs || {})[op] || {}, dt = x.releveLe ? new Date(x.releveLe) : null;
+    const n = PRODUITS.filter((p) => p[op]).length;
+    return `<div style="--c:${OPS[op].hex}"><b>${n}</b>${op === 'orange' ? 'mobiles Orange' : `vendus aussi chez ${OPS[op].nom}`}<br>relevé ${dt && !isNaN(dt) ? dt.toLocaleString('fr-FR', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}) : '?'}${x.frais === false ? ' ⚠️' : ''}</div>`;
+  }).join('');
+  const melanges = [];
+  for (const p of PRODUITS) for (const op of OP_KEYS) if (p[op] && (p[op].variantes || []).some((v) => v.prix)) melanges.push(`${nomModele(p)} ${capLabel(p.capacite)} (${OPS[op].nom})`);
+  $('modal-body').innerHTML = `
+    <h4>Fichier de prix</h4><div class="stat-grid">${stats}</div>
+    <p class="sub">Le comparateur ne propose que les mobiles vendus chez Orange (${PRODUITS.length} produits, ${MODELES.length} modèles). Une couleur par capacité : les prix ne changent pas d'une couleur à l'autre.</p>
+    ${melanges.length ? `<p class="sub" style="color:var(--amber)">Produits qui regroupent deux mobiles différents (4G/5G…) chez un opérateur : prix du premier affichés — ${esc(melanges.join(', '))}.</p>` : ''}
+    <h4>Règles de calcul</h4><ul>
+      <li><b>Payé aujourd'hui</b> = prix du téléphone (ou apport) − code promo − reprise − bonus reprise.</li>
+      <li><b>Le téléphone revient à</b> = apport + toutes les mensualités du téléphone − reprise − bonus − code − remboursements (ODR). Forfait non compris.</li>
+      <li><b>Total sur 24 mois</b> = payé aujourd'hui + 24 mois de forfait + toutes les mensualités du téléphone − remboursements (en Smart Change, les 36 mensualités : téléphone gardé, pour comparer à prix égal). Frais d'activation / carte SIM non comptés.</li>
+      <li><b>Box</b> : plusieurs box possibles ; chaque remise (Remise Open, B.iG, SFR Multi) ne s'applique que si la box de cet opérateur est cochée. B.iG : 5 € (1 forfait Bouygues), 8 € (2), 10 € (3 et +) par forfait 20 Go et +, selon le nombre de forfaits déjà détenus + le nouveau ; le gain sur les forfaits déjà détenus est compté. Sans Bbox : +5 € sur le prix affiché par Bouygues.</li>
+      <li><b>Bonus reprise</b> : Orange dès 10 € (iPhone), 1 € (Samsung), 0 € (autres) ; Bouygues avec forfait et reprise ≥ 10 € ; SFR avec forfait, sans minimum.</li>
+      <li><b>ODR iPhone Orange (19492)</b> : décochée d'office, elle demande l'achat d'une Apple Watch ou d'AirPods.</li>
+      <li><b>Forfaits Orange</b> : prix et remises de Simultoo v86 — Remise Open, ODR Bienvenue 12 mois (200 Go acquisition, Voyage 250 Go ; pas sur le 300 Go), ODR cross sell 12 mois (au choix), Code Privilège 200 Go 12 mois (au choix, non cumulable avec l'ODR Bienvenue), code promo 130 Go.</li></ul>
+    <h4>Prix en ligne</h4>
+    <div class="url-row"><input type="url" id="prix-url" spellcheck="false" value="${esc(prixUrl())}"><button class="btn" onclick="saveUrl()">Enregistrer et tester</button></div>
+    <div style="margin-top:6px"><button class="btn ghost" onclick="resetUrl()">Adresse par défaut</button><button class="btn ghost" onclick="reloadPrices()">Recharger les prix</button></div>
+    <h4>Secours : ouvrir un fichier</h4>
+    <label class="drop-json"><input type="file" accept=".js,.json" style="display:none" onchange="openLocalFile(this.files[0])">Choisir un prix-omni.js (pour cette session seulement)</label>
+    <h4>Patchnote</h4>${PATCHNOTES.map((p) => `<b>${esc(p.v)}</b><ul>${p.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>`).join('')}
+    <p class="sub" style="margin-top:14px">Conçu par Abdelkader BESSAIH — DGP/DCGP · <a href="mailto:abdelkader.bessaih@orange.com">abdelkader.bessaih@orange.com</a> · Données à titre indicatif.</p>`;
+}
+function openModal() { if (!O) return; renderModal(); $('modal').classList.add('show'); }
+function closeModal() { $('modal').classList.remove('show'); }
+function saveUrl() { const v = $('prix-url').value.trim(); try { if (v && v !== PRIX_URL_DEFAUT) localStorage.setItem(LS_URL, v); else localStorage.removeItem(LS_URL); } catch (e) {} reloadPrices(); }
+function resetUrl() { try { localStorage.removeItem(LS_URL); } catch (e) {} reloadPrices(); }
+
+// ── Mise à jour & aperçu Teams ──
+function openTuto() {
+  document.querySelectorAll('.ver-num').forEach((e) => { e.textContent = VERSION; });
+  $('update-link').href = UPDATE_URL; $('tuto-img').src = UPDATE_TUTO_IMG; $('tuto-modal').classList.add('show');
+}
+function closeTuto() { $('tuto-modal').classList.remove('show'); }
+function checkPreview() {
+  let ok = true; try { localStorage.setItem('__cmp_probe__', '1'); localStorage.removeItem('__cmp_probe__'); } catch (e) { ok = false; }
+  let frame = true; try { frame = window.top !== window.self; } catch (e) { frame = true; }
+  if (!ok || frame) { $('previewBanner').classList.add('show'); document.body.classList.add('preview-locked'); openTuto(); }
+}
+function dismissPreview() { $('previewBanner').classList.remove('show'); document.body.classList.remove('preview-locked'); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeTuto(); } });
+
+startLoad();
+</script>
+</body>
+</html>
