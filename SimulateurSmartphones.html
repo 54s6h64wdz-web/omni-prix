@@ -163,6 +163,10 @@
   .final-amount { font-size: 28px; font-weight: 700; color: var(--orange); line-height: 1; }
   .final-amount.sm { font-size: 20px; color: var(--green-text); }
   .cost-box { margin-top: 10px; background: var(--blue-bg); color: var(--blue-text); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 12.5px; }
+  .btn-simultoo{display:block; width:100%; margin-top:10px; background:#FF7900; color:#000; border:none; padding:11px 14px; font-weight:700; font-size:14px; cursor:pointer; text-align:center; font-family:inherit;}
+  .btn-simultoo small{display:block; font-weight:500; font-size:11.5px; margin-top:2px;}
+  .btn-simultoo:hover{background:#ff8f26;}
+  .simultoo-hint{margin-top:10px; font-size:12px; color:#8a8a8a; text-align:center;}
   .cost-box b { font-size: 14px; }
   .diff-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; margin-top: 8px; }
 
@@ -364,8 +368,6 @@
   .ver-badge b { background: #000; color: #FFD400; padding: 3px 10px; border-radius: 2px; font-size: 17px; }
   .ver-badge small { font-weight: 600; font-size: 12px; }
   @media (max-width: 700px) { .preview-banner { padding-left: 50px; } .pb-arrow { display: none; } }
-  body.preview-locked > header, body.preview-locked .sidebar, body.preview-locked main { filter: grayscale(65%); opacity: .42; pointer-events: none; user-select: none; }
-  #tuto-modal { z-index: 500; }
   /* Chargement des prix en ligne */
   .loader { position: fixed; inset: 0; z-index: 350; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 20px; }
   .loader.hide { display: none; }
@@ -393,24 +395,11 @@
   <div class="loader-box" id="loader-box"></div>
   <input type="file" id="loader-file" accept=".json,.js,application/json,text/javascript" style="display:none" onchange="openLocalFile(this.files[0])">
 </div>
-<div class="preview-banner" id="previewBanner">
-  <div class="pb-arrow" aria-hidden="true">↖</div>
-  <div class="pb-title">⚠️ Téléchargez le fichier pour utiliser le Simulateur Smartphones</div>
-  <div class="pb-sub">Vous êtes dans l'aperçu Teams : ici, le PDF client, les liens ODR et l'import des prix ne fonctionnent pas, et votre simulation sera perdue à la fermeture.</div>
-  <div class="ver-badge">🆕 Dernière version disponible : <b class="ver-num"></b> <small class="ver-data"></small></div>
-  <div class="pb-pill">👉 Cliquez sur le bouton Télécharger ↓ en haut à gauche de l'aperçu, puis ouvrez le fichier téléchargé.</div>
-  <div class="pb-actions">
-    <button class="pb-btn" onclick="openUpdateTutorial()">Voir le tutoriel en images</button>
-    <button class="pb-skip" onclick="dismissPreviewBanner()">Le simulateur ne devrait pas être bloqué ? Continuer quand même</button>
-  </div>
-</div>
 <header>
   <div class="logo">orange</div>
   <div class="header-title">Simulateur Smartphones</div>
   <span class="version-badge" id="version-badge"></span>
   <span class="data-badge" id="data-badge"></span>
-  <button class="hdr-btn" onclick="openUpdateTutorial()" title="Télécharger la dernière version du simulateur">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Mettre à jour</span></button>
   <button class="hdr-btn" onclick="openPdfModal()" title="Générer le récapitulatif client en PDF">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><rect x="6" y="14" width="12" height="8"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/></svg><span>PDF client</span></button>
   <button class="hdr-btn" onclick="openModal()" title="Données et paramètres">
@@ -520,25 +509,6 @@
     </div>
   </div>
 </div>
-<!-- Tutoriel de mise à jour -->
-<div class="modal-overlay" id="tuto-modal" onclick="if(event.target===this)closeUpdateTutorial()">
-  <div class="modal-panel" style="width:440px">
-    <div class="modal-header"><span>⬇ Télécharger la dernière version</span><button class="icon-btn" onclick="closeUpdateTutorial()" style="font-size:18px;line-height:1">×</button></div>
-    <div class="modal-body">
-      <div class="ver-badge" style="display:flex;justify-content:center;margin-right:0">🆕 Version disponible : <b class="ver-num"></b> <small class="ver-data"></small></div>
-      <p style="color:var(--text-muted);margin-bottom:12px">Le simulateur est mis à jour régulièrement (prix, ODR, forfaits). Pour vérifier que vous avez la dernière version et la récupérer si besoin :</p>
-      <a class="btn update-link-btn" id="update-link" target="_blank" rel="noopener">Ouvrir le dossier partagé</a>
-      <h4>Détail des étapes</h4>
-      <ol class="tuto-steps">
-        <li>Ouvrez le dossier partagé via le bouton ci-dessus</li>
-        <li>Cliquez sur le fichier <b>SimulateurSmartphones.html</b> pour l'ouvrir en aperçu</li>
-        <li>Téléchargez-le via l'icône de téléchargement en haut à gauche de l'aperçu (voir capture ci-dessous)</li>
-        <li>Remplacez l'ancien fichier sur votre bureau par celui que vous venez de télécharger</li>
-      </ol>
-      <img class="tuto-img" id="tuto-img" alt="Icône de téléchargement dans l'aperçu Teams">
-    </div>
-  </div>
-</div>
 <div id="printArea"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -547,10 +517,20 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v2.0';
-const UPDATE_URL = 'https://orange0-my.sharepoint.com/:f:/g/personal/abdelkader_bessaih_orange_com/IgBdvcWNfQedSr8coQvVN1m2AThFN93LEq_TSdrxq84GrNc?e=ILbBm5';
-const UPDATE_TUTO_IMG = "data:image/png;base64,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"; // capture de l'icône de téléchargement dans l'aperçu Teams (reprise de Simultoo)
+const VERSION = 'v2.3';
+// Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
+const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 const PATCHNOTES = [
+  {v:'v2.3 — 13/10/2026', items:[
+    'Page hébergée en ligne et intégrée à Simultoo : suppression du bandeau « aperçu Teams », du bouton « Mettre à jour » et de l\'alerte de version (seul Simultoo vérifie sa version).',
+  ]},
+  {v:'v2.2 — 13/10/2026', items:[
+    'Correction : l\'ODR iPhone + accessoire n\'était plus proposée pour les iPhone dont le nom se termine par « 5G+ » (iPhone 16, 17, Air…).',
+    'Ouvert depuis Simultoo (menu ☰) : bouton « Ajouter à Simultoo » sous chaque téléphone. Le forfait, ses remises, les options et le mobile (prix, accessoires, reprise, bonus, ODR, étalement) créent une carte dans Simultoo.',
+  ]},
+  {v:'v2.1 — 13/10/2026', items:[
+    'Intégration à Simultoo (menu ☰ « Autres outils ») : quand la page est ouverte depuis Simultoo, plus de verrou « aperçu Teams » ni d\'alerte de mise à jour.',
+  ]},
   {v:'v2.0 — 12/10/2026', items:[
     'Étalement mobile Orange (vSIM uniquement) : case « Étalement du mobile » en Nu / vSIM. Le client paie l\'apport en boutique, puis 4 à 8 €/mois pendant 24 mois, ajoutés à la mensualité comme une option.',
     'Montant lu dans prix-omni.js ; à défaut, règle du fichier (paliers selon le prix du mobile).',
@@ -967,7 +947,7 @@ function calcCol(c) {
     const x = {...o, key: v.slug + '#' + i};
     if(isOdrIphone(o)) {
       x.iphone = true; x.nom = 'ODR iPhone + accessoire Apple';
-      if(!ODR_IPHONE.models.includes(v.name)) return null;
+      if(!ODR_IPHONE.models.includes(v.name.replace(/\s+(5G\+?|4G)$/i, ''))) return null;  // v2.2 : noms « iPhone 16 5G+ »
       const amt = odrIphoneAmount(c);
       if(amt > 0) x.montant = amt;
       else { x.pending = true; x.montant = 0; x.hint = 'Ajoute une Apple Watch ou des AirPods Pro 3 (100 €), ou des AirPods 4 / 5 (50 €) pour déclencher l\'ODR iPhone'; }
@@ -1101,9 +1081,34 @@ function renderCol(c) {
       ${r.odrTotal > 0 ? `<div class="final-row"><span class="final-label">Après remboursement</span><span class="final-amount sm">${eur(r.apres)}</span></div>` : ''}
     </div>`;
     if(r.fc) h += `<div class="cost-box">Sur 24 mois avec le forfait ${esc(r.fc.f.name)} : <b>${eur(r.cost24)}</b>${r.equiv !== null && state.contrat !== 'nu' ? `<br>Revient au même que le mobile acheté nu + un forfait à <b>${eur(r.equiv, 1)}/mois</b>` : ''}</div>`;
+    if(EMBED) h += r.fc
+      ? `<button class="btn-simultoo" onclick="event.stopPropagation(); addToSimultoo(${c})">＋ Ajouter à Simultoo <small>${esc(r.fc.f.name)} + ce mobile</small></button>`
+      : `<div class="simultoo-hint">Choisis un forfait pour pouvoir ajouter ce mobile à Simultoo.</div>`;
   }
   h += `<div id="diff-${c}"></div>`;
   return h;
+}
+
+// ── v2.2 : envoi vers Simultoo (page ouverte dans Simultoo, menu ☰) ──
+// Mêmes identifiants des deux côtés : forfaits (ma1…mm7), options (dz1, cs1, a1…), mobiles (slugs OMNI).
+function simultooPayload(c) {
+  const r = calcCol(c); if(!r || r.na || !r.fc) return null;
+  const v = r.v, fc = r.fc;
+  return {type: 'simultoo:add', version: 1,
+    forfait: fc.fid,
+    flags: {box: !!state.flags.box, u26: !!state.flags.u26},
+    remises: fc.rems.map(x => ({id: x.id, l: x.l, on: !!x.on})),
+    options: [...state.options, state.assurance].filter(Boolean),
+    terminal: {slug: v.slug, name: [v.name, v.capa, v.color].filter(Boolean).join(' '), img: v.img || '', price: r.pr.price,
+      accessories: Math.round(r.accs * 100) / 100, accNote: state.cols[c].accs.map(accLabel).join(', '),
+      reprise: r.reprise, bonusReprise: r.bonus, odr: r.odrTotal,
+      odrs: r.odrs.filter(o => !o.pending).map(o => ({lien: o.lien || '', on: odrActive(o), montant: o.montant, iphone: !!o.iphone})),
+      etal: !!r.etal}};
+}
+function addToSimultoo(c) {
+  const p = simultooPayload(c);
+  if(!p) { toast('Choisis un forfait et un mobile avant d\'ajouter à Simultoo'); return; }
+  try { window.parent.postMessage(p, '*'); } catch(e) { toast('Impossible de joindre Simultoo'); }
 }
 
 function renderPhones() {
@@ -1702,8 +1707,6 @@ function openLocalFile(file) {
 
 function renderNotices() {
   const out = [];
-  if(DATA_META.versionMinimale && verLess(VERSION, DATA_META.versionMinimale))
-    out.push(`<div class="notice red">⚠️ Mise à jour nécessaire : ce simulateur (${esc(VERSION)}) est plus ancien que la version minimale ${esc(DATA_META.versionMinimale)}. Les calculs peuvent être faux. <a href="${esc(UPDATE_URL)}" target="_blank" rel="noopener">Télécharger la dernière version ↗</a> <button class="btn ghost" style="background:#fff;color:#B30000;padding:4px 10px" onclick="openUpdateTutorial()">Tutoriel</button></div>`);
   if(DATA_META.frais === false) out.push(`<div class="notice yellow">⚠️ Les prix Orange n'ont pas été relevés au dernier passage d'OMNI : ce sont ceux du ${esc(DATA_LABEL)}.</div>`);
   if(DATA_META.message) out.push(`<div class="notice blue">ℹ️ ${esc(DATA_META.message)}</div>`);
   if(DATA_SOURCE === 'file') out.push(`<div class="notice yellow">📂 Prix d'un fichier ouvert à la main (${esc(DATA_LABEL)}), pas des prix en ligne. Ils ne seront pas gardés à la fermeture. <button class="btn ghost" style="padding:3px 10px" onclick="reloadPrices()">Revenir aux prix en ligne</button></div>`);
@@ -1712,7 +1715,7 @@ function renderNotices() {
 function renderModal() {
   const nbOdr = PHONES.filter(p => p.odr.length).length, nbNa = PHONES.filter(p => !p.dispo).length;
   document.getElementById('data-info').innerHTML = `<div class="stat-grid"><div><b>${esc(DATA_LABEL)}</b>${DATA_SOURCE === 'online' ? 'prix en ligne' : 'fichier ouvert à la main'}</div><div><b>${MODELS.length}</b>modèles (${PHONES.length} coloris)</div><div><b>${nbOdr}</b>coloris avec ODR</div></div>
-    <div style="font-size:12px;color:var(--text-hint);margin-top:6px">${nbNa} coloris indisponibles en ligne (signalés ⚠)${DATA_META.versionMinimale ? ` · version minimale demandée : ${esc(DATA_META.versionMinimale)}` : ''}.</div>`;
+    <div style="font-size:12px;color:var(--text-hint);margin-top:6px">${nbNa} coloris indisponibles en ligne (signalés ⚠).</div>`;
   document.getElementById('prix-url').value = prixUrl();
   document.getElementById('patchnote').innerHTML = PATCHNOTES.map(p => `<div><b>${esc(p.v)}</b><ul class="patch">${p.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('');
 }
@@ -1724,49 +1727,18 @@ function closeModal() { document.getElementById('modal').classList.remove('show'
   z.addEventListener('dragleave', () => z.classList.remove('over'));
   z.addEventListener('drop', e => { e.preventDefault(); z.classList.remove('over'); openLocalFile(e.dataTransfer.files[0]); });
 })();
-document.addEventListener('keydown', e => { if(e.key === 'Escape') { closeModal(); closePdfModal(); closeUpdateTutorial(); } });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') { closeModal(); closePdfModal(); } });
 
 // ═══════════════════════════════════════════════
-// MISE À JOUR & APERÇU TEAMS (repris de Simultoo v65)
+// VERSION
 // ═══════════════════════════════════════════════
 function fillVersionBadges() {
   document.querySelectorAll('.ver-num').forEach(e => e.textContent = VERSION);
   document.querySelectorAll('.ver-data').forEach(e => e.textContent = '· prix au ' + DATA_LABEL);
 }
-function openUpdateTutorial() {
-  document.getElementById('update-link').href = UPDATE_URL;
-  document.getElementById('tuto-img').src = UPDATE_TUTO_IMG;
-  document.getElementById('tuto-modal').classList.add('show');
-}
-function closeUpdateTutorial() { document.getElementById('tuto-modal').classList.remove('show'); }
-// Deux indices, jamais vrais pour un fichier ouvert normalement depuis le bureau :
-// le fichier est affiché dans un cadre (aperçu Teams/SharePoint) ou le stockage local est bloqué.
-function checkPreviewEnv() {
-  fillVersionBadges();
-  let storageOK = true;
-  try { localStorage.setItem('__simusmart_probe__', '1'); localStorage.removeItem('__simusmart_probe__'); } catch(e) { storageOK = false; }
-  let inFrame = true;
-  try { inFrame = window.top !== window.self; } catch(e) { inFrame = true; }
-  if(!storageOK || inFrame) {
-    document.getElementById('previewBanner').classList.add('show');
-    document.body.classList.add('preview-locked');
-    syncPreviewBannerPadding();
-    openUpdateTutorial();
-  }
-}
-function syncPreviewBannerPadding() {
-  const b = document.getElementById('previewBanner');
-  const h = b.classList.contains('show') ? b.offsetHeight : 0;
-  document.querySelector('header').style.top = h + 'px';
-  document.querySelector('.app-layout').style.marginTop = h + 'px';
-  document.querySelector('.sidebar').style.top = (56 + h) + 'px';
-}
-function dismissPreviewBanner() {
-  document.getElementById('previewBanner').classList.remove('show');
-  document.body.classList.remove('preview-locked');
-  syncPreviewBannerPadding();
-}
-window.addEventListener('resize', syncPreviewBannerPadding);
+// v2.3 : page hébergée en ligne et intégrée à Simultoo (menu ☰). Plus de bandeau « aperçu Teams »
+// ni de vérification de version : la page en ligne est toujours la dernière, seul Simultoo vérifie sa version.
+function checkPreviewEnv() { fillVersionBadges(); }
 
 // ═══════════════════════════════════════════════
 // INIT
