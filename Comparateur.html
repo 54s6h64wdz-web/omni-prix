@@ -214,40 +214,16 @@
   .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 13px; padding: 9px 16px; border-radius: 20px; opacity: 0; pointer-events: none; transition: all .25s; z-index: 500; max-width: 90vw; }
   .toast.show { opacity: 1; transform: translateX(-50%); }
 
-  .preview-banner { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 400; background: #CC0000; color: #fff; padding: 16px 24px 16px 64px; box-shadow: 0 2px 14px rgba(0,0,0,.35); }
-  .preview-banner.show { display: block; }
-  .pb-arrow { position: absolute; left: 14px; top: 14px; font-size: 34px; line-height: 1; transform: rotate(-8deg); }
-  .pb-title { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
-  .pb-sub { font-size: 13px; font-weight: 600; margin-bottom: 10px; max-width: 820px; }
-  .pb-pill { display: inline-block; background: #fff; color: #B30000; font-weight: 800; font-size: 13px; padding: 8px 13px; border-radius: 3px; margin-bottom: 10px; }
-  .pb-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-  .pb-btn { background: #7A0000; color: #fff; border: 1px solid #9c0000; padding: 9px 15px; font-size: 13px; font-weight: 800; cursor: pointer; }
-  .pb-skip { background: none; border: none; color: rgba(255,255,255,.75); font-size: 11.5px; text-decoration: underline; cursor: pointer; }
-  body.preview-locked > header, body.preview-locked main { filter: grayscale(65%); opacity: .42; pointer-events: none; user-select: none; }
-  .ver-badge { display: inline-flex; align-items: center; gap: 10px; background: #FFD400; color: #000; font-weight: 800; font-size: 14px; padding: 7px 13px; border-radius: 3px; margin-bottom: 12px; }
-  .ver-badge b { background: #000; color: #FFD400; padding: 2px 9px; border-radius: 2px; }
-  .tuto-steps { margin: 6px 0 14px 18px; line-height: 1.6; }
-  .tuto-img { display: block; max-width: 100%; border: 1px solid var(--line); border-radius: var(--radius-sm); }
-  #tuto-modal { z-index: 500; }
 </style>
 </head>
 <body>
 <div class="loader" id="loader"><div class="loader-box" id="loader-box"></div>
   <input type="file" id="loader-file" accept=".js,.json" style="display:none" onchange="openLocalFile(this.files[0])"></div>
-<div class="preview-banner" id="previewBanner">
-  <div class="pb-arrow">↖</div>
-  <div class="pb-title">⚠️ Téléchargez le fichier pour utiliser le Comparateur</div>
-  <div class="pb-sub">Vous êtes dans l'aperçu Teams : ici, les liens et le chargement des prix peuvent ne pas fonctionner.</div>
-  <div class="pb-pill">👉 Cliquez sur le bouton Télécharger ↓ en haut à gauche de l'aperçu, puis ouvrez le fichier téléchargé.</div>
-  <div class="pb-actions"><button class="pb-btn" onclick="openTuto()">Voir le tutoriel en images</button>
-    <button class="pb-skip" onclick="dismissPreview()">Le comparateur ne devrait pas être bloqué ? Continuer quand même</button></div>
-</div>
 <header>
   <div class="logo"><i style="background:var(--orange)"></i><i style="background:var(--bouygues)"></i><i style="background:var(--sfr)"></i>OMNI · Comparateur</div>
   <div class="header-title">Orange · Bouygues Telecom · SFR</div>
   <span class="version-badge" id="version-badge"></span>
   <span class="data-badge" id="data-badge"></span>
-  <button class="hdr-btn" onclick="openTuto()">⬇ Mettre à jour</button>
   <button class="hdr-btn" onclick="openModal()">Données</button>
 </header>
 
@@ -287,36 +263,24 @@
     <div class="modal-body" id="modal-body"></div>
   </div>
 </div>
-<div class="modal-overlay" id="tuto-modal" onclick="if(event.target===this)closeTuto()">
-  <div class="modal-panel" style="width:440px">
-    <div class="modal-header"><span>⬇ Télécharger la dernière version</span><button onclick="closeTuto()">×</button></div>
-    <div class="modal-body">
-      <div class="ver-badge">🆕 Version : <b class="ver-num"></b></div>
-      <p style="color:var(--muted);margin-bottom:12px">Le comparateur est mis à jour régulièrement. Les prix, eux, se mettent à jour tout seuls.</p>
-      <a class="btn" id="update-link" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin:0 0 14px">Ouvrir le dossier partagé</a>
-      <ol class="tuto-steps">
-        <li>Ouvrez le dossier partagé via le bouton ci-dessus</li>
-        <li>Cliquez sur <b>Comparateur.html</b> pour l'ouvrir en aperçu</li>
-        <li>Téléchargez-le avec l'icône en haut à gauche de l'aperçu (capture ci-dessous)</li>
-        <li>Remplacez l'ancien fichier sur votre bureau</li>
-      </ol>
-      <img class="tuto-img" id="tuto-img" alt="Icône de téléchargement dans l'aperçu Teams">
-    </div>
-  </div>
-</div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ════════════════════════════════════════════════════════════════════
 // Comparateur Orange · Bouygues · SFR — prix lus dans prix-omni.js
 // ════════════════════════════════════════════════════════════════════
-const VERSION = 'v1.1';
+const VERSION = 'v1.3';
 const PRIX_URL_DEFAUT = 'https://54s6h64wdz-web.github.io/omni-prix/prix-omni.js';
-const UPDATE_URL = 'https://orange0-my.sharepoint.com/:f:/g/personal/abdelkader_bessaih_orange_com/IgBdvcWNfQedSr8coQvVN1m2AThFN93LEq_TSdrxq84GrNc?e=ILbBm5';
 const LS_URL = 'comparateur.prixUrl';
 const LOAD_TIMEOUT = 20000;
-const UPDATE_TUTO_IMG = "data:image/png;base64,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";
 const PATCHNOTES = [
+  {v: 'v1.3 — 13/10/2026', items: [
+    'Comparateur intégré à Simultoo (HTML sur GitHub) : plus de bandeau « aperçu Teams », plus de bouton « Mettre à jour » ni de contrôle de version minimale. Simultoo s\'en charge.'
+  ]},
+  {v: 'v1.2 — 13/10/2026', items: [
+    'B.iG : seul le prix du forfait comparé est compté (5 / 8 / 10 € selon le nombre de forfaits Bouygues du foyer). Ligne « B.iG en plus sur l\'autre forfait » retirée : elle faisait remonter le prix Bouygues au-delà de 2 forfaits.',
+    '« Le téléphone revient à » = payé aujourd\'hui − remboursements, étalement déduit ; les mensualités sont rappelées dessous avec le coût total.'
+  ]},
   {v: 'v1.1 — 13/10/2026', items: [
     'Orange : remises du forfait cochables — ODR cross sell (−5 €, −2 € sur le 20 Go, jusqu\'au 19/10), Code Privilège −15 € sur le 200 Go (non cumulable avec l\'ODR Bienvenue), ODR Bienvenue.',
     'Correction : plus d\'ODR Bienvenue sur le 300 Go en acquisition (Simultoo v86).',
@@ -555,11 +519,9 @@ function planBouygues(cle) {
     for (let i = 0; i < 24; i++) mois[i] += BIG_INCLUS;
     if (box) {
       const n = Math.min(3, state.bigHeld + 1), b = BIG_PAR[n];
-      rems.push({l: `B.iG · ${state.bigHeld + 1} forfait${n > 1 ? 's' : ''} Bouygues`, a: b, on: true, detail: 'sur ce forfait', toggle: tg});
+      // Seul le prix de CE forfait est compté : B.iG 5 € (1 forfait dans le foyer), 8 € (2), 10 € (3 et +)
+      rems.push({l: 'B.iG', a: b, on: true, detail: `${state.bigHeld + 1} forfait${n > 1 ? 's' : ''} Bouygues dans le foyer`, toggle: tg});
       for (let i = 0; i < 24; i++) mois[i] -= b;
-      // Le nouveau forfait fait monter la remise B.iG des forfaits déjà détenus
-      const avant = BIG_PAR[Math.min(3, state.bigHeld)], gain = state.bigHeld * (b - avant);
-      if (gain > 0) { rems.push({l: `B.iG en plus sur ${state.bigHeld > 1 ? 'les ' + state.bigHeld + ' autres forfaits' : "l'autre forfait"}`, a: gain, on: true, detail: `${avant} → ${b} € chacun`}); for (let i = 0; i < 24; i++) mois[i] -= gain; }
     } else rems.push({l: 'B.iG', a: BIG_INCLUS, on: false, detail: 'si client Bbox', toggle: tg});
   }
   const porta = (f.conditions || []).find((x) => x.condition === 'portabilite');
@@ -667,9 +629,10 @@ function calculer(op, o, payKey) {
   const forf24 = forf ? forf.reduce((s, x) => s + x, 0) : 0;
   // Toutes les mensualités du téléphone (36 en Smart Change : téléphone gardé, pour comparer à prix égal)
   const telTout = r2(pm.n * pm.m);
-  const coutTel = r2(pm.cout - immed - odrTot);
+  const coutTelTotal = r2(pm.cout - immed - odrTot);                   // toutes mensualités comprises
+  const coutTel = pm.n ? r2(pm.apport - immed - odrTot) : coutTelTotal;  // étalement déduit : payé aujourd'hui − remboursements
   const total24 = forf ? r2(aujourdhui + telTout + forf24 - odrTot) : null;
-  const res = {pm, reprise, bonus, bonusManque, code, odrs, odrTot, aujourdhui, paye: Math.max(0, aujourdhui), coutTel, total24,
+  const res = {pm, reprise, bonus, bonusManque, code, odrs, odrTot, aujourdhui, paye: Math.max(0, aujourdhui), coutTel, coutTelTotal, total24,
     mois1: forf ? r2(forf[0] + telMois(1)) : (pm.n ? pm.m : null), mois13: forf ? r2(forf[12] + telMois(13)) : (pm.n >= 13 ? pm.m : null),
     forf1: forf ? forf[0] : null, forf13: forf ? forf[12] : null, tel1: telMois(1), tel13: telMois(13), notes: [...o.notes]};
   if (o.sc) {
@@ -758,11 +721,11 @@ function colonnes() {
 function metricChoisie(cols) {
   if (state.metric !== 'auto') return state.metric;
   const actives = cols.filter((c) => c.r);
-  return actives.length && actives.every((c) => c.o.plan) ? 'total24' : 'coutTel';
+  return actives.length && actives.every((c) => c.o.plan) ? 'total24' : 'coutTelTotal';
 }
 const METRICS = {
   total24: {lib: 'Total sur 24 mois', court: 'Total 24 mois', sub: 'téléphone + forfait, reprise et remboursements déduits'},
-  coutTel: {lib: 'Coût du téléphone', court: 'Téléphone', sub: 'tout ce que coûte le mobile, forfait non compris'},
+  coutTelTotal: {lib: 'Coût du téléphone', court: 'Téléphone', sub: 'mensualités du téléphone comprises, forfait à part'},
   paye: {lib: 'Payé aujourd\'hui', court: 'Aujourd\'hui', sub: 'en boutique, reprise et bonus déduits'}
 };
 
@@ -774,7 +737,7 @@ function renderVerdict(cols) {
   const min = ok.length ? Math.min(...ok) : null;
   const sorted = cols.map((c, i) => ({c, v: vals[i]})).filter((x) => x.v != null).sort((a, b) => a.v - b.v);
   // Formulation pour le conseiller Orange : tout est dit par rapport à Orange.
-  const quand = {total24: 'sur 24 mois', coutTel: 'sur le téléphone', paye: "aujourd'hui en boutique"}[mk];
+  const quand = {total24: 'sur 24 mois', coutTelTotal: 'sur le téléphone', paye: "aujourd'hui en boutique"}[mk];
   const parMois = (d) => mk === 'total24' ? ` (soit ${eurM(Math.abs(d) / 24)} de ${d >= 0 ? 'plus' : 'moins'} par mois pendant 24 mois)` : '';
   let title = 'Choisissez un mobile', sub = '';
   const or = sorted.find((x) => x.c.op === 'orange'), conc = sorted.filter((x) => x.c.op !== 'orange');
@@ -799,7 +762,7 @@ function renderVerdict(cols) {
   const sansForfait = cols.filter((c) => c.r && !c.o.plan).length;
   if (mk === 'total24' && sansForfait) warn.push('Une offre sans forfait n\'a pas de total sur 24 mois : compare plutôt le coût du téléphone.');
   $('verdict').innerHTML = `<div><div class="v-title">${esc(title)}</div><div class="v-sub">${sub ? esc(sub.charAt(0).toUpperCase() + sub.slice(1)) + '<br>' : ''}<span style="color:var(--hint)">${esc(METRICS[mk].lib)} — ${esc(METRICS[mk].sub)}</span></div>
-      <div class="v-metric"><div class="seg">${['auto', 'total24', 'coutTel', 'paye'].map((k) => `<button class="${state.metric === k ? 'on' : ''}" onclick="setMetric('${k}')">${k === 'auto' ? 'Auto' : METRICS[k].court}</button>`).join('')}</div></div></div>
+      <div class="v-metric"><div class="seg">${['auto', 'total24', 'coutTelTotal', 'paye'].map((k) => `<button class="${state.metric === k ? 'on' : ''}" onclick="setMetric('${k}')">${k === 'auto' ? 'Auto' : METRICS[k].court}</button>`).join('')}</div></div></div>
     <div><div class="bars">${bars}</div>${warn.map((w) => `<div class="v-warn">${esc(w)}</div>`).join('')}</div>`;
 }
 
@@ -900,8 +863,8 @@ function renderTable(cols) {
   });
   // 7. Coût du téléphone
   const bCout = best('coutTel');
-  row('Le téléphone revient à', 'tout compris, forfait à part', (c) => `<div class="cell${cls(c, 'coutTel', bCout)}"><div class="big">${eur(c.r.coutTel)}${crown(c, 'coutTel', bCout)}</div>
-    <div class="sub">${c.r.pm.n ? `apport + ${c.r.pm.n} mensualités` : 'payé'} − reprise − remboursements${c.o.sc ? ` · s'il le garde (${eur(c.r.rendu)} s'il le rend au mois ${c.o.sc.rendDes})` : ''}</div></div>`, true);
+  row('Le téléphone revient à', 'après remboursements, étalement déduit', (c) => `<div class="cell${cls(c, 'coutTel', bCout)}"><div class="big">${c.r.coutTel < 0 ? `0 €<small> (+${eur(-c.r.coutTel)} remboursés en plus de l'apport)</small>` : eur(c.r.coutTel)}${crown(c, 'coutTel', bCout)}</div>
+    <div class="sub">${c.r.pm.n ? `payé aujourd'hui − remboursements, ${c.o.sc ? 'Smart Change' : 'étalement'} déduit<br><b>+ ${c.r.pm.n} × ${eurM(c.r.pm.m)}</b> sur la facture (dans « Chaque mois »)${c.o.sc ? ` · s'il le rend au mois ${c.o.sc.rendDes} : ${eur(c.r.rendu)} au total` : ` · ${eur(c.r.coutTelTotal)} au total`}` : 'payé − reprise − remboursements'}</div></div>`, true);
   // 8. Total 24 mois
   const b24 = best('total24');
   row('Total sur 24 mois', 'téléphone + forfait', (c) => c.r.total24 == null
@@ -1034,14 +997,12 @@ function loaderError(why) {
     <button class="btn" onclick="startLoad()">Réessayer</button><button class="btn ghost" onclick="$('loader-file').click()">Ouvrir un fichier…</button>
     <div class="loader-err">${esc(why)} — ${esc(prixUrl())}</div>`);
 }
-let premier = true;
 function apresChargement(raw, source) {
   DATA_SOURCE = source;
   preparer(raw);
   if (!MODELES.length) { loaderError('aucun mobile Orange dans le fichier'); return; }
   if (state.pid && !produitCourant()) state.pid = null;   // le champ reste vide tant que le conseiller n'a pas choisi
   loaderHide(); renderHeader(); render(); renderNotices();
-  if (premier) { premier = false; checkPreview(); }
 }
 async function startLoad() {
   loaderShow('<div class="spinner"></div><h2>Chargement des prix…</h2><p>Orange, Bouygues Telecom et SFR, depuis prix-omni.js.</p>');
@@ -1066,13 +1027,9 @@ function openLocalFile(file) {
   };
   rd.readAsText(file);
 }
-const parseVer = (v) => String(v || '').replace(/^v/i, '').split('.').map((n) => parseInt(n, 10) || 0);
-function verLess(a, b) { const x = parseVer(a), y = parseVer(b); for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) < (y[i] || 0); return false; }
 function renderNotices() {
   const out = [];
-  const vm = O.versionMinimale && typeof O.versionMinimale === 'object' ? O.versionMinimale.comparateur : O.versionMinimale;
   const msg = O.message && typeof O.message === 'object' ? O.message.comparateur : O.message;
-  if (vm && verLess(VERSION, vm)) out.push(`<div class="notice red">⚠️ Mise à jour nécessaire : ce comparateur (${esc(VERSION)}) est plus ancien que la version ${esc(vm)}. <a href="${esc(UPDATE_URL)}" target="_blank" rel="noopener">Télécharger la dernière version ↗</a></div>`);
   const vieux = OP_KEYS.filter((op) => O.operateurs && O.operateurs[op] && O.operateurs[op].frais === false);
   if (vieux.length) out.push(`<div class="notice yellow">⚠️ Prix ${vieux.map((op) => OPS[op].nom).join(' et ')} non mis à jour au dernier relevé.</div>`);
   if (msg) out.push(`<div class="notice blue">ℹ️ ${esc(msg)}</div>`);
@@ -1094,9 +1051,9 @@ function renderModal() {
     ${melanges.length ? `<p class="sub" style="color:var(--amber)">Produits qui regroupent deux mobiles différents (4G/5G…) chez un opérateur : prix du premier affichés — ${esc(melanges.join(', '))}.</p>` : ''}
     <h4>Règles de calcul</h4><ul>
       <li><b>Payé aujourd'hui</b> = prix du téléphone (ou apport) − code promo − reprise − bonus reprise.</li>
-      <li><b>Le téléphone revient à</b> = apport + toutes les mensualités du téléphone − reprise − bonus − code − remboursements (ODR). Forfait non compris.</li>
+      <li><b>Le téléphone revient à</b> = payé aujourd'hui − remboursements (ODR). En cas d'étalement, de facilité, de crédit ou de Smart Change, les mensualités sont déduites : elles sont rappelées dessous et comptées dans « Chaque mois » et le total 24 mois. Le verdict « Téléphone » compare, lui, le coût mensualités comprises.</li>
       <li><b>Total sur 24 mois</b> = payé aujourd'hui + 24 mois de forfait + toutes les mensualités du téléphone − remboursements (en Smart Change, les 36 mensualités : téléphone gardé, pour comparer à prix égal). Frais d'activation / carte SIM non comptés.</li>
-      <li><b>Box</b> : plusieurs box possibles ; chaque remise (Remise Open, B.iG, SFR Multi) ne s'applique que si la box de cet opérateur est cochée. B.iG : 5 € (1 forfait Bouygues), 8 € (2), 10 € (3 et +) par forfait 20 Go et +, selon le nombre de forfaits déjà détenus + le nouveau ; le gain sur les forfaits déjà détenus est compté. Sans Bbox : +5 € sur le prix affiché par Bouygues.</li>
+      <li><b>Box</b> : plusieurs box possibles ; chaque remise (Remise Open, B.iG, SFR Multi) ne s'applique que si la box de cet opérateur est cochée. B.iG sur le forfait comparé seulement : 5 € (1 forfait Bouygues dans le foyer, celui-ci compris), 8 € (2), 10 € (3 et +). Sans Bbox : +5 € sur le prix affiché par Bouygues.</li>
       <li><b>Bonus reprise</b> : Orange dès 10 € (iPhone), 1 € (Samsung), 0 € (autres) ; Bouygues avec forfait et reprise ≥ 10 € ; SFR avec forfait, sans minimum.</li>
       <li><b>ODR iPhone Orange (19492)</b> : décochée d'office, elle demande l'achat d'une Apple Watch ou d'AirPods.</li>
       <li><b>Forfaits Orange</b> : prix et remises de Simultoo v86 — Remise Open, ODR Bienvenue 12 mois (200 Go acquisition, Voyage 250 Go ; pas sur le 300 Go), ODR cross sell 12 mois (au choix), Code Privilège 200 Go 12 mois (au choix, non cumulable avec l'ODR Bienvenue), code promo 130 Go.</li></ul>
@@ -1113,19 +1070,7 @@ function closeModal() { $('modal').classList.remove('show'); }
 function saveUrl() { const v = $('prix-url').value.trim(); try { if (v && v !== PRIX_URL_DEFAUT) localStorage.setItem(LS_URL, v); else localStorage.removeItem(LS_URL); } catch (e) {} reloadPrices(); }
 function resetUrl() { try { localStorage.removeItem(LS_URL); } catch (e) {} reloadPrices(); }
 
-// ── Mise à jour & aperçu Teams ──
-function openTuto() {
-  document.querySelectorAll('.ver-num').forEach((e) => { e.textContent = VERSION; });
-  $('update-link').href = UPDATE_URL; $('tuto-img').src = UPDATE_TUTO_IMG; $('tuto-modal').classList.add('show');
-}
-function closeTuto() { $('tuto-modal').classList.remove('show'); }
-function checkPreview() {
-  let ok = true; try { localStorage.setItem('__cmp_probe__', '1'); localStorage.removeItem('__cmp_probe__'); } catch (e) { ok = false; }
-  let frame = true; try { frame = window.top !== window.self; } catch (e) { frame = true; }
-  if (!ok || frame) { $('previewBanner').classList.add('show'); document.body.classList.add('preview-locked'); openTuto(); }
-}
-function dismissPreview() { $('previewBanner').classList.remove('show'); document.body.classList.remove('preview-locked'); }
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeTuto(); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
 startLoad();
 </script>
