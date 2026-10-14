@@ -517,10 +517,14 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v2.3';
+const VERSION = 'v2.4';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 const PATCHNOTES = [
+  {v:'v2.4 — 14/10/2026', items:[
+    'ODR Bienvenue −10 € retirée du forfait 300 Go en acquisition (non compatible).',
+    'Ouvert depuis Simultoo : le profil client (client box Orange / Open, −26 ans) est repris automatiquement de Simultoo à chaque ouverture.',
+  ]},
   {v:'v2.3 — 13/10/2026', items:[
     'Page hébergée en ligne et intégrée à Simultoo : suppression du bandeau « aperçu Teams », du bouton « Mettre à jour » et de l\'alerte de version (seul Simultoo vérifie sa version).',
   ]},
@@ -712,7 +716,8 @@ const FORFAITS = {
          {id:'priv',l:'Code Privilège',a:-15,k:'odr',when:'manual',excl:'bienv',note:'Non cumulable avec l\'ODR Bienvenue'}]},
   ma8: {name:'300 Go 5G', price:67.99, activ:0, eng:'Engagement 24 mois', tag:'Réseau 5G+ · Engagement 24 mois',
     features:['Appels illimités France, Europe, USA, Canada + fixes 100 destinations','300 Go + 150 Go depuis l\'Europe','+ 40 Go depuis 78 destinations','Configuration Flash offerte'],
-    rem:[{id:'open',l:'Remise Open',a:-15,k:'perm',when:'open'},{id:'bienv',l:'ODR Bienvenue',a:-10,k:'odr',when:'auto',url:'https://formulaires.odr.orange.fr/19298'},
+    // v2.4 : pas d'ODR Bienvenue sur le 300 Go en acquisition (non compatible — comme Simultoo)
+    rem:[{id:'open',l:'Remise Open',a:-15,k:'perm',when:'open'},
          {id:'cross',l:'ODR cross sell',a:-5,k:'odr',when:'manual',url:'https://formulaires.odr.orange.fr/19392',until:CROSS_UNTIL}]},
   // vSUB — CPM / migration (re-engagement 24 mois)
   mm5: {name:'200 Go 5G', price:47.99, activ:0, eng:'Re-engagement 24 mois', tag:'Réseau 5G · Re-engagement 24 mois',
@@ -1105,6 +1110,16 @@ function simultooPayload(c) {
       odrs: r.odrs.filter(o => !o.pending).map(o => ({lien: o.lien || '', on: odrActive(o), montant: o.montant, iphone: !!o.iphone})),
       etal: !!r.etal}};
 }
+// v2.4 : contexte client envoyé par Simultoo à l'ouverture (client box Orange / Open, −26 ans).
+// Le profil client du simulateur suit Simultoo ; le forfait choisi n'est pas modifié.
+window.addEventListener('message', e => {
+  if(!EMBED || e.source !== window.parent) return;
+  const d = e.data; if(!d || d.type !== 'simultoo:ctx') return;
+  const box = !!d.box, u26 = !!d.u26;
+  if(state.flags.box === box && state.flags.u26 === u26) return;
+  state.flags.box = box; state.flags.u26 = u26; delete state.remOverride.open;
+  if(!firstRender) { renderAll(); toast('Profil client repris de Simultoo' + (box || u26 ? ' : ' + [box ? 'client box Orange' : '', u26 ? '−26 ans' : ''].filter(Boolean).join(', ') : '')); }
+});
 function addToSimultoo(c) {
   const p = simultooPayload(c);
   if(!p) { toast('Choisis un forfait et un mobile avant d\'ajouter à Simultoo'); return; }
