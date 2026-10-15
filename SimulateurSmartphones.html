@@ -60,7 +60,70 @@
   .sb-forfait .sum-cell.wide { grid-column: span 2; display: flex; justify-content: space-between; align-items: baseline; }
   .sb-forfait .muted-note { font-size: 10.5px; margin-top: 5px; }
   .sb-forfait .na-box { font-size: 11.5px; padding: 8px; background: var(--surface); }
-  main { margin-left: 312px; flex: 1; padding: 1.5rem 1.5rem 3rem; min-width: 0; }
+  main { margin-left: 312px; margin-right: 360px; flex: 1; padding: 1.5rem 1.5rem 3rem; min-width: 0; }
+  /* v2.5 — panneau accessoires à droite (inspiré du rail de Simultoo) */
+  .acc-rail { position: fixed; top: 56px; right: 0; bottom: 0; width: 360px; background: #111; color: #fff; overflow-y: auto; display: flex; flex-direction: column; box-shadow: -2px 0 10px rgba(0,0,0,.12); z-index: 20; }
+  .rail-head { padding: 12px 12px 10px 16px; border-bottom: 1px solid #262626; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .rail-hide { background: none; border: 1px solid #444; color: #ccc; font-size: 11.5px; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .rail-hide:hover { border-color: #fff; color: #fff; }
+  body.rail-hidden .acc-rail { display: none; }
+  body.rail-hidden main { margin-right: 0; }
+  .rail-tab { position: fixed; right: 0; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; background: var(--orange); color: #000; font-weight: 800; font-size: 13px; letter-spacing: .04em; border: none; border-radius: 6px 0 0 6px; padding: 14px 8px; cursor: pointer; z-index: 25; box-shadow: -2px 0 8px rgba(0,0,0,.2); font-family: inherit; display: flex; }
+  .rail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .rt-s { flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px; padding: 7px 9px; min-height: 48px; }
+  .rt-s > b { font-size: 12px; }
+  .rt-wide { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; min-height: 0; }
+  .ri-ico { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: #fff; color: #333; border-radius: 3px; font-size: 20px; flex-shrink: 0; }
+  .rail-head > b { display: block; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+  .rail-head small { display: block; color: #9a9a9a; font-size: 11.5px; margin-top: 2px; } .rail-head small b { color: var(--orange); }
+  .rail-quick { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; border-bottom: 1px solid #262626; }
+  .rt { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; text-align: left; background: #1b1b1b; color: #fff; border: 1px solid #2c2c2c; border-left: 3px solid var(--orange); border-radius: 4px; padding: 8px 10px; font-size: 13px; font-family: inherit; cursor: pointer; }
+  .rt:hover { background: #232323; }
+  .rt > span small { display: block; color: #9a9a9a; font-size: 11px; font-weight: 400; }
+  .rt > b { color: var(--orange); white-space: nowrap; font-size: 12.5px; }
+  .rt-multi { flex-direction: column; align-items: stretch; cursor: default; gap: 6px; }
+  .rt-multi > span small { display: inline; margin-left: 4px; }
+  .rt-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+  .rt-chips button { flex: 1; min-width: 0; background: #262626; color: #ddd; border: 1px solid #333; border-radius: 4px; padding: 4px 4px; font-size: 11.5px; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
+  .rt-chips button b { color: #fff; font-size: 12px; }
+  .rt-chips button:hover { border-color: var(--orange); color: #fff; }
+  .rt-chips button.def { border-color: #6b4a1f; }
+  .rt-pack { background: #2a1704; border-color: #6b3d0a; justify-content: flex-start; }
+  .rt-pack .pk { background: var(--orange); color: #000; font-weight: 800; font-size: 12px; border-radius: 4px; padding: 6px 7px; flex-shrink: 0; }
+  .rt-pack b { color: #fff !important; font-size: 13px; } .rt-pack small { color: #f0b47a !important; }
+  .rail-search { padding: 10px 12px 6px; position: sticky; top: 0; background: #111; z-index: 2; }
+  .rail-search input { width: 100%; background: #1b1b1b; border: 1px solid #333; color: #fff; border-radius: 4px; padding: 7px 10px; font-size: 12.5px; font-family: inherit; }
+  .rail-search input:focus { outline: none; border-color: var(--orange); }
+  .rail-cat { border-bottom: 1px solid #222; }
+  .rail-cat-h { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: none; color: #fff; padding: 11px 14px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: left; }
+  .rail-cat-h small { color: #777; font-weight: 400; margin-left: 4px; }
+  .rail-cat-h .ri-odr { margin-left: 6px; }
+  .rail-cat-h .chev { color: #777; transition: transform .15s; } .rail-cat.open .chev { transform: rotate(90deg); }
+  .rail-cat-b { padding: 0 10px 10px; display: flex; flex-direction: column; gap: 5px; }
+  .rail-subs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px; }
+  .rail-subs button { background: #1b1b1b; color: #bbb; border: 1px solid #333; border-radius: 12px; padding: 2px 9px; font-size: 11px; cursor: pointer; font-family: inherit; }
+  .rail-subs button.on { background: var(--orange); color: #000; border-color: var(--orange); font-weight: 700; }
+  .ri { display: flex; align-items: center; gap: 9px; background: #1b1b1b; border: 1px solid #2a2a2a; border-radius: 4px; padding: 5px 8px 5px 5px; cursor: pointer; }
+  .ri:hover { border-color: var(--orange); background: #222; }
+  .ri.dim { opacity: .45; }
+  .ri img { width: 38px; height: 38px; object-fit: contain; background: #fff; border-radius: 3px; flex-shrink: 0; }
+  .ri-txt { flex: 1; min-width: 0; }
+  .ri-name { font-size: 12px; line-height: 1.3; color: #eee; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ri-meta { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+  .ri-odr { background: #1f6b2e; color: #fff; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 0 5px; }
+  .ri-promo { background: #4a3500; color: #ffd27a; font-size: 10px; font-weight: 700; border-radius: 3px; padding: 0 5px; }
+  .ri-pill { border: 1px solid #555; color: #aaa; font-size: 9.5px; border-radius: 8px; padding: 0 5px; }
+  .ri-price { text-align: right; white-space: nowrap; font-size: 12.5px; } .ri-price b { color: #fff; } .ri-price s { display: block; color: #777; font-size: 10.5px; }
+  .rail-empty { color: #888; font-size: 12px; padding: 10px 14px; }
+  .acc-img { width: 26px; height: 26px; object-fit: contain; background: #fff; border-radius: 3px; }
+  .acc-odr { background: var(--green-bg); color: var(--green-text); font-size: 10.5px; font-weight: 700; border-radius: 3px; padding: 0 5px; white-space: nowrap; }
+  .acc-tag .pen { background: none; border: none; cursor: pointer; color: var(--orange); font-size: 13px; padding: 0 2px; }
+  .acc-tag .neg { color: var(--green-text); }
+  .mdm-kind { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 4px; overflow: hidden; margin-right: 4px; vertical-align: middle; }
+  .mdm-kind button { border: none; background: #fff; font-size: 11px; padding: 2px 7px; cursor: pointer; font-family: inherit; }
+  .mdm-kind button.on { background: var(--orange); color: #fff; font-weight: 700; }
+  @media (max-width: 1200px) { .acc-rail { position: static; width: calc(100% - 312px); margin-left: 312px; max-height: none; } main { margin-right: 0; } .app-layout { flex-wrap: wrap; } }
+  @media (max-width: 900px) { .acc-rail { width: 100%; margin-left: 0; } }
   @media (max-width: 900px) { .sidebar { position: static; width: 100%; border-right: none; } .app-layout { flex-direction: column; } main { margin-left: 0; padding: 1rem; } }
 
   .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
@@ -439,26 +502,9 @@
   <main>
     <div id="notices"></div>
     <div class="phones-grid single" id="phones-grid"></div>
-
-    <div class="bottom-grid">
-      <div class="card palette-card">
-        <div class="section-label">Accessoires et prestations</div>
-        <div class="palette-intro">Glisser un élément vers un téléphone, ou cliquer pour l'ajouter au <b id="target-label">Téléphone 1</b>.</div>
-        <div class="palette-row"><div class="pack-tile" draggable="true" ondragstart="dragStart(event,'__packApple')" onclick="addPack('apple')">
-          <div class="pack-icon">3+1</div>
-          <div><div class="pack-title">Pack 3+1 Apple <span class="kind">iPhone</span></div>
-          <div class="pack-items">Coque officielle · Chargeur · Zagg · AirTag à 1 €</div></div>
-        </div>
-        <div class="pack-tile" draggable="true" ondragstart="dragStart(event,'__packTiers')" onclick="addPack('tiers')">
-          <div class="pack-icon">3+1</div>
-          <div><div class="pack-title">Pack 3+1 Tiers <span class="kind">Tous mobiles</span></div>
-          <div class="pack-items">Coque non officielle · Chargeur · Zagg · Accessoire bonus à 1 € (ou 19 €)</div></div>
-        </div></div>
-        <div class="palette-items" id="palette"></div>
-        <div class="promo-note"><b>Pack Apple :</b> AirTag à 1 € avec coque officielle + chargeur + Zagg — <b>2e Zagg à −50 %</b><br><b>Pack Tiers :</b> accessoire bonus à 1 € (gamme 49 €) ou 19 € (gamme 99 €) avec coque non officielle + chargeur + Zagg</div>
-      </div>
-    </div>
   </main>
+  <aside class="acc-rail" id="acc-rail"></aside>
+  <button class="rail-tab" id="rail-tab" onclick="setRailHidden(false)" title="Afficher les accessoires et prestations" style="display:none">Accessoires</button>
 </div>
 
 <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
@@ -517,10 +563,26 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v2.4';
+const VERSION = 'v2.6';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 const PATCHNOTES = [
+  {v:'v2.6 — 15/10/2026', items:[
+    'Panneau des accessoires rétractable (« Masquer ✕ », onglet « Accessoires » pour le rouvrir ; choix mémorisé sur le poste).',
+    'Tuiles compactées : Pack 3+1 en haut sur toute la largeur, puis sac Orange, configuration, coque, Zagg et saisie libre / MDM en demi-largeur. La gamme de coque et le type de configuration se choisissent dans la carte du mobile.',
+    'AirTag déplacé en bas du panneau (« Autres ») ; il reste ajouté automatiquement par le Pack 3+1 sur iPhone.',
+  ]},
+  {v:'v2.5 — 15/10/2026', items:[
+    'Accessoires et prestations dans un panneau à droite : sac Orange 0,50 €, configuration (Experte 24 € par défaut, Flash 9 €, Personnalisée 39,99 €), Pack 3+1 unique, coque, Zagg (2e à −50 %), AirTag (iPhone), saisie libre / MDM.',
+    'Pack 3+1 unique et contextuel : coque + chargeur adapté au mobile (Apple 20W pour un iPhone, Samsung 25W blanc pour la gamme A, noir pour les S et Z, Bigben GRS 20W sinon) + Zagg + AirTag à 1 € (iPhone avec coque officielle) ou accessoire bonus.',
+    'Coques : gamme simple / renforcée / officielle (29,99 / 39,99 / 59,99 €), prix modifiable avec le crayon.',
+    'Accessoires du catalogue Orange (prix-omni.js) : accessoires de charge (filtrés par type), montres connectées, écouteurs sans fil, enceintes (filtrés par marque), avec photo, prix, promo et ODR ; recherche par nom ou marque.',
+    'ODR des accessoires affichées avec les ODR du mobile, déduites du prix « après remboursement » et reprises dans le PDF (QR code).',
+    'Plus de remise automatique de 10 € à partir du 2e accessoire Apple.',
+    'Règle : chargeur Bigben GRS 20W à 9 € avec un Doro Leva L30.',
+    'Liste des smartphones : prix ODR déduite et montant d\'ODR (ex. « 799 € (dont 50 € d\'ODR) »).',
+    'Ajouter à Simultoo : les accessoires détaillés et leurs ODR sont envoyés à Simultoo.',
+  ]},
   {v:'v2.4 — 14/10/2026', items:[
     'ODR Bienvenue −10 € retirée du forfait 300 Go en acquisition (non compatible).',
     'Ouvert depuis Simultoo : le profil client (client box Orange / Open, −26 ans) est repris automatiquement de Simultoo à chaque ouverture.',
@@ -748,49 +810,85 @@ const OPTIONS = [
 const ODR_JEUNES = {nom:'ODR −26 ans Cheat Code + mobile ≥ 300 €', montant:80, lien:'https://formulaires.odr.orange.fr/19430', fin:parseFrDate('18/11/2026'), seuil:300};
 
 // ═══════════════════════════════════════════════
-// ACCESSOIRES & PRESTATIONS (repris du simulateur Apple)
+// ACCESSOIRES & PRESTATIONS — v2.5
+// Prestations et accessoires « maison » ici ; tout le reste (charge, montres, écouteurs, enceintes)
+// vient de prix-omni.js (accessoires[] : prix, promo, ODR, images, couleurs).
 // ═══════════════════════════════════════════════
 const ACCS = [
-  {id:'config', name:'Configuration', type:'model', models:[{key:'experte',label:'Experte',price:24},{key:'perso',label:'Personnalisée',price:39}]},
-  {id:'watch', name:'Apple Watch', type:'model', isApple:true, iphoneOnly:true, odrIphone:true, models:[
-    {key:'se3_40_gps', label:'SE 3 — 40 mm GPS', price:269, odr:100},
-    {key:'se3_40_5g', label:'SE 3 — 40 mm GPS + 5G', price:319, odr:100},
-    {key:'se3_44_gps', label:'SE 3 — 44 mm GPS', price:299, odr:100},
-    {key:'se3_44_5g', label:'SE 3 — 44 mm GPS + 5G', price:349, odr:100},
-    {key:'s11_42_5g', label:'Series 11 — 42 mm GPS + 5G', price:569, odr:100},
-    {key:'s11_46_5g', label:'Series 11 — 46 mm GPS + 5G', price:599, odr:100},
-    {key:'ultra3', label:'Ultra 3 — 49 mm GPS + 5G', price:899, odr:100}]},
-  {id:'airpods', name:'AirPods', type:'model', isApple:true, odrIphone:true, models:[
-    {key:'ap5', label:'AirPods 5', price:149, odr:50},
-    {key:'ap5sf', label:'AirPods 5 boîtier sans fil', price:169, odr:50},
-    {key:'ap4', label:'AirPods 4', price:139, odr:50},
-    {key:'ap4anc', label:'AirPods 4 réduction de bruit', price:199, odr:50},
-    {key:'appro3', label:'AirPods Pro 3', price:249, odr:100}]},
-  {id:'coque', name:'Coque officielle Apple', type:'simple', price:59.99, isApple:true, iphoneOnly:true},
-  {id:'coquetiers', name:'Coque non officielle', type:'model', models:[{key:'simple',label:'Simple',price:29.99},{key:'renforcee',label:'Renforcée',price:39.99}]},
-  {id:'chargeur', name:'Chargeur', type:'model', models:[
-    {key:'apple30', label:'Apple 30W', price:27.99, isApple:true},
-    {key:'samsung', label:'Samsung', price:29.99},
-    {key:'belkin', label:'Belkin', price:24.99}]},
+  {id:'sac', name:'Sac Orange', type:'simple', price:0.5},
+  {id:'config', name:'Configuration', type:'model', models:[{key:'experte',label:'Experte',price:24},{key:'flash',label:'Flash',price:9},{key:'perso',label:'Personnalisée',price:39.99}]},
+  {id:'coque', name:'Coque', type:'model', editable:true, models:[{key:'simple',label:'Simple',price:29.99},{key:'renforcee',label:'Renforcée',price:39.99},{key:'officielle',label:'Officielle',price:59.99}]},
   {id:'zagg', name:'Protection écran Zagg', type:'simple', price:34.99},
   {id:'airtag', name:'AirTag', type:'simple', price:35.99, iphoneOnly:true, packPrice:1},
-  {id:'bonus', name:'Accessoire bonus', type:'model', models:[{key:'g49',label:'Gamme 49 €',price:49,packPrice:1},{key:'g99',label:'Gamme 99 €',price:99,packPrice:19}]},
-  {id:'autre', name:'Autre', type:'custom', price:0}
+  {id:'bonus', name:'Accessoire bonus 3+1', type:'model', models:[{key:'g49',label:'Gamme 49 €',price:49,packPrice:1},{key:'g99',label:'Gamme 99 €',price:99,packPrice:19}]},
+  // repli quand prix-omni.js n'a pas d'accessoires (ancien fichier, fichier ouvert à la main…)
+  {id:'chargeur', name:'Chargeur', type:'model', models:[{key:'apple20',label:'Apple USB-C 20W',price:21.99},{key:'samsung25',label:'Samsung 25W',price:29.99},{key:'bigben20',label:'Bigben GRS USB-C 20W',price:24.99}]},
+  {id:'mdm', name:'Saisie libre / MDM', type:'custom', price:0},
+  {id:'omni', name:'Accessoire', type:'omni'}
 ];
-const PACK_APPLE = ['coque','chargeur','zagg','airtag'];
-const PACK_TIERS = ['coquetiers','chargeur','zagg','bonus'];
-const APPLE_MULTI_REMISE = 10;
-// Accessoire de marque Apple : l'accessoire entier (coque, Watch, AirPods) ou le modèle choisi (chargeur Apple)
-function isAppleEntry(e) {
-  const a = accDef(e.id); if(!a) return false;
-  if(a.isApple) return true;
-  if(a.type === 'model') { const m = a.models.find(m => m.key === e.modelKey); return !!(m && m.isApple); }
-  return false;
+// Accessoires du catalogue Orange (prix-omni.js)
+let ACC_OMNI = [];
+const ACC_CATS = [
+  {key:'chargeurs', nom:'Accessoires de charge', subs:[['secteur','Chargeurs secteur'],['cable','Câbles'],['batterie','Batteries'],['induction','Induction'],['voiture','Voiture']]},
+  {key:'montres', nom:'Montres connectées'},
+  {key:'ecouteurs', nom:'Écouteurs sans fil'},
+  {key:'enceintes', nom:'Enceintes'}
+];
+function parseIsoDay(s, endOfDay) { if(!s) return null; const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})/); if(!m) return parseFrDate(s); return new Date(+m[1], +m[2]-1, +m[3], endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0); }
+function accSub(a) {
+  const n = a.nom || '';
+  if(a.categorie !== 'chargeurs') return a.marque || 'Autre';
+  if(/allume-cigare/i.test(n)) return 'voiture';
+  if(/induction/i.test(n)) return 'induction';
+  if(/^Batterie/i.test(n)) return 'batterie';
+  if(/^Câble/i.test(n)) return 'cable';
+  return 'secteur';
 }
-// Modèle proposé par défaut à l'ajout (chargeur selon la marque du mobile)
-function defaultModelKey(a, v) {
-  if(a.id === 'chargeur') return v && v.isIphone ? 'apple30' : v && v.brand === 'Samsung' ? 'samsung' : 'belkin';
-  return a.models[0].key;
+function normAcc(raw) {
+  return (raw || []).filter(a => a && a.id && a.nom && +a.prix > 0).map(a => {
+    const promoFin = parseIsoDay(a.promoFin, true);
+    const promoOk = +a.cat > +a.prix && !(promoFin && today() > promoFin);
+    return {id: a.id, cat: a.categorie, nom: a.nom, marque: a.marque || '', prix: promoOk ? +a.prix : (+a.cat || +a.prix), catPrix: +a.cat || +a.prix,
+      promo: promoOk, promoFin, img: a.img || '', sub: accSub(a),
+      iphoneOnly: a.categorie === 'montres' && a.marque === 'Apple' && /^Apple Watch/i.test(a.nom),
+      variantes: (a.variantes && a.variantes.length ? a.variantes : [{nom: a.nomComplet || a.nom, couleur: '', dispo: true, img: a.img}]).map(v => ({nom: v.nom || a.nom, couleur: v.couleur || '', dispo: v.dispo !== false, img: v.img || a.img})),
+      odr: (a.odr || []).map(o => ({nom: o.nom || 'ODR', montant: +o.montant || 0, debut: parseIsoDay(o.debut), fin: parseIsoDay(o.fin, true), lien: o.coupon || o.lien || ''}))};
+  });
+}
+const accOmni = id => ACC_OMNI.find(a => a.id === id);
+const accOdrActive = a => !a ? [] : a.odr.filter(o => o.montant > 0 && !(o.fin && today() > o.fin) && !(o.debut && today() < o.debut));
+const accImg = e => { const a = accOmni(e.accId); if(!a) return ''; const v = a.variantes[e.vi || 0]; return (v && v.img) || a.img; };
+function findAccByName(re, color) {
+  const a = ACC_OMNI.find(x => re.test(x.nom)); if(!a) return null;
+  let vi = a.variantes.findIndex(v => v.dispo); if(vi < 0) vi = 0;
+  if(color) { const i = a.variantes.findIndex(v => new RegExp(color, 'i').test(v.couleur + ' ' + v.nom)); if(i >= 0) vi = i; }
+  return {a, vi};
+}
+// Pack 3+1 contextualisé selon le mobile : coque + chargeur adapté + Zagg + 4e article (AirTag à 1 € avec coque officielle sur iPhone, sinon accessoire bonus)
+function packPlan(v) {
+  let ch = null, chFb = 'bigben20', chLbl = 'Chargeur Bigben GRS 20W';
+  if(v && v.isIphone) { ch = findAccByName(/^Chargeur secteur Apple USB-C 20W/i); chFb = 'apple20'; chLbl = 'Chargeur Apple 20W'; }
+  else if(v && v.brand === 'Samsung') {
+    const gammeA = /Galaxy A\d/i.test(v.name);
+    ch = findAccByName(/^Chargeur secteur Samsung Power Delivery USB-C 25W$/i, gammeA ? 'blanc' : 'noir'); chFb = 'samsung25';
+    chLbl = 'Chargeur Samsung 25W ' + (gammeA ? 'blanc' : 'noir');
+  }
+  else ch = findAccByName(/^Chargeur secteur GRS Bigben Power Delivery USB-C 20W/i);
+  const apple = !!(v && v.isIphone);
+  return {coque: apple ? 'officielle' : 'simple', ch, chFb, chLbl, fourth: apple ? 'airtag' : 'bonus',
+    desc: (apple ? 'Coque officielle' : 'Coque') + ' · ' + chLbl + ' · Zagg · ' + (apple ? 'AirTag à 1 €' : 'Accessoire bonus à 1 € (ou 19 €)')};
+}
+function isChargerEntry(e) {
+  if(e.id === 'chargeur') return true;
+  if(e.id !== 'omni') return false;
+  const a = accOmni(e.accId); return !!a && a.cat === 'chargeurs' && a.sub === 'secteur';
+}
+function pack3p1(c) {
+  const accs = state.cols[c].accs;
+  const coque = accs.find(e => e.id === 'coque');
+  if(!coque || !accs.some(e => e.id === 'zagg') || !accs.some(isChargerEntry)) return null;
+  const v = variantOf(c);
+  return {apple: !!(v && v.isIphone && coque.modelKey === 'officielle')};
 }
 
 // ODR iPhone + accessoire Apple (formulaire 19492) — du 08/10 au 21/10/2026
@@ -802,11 +900,14 @@ const ODR_IPHONE = {
 };
 const isOdrIphone = o => !!(o.lien && o.lien.includes(ODR_IPHONE.ref));
 function odrIphoneAmount(c) {
+  // Apple Watch ou AirPods Pro = 100 € ; autres AirPods = 50 € (accessoires du catalogue)
   let best = 0;
   state.cols[c].accs.forEach(e => {
-    const a = accDef(e.id); if(!a || !a.odrIphone) return;
-    const m = a.models.find(m => m.key === e.modelKey) || a.models[0];
-    best = Math.max(best, m.odr || 0);
+    if(e.id !== 'omni') return;
+    const a = accOmni(e.accId); if(!a || a.marque !== 'Apple') return;
+    if(a.cat === 'montres' && /^Apple Watch/i.test(a.nom)) best = Math.max(best, 100);
+    else if(/AirPods Pro/i.test(a.nom)) best = Math.max(best, 100);
+    else if(/AirPods/i.test(a.nom)) best = Math.max(best, 50);
   });
   return best;
 }
@@ -908,33 +1009,41 @@ function forfaitCalc() {
 // ═══════════════════════════════════════════════
 function accDef(id) { return ACCS.find(a => a.id === id); }
 function hasAll(c, ids) { const have = state.cols[c].accs.map(x => x.id); return ids.every(id => have.includes(id)); }
-const packAppleOn = c => { const v = variantOf(c); return !!(v && v.isIphone && hasAll(c, PACK_APPLE)); };
-const packTiersOn = c => hasAll(c, PACK_TIERS);
-
+function isPackedEntry(e, c) {
+  const pk = pack3p1(c); if(!pk) return false;
+  return ['coque','zagg'].includes(e.id) || isChargerEntry(e) || (e.id === 'airtag' && pk.apple) || (e.id === 'bonus');
+}
 function accBasePrice(e, c) {
   const a = accDef(e.id); if(!a) return 0;
   const v = variantOf(c);
-  if(a.type === 'custom') return +e.price || 0;
-  if(a.id === 'airtag' && packAppleOn(c)) return a.packPrice;
-  if(a.id === 'zagg') { const z = state.cols[c].accs.filter(x => x.id === 'zagg'); if(z.indexOf(e) === 1) return Math.round(a.price * 50) / 100; }
-  if(a.id === 'coque' && v && /iPhone 1[67]e/.test(v.name)) return 45.99;
+  if(e.id === 'mdm') { const n = Math.abs(+e.price || 0); return e.kind === 'mdm' ? -n : n; }
+  if(e.id === 'omni') {
+    const o = accOmni(e.accId); if(!o) return +e.price || 0;
+    // Règle boutique : chargeur Bigben GRS 20W vendu avec un Doro Leva L30 → 9 €
+    if(/GRS Bigben Power Delivery USB-C 20W/i.test(o.nom) && v && /Leva L30/i.test(v.name)) return 9;
+    return o.prix;
+  }
+  const pk = pack3p1(c);
+  if(e.id === 'airtag' && pk && pk.apple) { const first = state.cols[c].accs.find(x => x.id === 'airtag'); if(first === e) return a.packPrice; }
+  if(e.id === 'zagg') { const z = state.cols[c].accs.filter(x => x.id === 'zagg'); if(z.indexOf(e) === 1) return Math.round(a.price * 50) / 100; }
   if(a.type === 'model') {
     const m = a.models.find(m => m.key === e.modelKey) || a.models[0];
-    if(a.id === 'bonus' && packTiersOn(c)) return m.packPrice;
+    if(e.id === 'coque' && e.priceOverride !== undefined && e.priceOverride !== '' && !isNaN(+e.priceOverride)) return +e.priceOverride;
+    if(e.id === 'bonus' && pk && !(pk.apple && state.cols[c].accs.some(x => x.id === 'airtag'))) { const first = state.cols[c].accs.find(x => x.id === 'bonus'); if(first === e) return m.packPrice; }
     return m.price;
   }
   return a.price;
 }
-function accFullPrice(e) { const a = accDef(e.id); if(a.type === 'custom') return +e.price || 0; if(a.type === 'model') return (a.models.find(m => m.key === e.modelKey) || a.models[0]).price; return a.price; }
-function accPrice(e, c) {
-  const base = accBasePrice(e, c);
-  const a = accDef(e.id); const v = variantOf(c);
-  if(isAppleEntry(e) && v && v.isIphone) {
-    const apples = state.cols[c].accs.filter(isAppleEntry);
-    if(apples.indexOf(e) >= 1) return Math.max(0, Math.round((base - APPLE_MULTI_REMISE) * 100) / 100);
-  }
-  return base;
+function accFullPrice(e) {
+  const a = accDef(e.id); if(!a) return 0;
+  if(e.id === 'mdm') { const n = Math.abs(+e.price || 0); return e.kind === 'mdm' ? -n : n; }
+  if(e.id === 'omni') { const o = accOmni(e.accId); return o ? o.catPrix : (+e.price || 0); }
+  if(e.id === 'coque' && e.priceOverride !== undefined && e.priceOverride !== '' && !isNaN(+e.priceOverride)) return +e.priceOverride;
+  if(a.type === 'model') return (a.models.find(m => m.key === e.modelKey) || a.models[0]).price;
+  return a.price;
 }
+// v2.5 : plus de remise automatique de 10 € à partir du 2e accessoire Apple (elle ne s'applique pas à tous les accessoires)
+function accPrice(e, c) { return accBasePrice(e, c); }
 
 function calcCol(c) {
   const v = variantOf(c); if(!v) return null;
@@ -968,6 +1077,11 @@ function calcCol(c) {
     if(ip.montant >= bestOther) others.forEach(o => { o.excluded = true; o.why = 'Non cumulable avec l\'ODR iPhone'; });
     else { ip.excluded = true; ip.why = 'Non cumulable : l\'autre ODR est plus avantageuse'; }
   }
+  // ODR des accessoires du catalogue (ex. remboursement Samsung) : listées avec les ODR du mobile
+  state.cols[c].accs.forEach(e => {
+    if(e.id !== 'omni') return; const a = accOmni(e.accId); if(!a) return;
+    accOdrActive(a).forEach((o, i) => odrs.push({nom: o.nom + ' — ' + a.nom, montant: o.montant, fin: o.fin, lien: o.lien, key: 'acc' + e.uid + '#' + i, acc: true, accUid: e.uid}));
+  });
   const odrTotal = odrs.reduce((s, o) => s + (odrActive(o) ? o.montant : 0), 0);
   const fc = forfaitCalc();
   let cost24 = null, equiv = null;
@@ -1005,14 +1119,18 @@ function renderSidebar() {
   document.getElementById('reprise-wrap').style.display = state.reprise ? 'flex' : 'none';
 }
 
+function phoneOdrSure(v) { const now = today(); return (v.odr || []).filter(o => !isOdrIphone(o) && !(o.fin && now > o.fin) && !(o.debut && now.getTime() < o.debut.getTime() - 86399000)).reduce((s, o) => s + (o.montant || 0), 0); }
 function modelSelectHtml(c) {
   const col = state.cols[c];
   let html = `<select onchange="setModel(${c}, this.value)"><option value="">— Choisir un smartphone —</option>`;
   let brand = null;
   MODELS.forEach(m => {
     if(m.brand !== brand) { if(brand !== null) html += '</optgroup>'; brand = m.brand; html += `<optgroup label="${esc(brand)}">`; }
-    const pr = m.variants.map(v => v.prices[priceKey()]).filter(Boolean).map(p => p.price);
-    const from = pr.length ? (Math.min(...pr) === Math.max(...pr) ? eur(Math.min(...pr)) : 'dès ' + eur(Math.min(...pr))) : 'non dispo';
+    // v2.5 : prix ODR déduite (hors ODR iPhone + accessoire, conditionnelle) et montant d'ODR
+    const cands = m.variants.map(v => { const p = v.prices[priceKey()]; if(!p) return null; const o = phoneOdrSure(v); return {net: p.price - o, odr: o}; }).filter(Boolean).sort((a, b) => a.net - b.net);
+    const best = cands[0];
+    const from = !best ? 'non dispo' : (cands.some(x => Math.abs(x.net - best.net) > 0.004) ? 'dès ' : '')
+      + (best.net < 0 ? `${eur(best.net + best.odr)} (ODR de ${eur(best.odr)})` : eur(best.net) + (best.odr > 0 ? ` (dont ${eur(best.odr)} d'ODR)` : ''));
     html += `<option value="${esc(m.name)}" ${col.model === m.name ? 'selected' : ''}>${esc(m.name)} — ${from}</option>`;
   });
   return html + '</optgroup></select>';
@@ -1045,7 +1163,8 @@ function renderCol(c) {
     if(r.pr.expired) h += `<span class="badge red">Promo du fichier expirée</span>`;
     if(v.reseau) h += `<span class="badge blue">${esc(v.reseau)}</span>`;
     if(!v.dispo) h += `<span class="badge red">Indisponible en ligne</span>`;
-    if(r.odrTotal > 0) h += `<span class="badge green">ODR ${eur(r.odrTotal)}</span>`;
+    const odrPhone = r.odrs.reduce((s, o) => s + (!o.acc && odrActive(o) ? o.montant : 0), 0);
+    if(odrPhone > 0) h += `<span class="badge green">ODR ${eur(odrPhone)}</span>`;
     else if(r.odrs.some(o => o.pending)) h += `<span class="badge green">ODR jusqu'à 100 € avec Apple Watch / AirPods</span>`;
   }
   h += `</div></div>`;
@@ -1053,20 +1172,12 @@ function renderCol(c) {
     const rows = [['Nu / vSIM','nu'],['Acquisition 80 Go','acq80'],['Acquisition 200 Go','acq200'],['Acquisition 300 Go','acq300'],['PCM 200 Go','pcm200'],['PCM 300 Go','pcm300']];
     h += `<details class="all-prices"><summary>Tous les tarifs de ce mobile</summary><table class="prices-table">${rows.map(([l,k]) => { const p = v.prices[k]; return `<tr class="${k === priceKey() ? 'cur' : ''}"><th>${l}</th><td>${p ? (p.promo > 0 ? `<s>${eur(p.cat)}</s>` : '') + eur(p.price) : '—'}</td></tr>`; }).join('')}</table></details>`;
   }
-  // accessoires
-  h += `<div class="acc-section-header">Accessoires et prestations <span>(glisser ou cliquer dans la palette)</span></div><div class="drop-zone">`;
+  // accessoires (v2.5)
+  h += `<div class="acc-section-header">Accessoires et prestations <span>(cliquer ou glisser depuis le panneau de droite)</span></div><div class="drop-zone">`;
   if(!col.accs.length) h += `<div class="empty-hint">Aucun accessoire</div>`;
-  if(packAppleOn(c)) h += `<div class="pack-banner">✓ Pack 3+1 Apple actif — AirTag à 1 €</div>`;
-  if(packTiersOn(c)) h += `<div class="pack-banner">✓ Pack 3+1 Tiers actif — accessoire bonus à prix pack</div>`;
-  col.accs.forEach(e => {
-    const a = accDef(e.id); const p = accPrice(e, c); const full = accFullPrice(e);
-    const packed = (packAppleOn(c) && PACK_APPLE.includes(e.id)) || (packTiersOn(c) && PACK_TIERS.includes(e.id));
-    let inner = '';
-    if(a.type === 'model') inner = `${esc(a.name)} <select onchange="setAccModel(${c},${e.uid},this.value)">${a.models.map(m => `<option value="${m.key}" ${m.key === e.modelKey ? 'selected' : ''}>${esc(m.label)}</option>`).join('')}</select>`;
-    else if(a.type === 'custom') inner = `<input placeholder="Libellé" value="${esc(e.label || '')}" onchange="setAccCustom(${c},${e.uid},'label',this.value)"><input class="num" type="number" step="0.01" placeholder="Prix" value="${e.price || ''}" onchange="setAccCustom(${c},${e.uid},'price',this.value)">`;
-    else inner = esc(a.name);
-    h += `<div class="acc-tag ${packed ? 'packed' : ''}"><span>${inner}</span><span class="p">${p < full ? `<s>${eur(full)}</s><b>${eur(p)}</b>` : eur(p)}</span><button class="rm" onclick="removeAcc(${c},${e.uid})" title="Retirer">×</button></div>`;
-  });
+  const pk = pack3p1(c);
+  if(pk) h += `<div class="pack-banner">✓ Pack 3+1 actif — ${pk.apple ? 'AirTag à 1 €' : 'accessoire bonus à prix pack'}</div>`;
+  col.accs.forEach(e => { h += accTagHTML(e, c); });
   h += `</div>`;
   // totaux
   if(r && !r.na) {
@@ -1107,7 +1218,13 @@ function simultooPayload(c) {
     terminal: {slug: v.slug, name: [v.name, v.capa, v.color].filter(Boolean).join(' '), img: v.img || '', price: r.pr.price,
       accessories: Math.round(r.accs * 100) / 100, accNote: state.cols[c].accs.map(accLabel).join(', '),
       reprise: r.reprise, bonusReprise: r.bonus, odr: r.odrTotal,
-      odrs: r.odrs.filter(o => !o.pending).map(o => ({lien: o.lien || '', on: odrActive(o), montant: o.montant, iphone: !!o.iphone})),
+      odrs: r.odrs.filter(o => !o.pending && !o.acc).map(o => ({lien: o.lien || '', on: odrActive(o), montant: o.montant, iphone: !!o.iphone})),
+      accItems: state.cols[c].accs.map(e => {
+        const it = {label: accLabel(e), price: Math.round(accPrice(e, c) * 100) / 100, img: e.id === 'omni' ? accImg(e) : '', kind: e.id};
+        const ao = r.odrs.filter(o => o.acc && o.accUid === e.uid && odrActive(o));
+        if(ao.length) it.odr = ao.map(o => ({nom: o.nom, montant: o.montant, lien: o.lien || '', fin: o.fin ? fmtDate(o.fin) + '/' + o.fin.getFullYear() : ''}));
+        return it;
+      }),
       etal: !!r.etal}};
 }
 // v2.4 : contexte client envoyé par Simultoo à l'ouverture (client box Orange / Open, −26 ans).
@@ -1126,6 +1243,106 @@ function addToSimultoo(c) {
   try { window.parent.postMessage(p, '*'); } catch(e) { toast('Impossible de joindre Simultoo'); }
 }
 
+function accTagHTML(e, c) {
+  const a = accDef(e.id); if(!a) return '';
+  const p = accPrice(e, c), full = accFullPrice(e);
+  let inner = '', img = '';
+  if(e.id === 'omni') {
+    const o = accOmni(e.accId);
+    if(!o) inner = esc(e.label || 'Accessoire (absent des prix chargés)');
+    else {
+      img = `<img class="acc-img" src="${esc(accImg(e))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`;
+      inner = esc(o.nom) + (o.variantes.length > 1 ? ` <select onchange="setAccVariant(${c},${e.uid},this.value)">${o.variantes.map((x, i) => `<option value="${i}" ${i === (e.vi || 0) ? 'selected' : ''}>${esc(cap(x.couleur || ('modèle ' + (i + 1))))}${x.dispo ? '' : ' ⚠'}</option>`).join('')}</select>` : '')
+        + accOdrActive(o).map(x => ` <span class="acc-odr">ODR −${eur(x.montant)}</span>`).join('');
+    }
+  } else if(e.id === 'coque') {
+    inner = `Coque <select onchange="setAccModel(${c},${e.uid},this.value)">${a.models.map(m => `<option value="${m.key}" ${m.key === e.modelKey ? 'selected' : ''}>${esc(m.label)}</option>`).join('')}</select>`;
+  } else if(e.id === 'mdm') {
+    inner = `<span class="mdm-kind"><button class="${e.kind === 'mdm' ? '' : 'on'}" onclick="setAccCustom(${c},${e.uid},'kind','libre')">Saisie libre</button><button class="${e.kind === 'mdm' ? 'on' : ''}" onclick="setAccCustom(${c},${e.uid},'kind','mdm')" title="Marge de manœuvre : montant déduit">MDM</button></span><input placeholder="${e.kind === 'mdm' ? 'Motif (facultatif)' : 'Libellé'}" value="${esc(e.label || '')}" onchange="setAccCustom(${c},${e.uid},'label',this.value)"><input class="num" type="number" step="0.01" min="0" placeholder="Prix" value="${e.price || ''}" onchange="setAccCustom(${c},${e.uid},'price',this.value)">`;
+  } else if(a.type === 'model') {
+    inner = `${esc(a.name)} <select onchange="setAccModel(${c},${e.uid},this.value)">${a.models.map(m => `<option value="${m.key}" ${m.key === e.modelKey ? 'selected' : ''}>${esc(m.label)}</option>`).join('')}</select>`;
+  } else inner = esc(a.name);
+  const priceHtml = e.id === 'coque' && e.editPrice
+    ? `<input class="num" type="number" step="0.01" min="0" value="${p}" onchange="setAccCustom(${c},${e.uid},'priceOverride',this.value)" onblur="stopEditPrice(${c},${e.uid})" autofocus>`
+    : (p < full - 0.004 ? `<s>${eur(full)}</s><b>${eur(p)}</b>` : (e.id === 'mdm' && e.kind === 'mdm' ? `<b class="neg">−${eur(-p)}</b>` : eur(p)));
+  const pen = e.id === 'coque' ? `<button class="pen" title="Modifier le prix (tarifs variables)" onclick="event.stopPropagation(); editAccPrice(${c},${e.uid})">✎</button>` : '';
+  return `<div class="acc-tag ${isPackedEntry(e, c) ? 'packed' : ''}">${img}<span>${inner}</span><span class="p">${priceHtml}</span>${pen}<button class="rm" onclick="removeAcc(${c},${e.uid})" title="Retirer">×</button></div>`;
+}
+
+// ── Panneau de droite : accessoires & prestations (v2.5) ──
+const RAIL = {open: {}, sub: {}, q: '', hidden: (() => { try { return localStorage.getItem('simusmart_rail_hidden') === '1'; } catch(e) { return false; } })()};
+function railTarget() { return 'Téléphone ' + (state.activeCol + 1); }
+function renderRail() {
+  const el = document.getElementById('acc-rail'); if(!el) return;
+  const v = variantOf(state.activeCol);
+  const P = packPlan(v);
+  const cfg = accDef('config'), cq = accDef('coque');
+  document.body.classList.toggle('rail-hidden', !!RAIL.hidden);
+  el.innerHTML = `
+    <div class="rail-head"><div><b>Accessoires &amp; prestations</b><small>Ajout au <b id="target-label">${railTarget()}</b>${v ? ' — ' + esc(v.name) : ''}</small></div><button class="rail-hide" onclick="setRailHidden(true)" title="Masquer le panneau">Masquer ✕</button></div>
+    <div class="rail-quick">
+      <button class="rt rt-pack" onclick="addPack(state.activeCol)" draggable="true" ondragstart="dragStart(event,'__pack')"><span class="pk">3+1</span><span><b>Pack 3+1${v ? ' — ' + esc(v.brand) : ''}</b><small>${v ? esc(P.desc) : 'Choisis un mobile : le pack s\'adapte (chargeur, AirTag ou accessoire bonus)'}</small></span></button>
+      <div class="rail-grid">
+        <button class="rt rt-s" onclick="addAcc(state.activeCol,'sac')" draggable="true" ondragstart="dragStart(event,'sac')"><span>Sac Orange</span><b>${eur(0.5)}</b></button>
+        <button class="rt rt-s" onclick="addAcc(state.activeCol,'config')" draggable="true" ondragstart="dragStart(event,'config')" title="Experte par défaut — Flash ou Personnalisée se choisissent dans la carte du mobile"><span>Configuration</span><b>dès ${eur(9)}</b></button>
+        <button class="rt rt-s" onclick="addAcc(state.activeCol,'coque')" draggable="true" ondragstart="dragStart(event,'coque')" title="Gamme (simple, renforcée, officielle) et prix modifiables dans la carte du mobile"><span>Coque</span><b>dès ${eur(29.99)}</b></button>
+        <button class="rt rt-s" onclick="addAcc(state.activeCol,'zagg')" draggable="true" ondragstart="dragStart(event,'zagg')" title="2e protection à −50 %"><span>Zagg</span><b>${eur(34.99)}</b></button>
+        <button class="rt rt-s rt-wide" onclick="addAcc(state.activeCol,'mdm')" draggable="true" ondragstart="dragStart(event,'mdm')"><span>Saisie libre / MDM</span><b>prix libre</b></button>
+      </div>
+    </div>
+    <div class="rail-search"><input id="rail-q" type="search" placeholder="Rechercher un accessoire (marque, modèle…)" value="${esc(RAIL.q)}" oninput="RAIL.q=this.value; renderRailCats()"></div>
+    <div id="rail-cats"></div>`;
+  const tab = document.getElementById('rail-tab'); if(tab) tab.style.display = RAIL.hidden ? 'flex' : 'none';
+  renderRailCats();
+}
+function renderRailCats() {
+  const box = document.getElementById('rail-cats'); if(!box) return;
+  if(!ACC_OMNI.length) { box.innerHTML = `<div class="rail-empty">Accessoires du catalogue indisponibles (absents du fichier de prix chargé).</div>`; return; }
+  const v = variantOf(state.activeCol);
+  const q = (RAIL.q || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  const match = a => !q || (a.nom + ' ' + a.marque).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q);
+  box.innerHTML = ACC_CATS.map(C => {
+    const all = ACC_OMNI.filter(a => a.cat === C.key && match(a)).sort((x, y) => x.prix - y.prix || x.nom.localeCompare(y.nom));
+    if(q && !all.length) return '';
+    const subs = C.subs ? C.subs.filter(([k]) => all.some(a => a.sub === k))
+      : [...new Set(all.map(a => a.sub))].sort((x, y) => all.filter(a => a.sub === y).length - all.filter(a => a.sub === x).length || x.localeCompare(y)).map(k => [k, k]);
+    const cur = RAIL.sub[C.key] || '';
+    const items = all.filter(a => !cur || a.sub === cur);
+    const open = q ? true : !!RAIL.open[C.key];
+    const nOdr = all.filter(a => accOdrActive(a).length).length;
+    return `<div class="rail-cat ${open ? 'open' : ''}">
+      <button class="rail-cat-h" onclick="toggleRailCat('${C.key}')"><span>${esc(C.nom)} <small>${all.length}</small>${nOdr ? `<span class="ri-odr">${nOdr} ODR</span>` : ''}</span><span class="chev">▸</span></button>
+      ${open ? `<div class="rail-cat-b">
+        ${subs.length > 1 ? `<div class="rail-subs"><button class="${cur ? '' : 'on'}" onclick="setRailSub('${C.key}','')">Tous</button>${subs.map(([k, l]) => `<button class="${cur === k ? 'on' : ''}" onclick="setRailSub('${C.key}','${esc(k)}')">${esc(l)}</button>`).join('')}</div>` : ''}
+        ${items.map(a => railItemHTML(a, v)).join('') || '<div class="rail-empty">Aucun article</div>'}
+      </div>` : ''}
+    </div>`;
+  }).join('') + railAutresHTML(v, q) || `<div class="rail-empty">Aucun accessoire ne correspond à « ${esc(RAIL.q)} ».</div>`;
+}
+// « Autres » en bas du panneau : AirTag (iPhone ; à 1 € dans le Pack 3+1 avec coque officielle)
+function railAutresHTML(v, q) {
+  if(q && !'airtag apple'.includes(q)) return '';
+  const dim = !(v && v.isIphone);
+  return `<div class="rail-cat open"><div class="rail-cat-h" style="cursor:default"><span>Autres</span></div><div class="rail-cat-b">
+    <div class="ri ${dim ? 'dim' : ''}" draggable="true" ondragstart="dragStart(event,'airtag')" onclick="addAcc(state.activeCol,'airtag')" title="AirTag — à 1 € dans le Pack 3+1 iPhone (coque officielle)">
+      <div class="ri-ico">⌖</div><div class="ri-txt"><div class="ri-name">AirTag</div><div class="ri-meta"><span class="ri-pill">iPhone</span><span class="ri-promo">1 € avec le Pack 3+1</span></div></div><div class="ri-price"><b>${eur(35.99)}</b></div></div>
+  </div></div>`;
+}
+function setRailHidden(h) { RAIL.hidden = !!h; try { localStorage.setItem('simusmart_rail_hidden', h ? '1' : ''); } catch(e) {} renderRail(); }
+function railItemHTML(a, v) {
+  const dim = a.iphoneOnly && !(v && v.isIphone);
+  const odr = accOdrActive(a);
+  const doro = /GRS Bigben Power Delivery USB-C 20W/i.test(a.nom) && v && /Leva L30/i.test(v.name);
+  return `<div class="ri ${dim ? 'dim' : ''}" draggable="true" ondragstart="dragStart(event,'omni:${esc(a.id)}')" onclick="addOmni(state.activeCol,'${esc(a.id)}')" title="${esc(a.nom)}">
+    <img src="${esc(a.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
+    <div class="ri-txt"><div class="ri-name">${esc(a.nom)}</div>
+      <div class="ri-meta">${a.iphoneOnly ? '<span class="ri-pill">iPhone</span>' : ''}${odr.map(o => `<span class="ri-odr">ODR −${eur(o.montant)}</span>`).join('')}${a.promo ? `<span class="ri-promo">Promo −${eur(a.catPrix - a.prix)}${a.promoFin ? ' jusqu\'au ' + fmtDate(a.promoFin) : ''}</span>` : ''}${doro ? '<span class="ri-promo">9 € avec ce Doro</span>' : ''}</div></div>
+    <div class="ri-price">${a.promo ? `<s>${eur(a.catPrix)}</s>` : ''}<b>${eur(a.prix)}</b></div>
+  </div>`;
+}
+function toggleRailCat(k) { RAIL.open[k] = !RAIL.open[k]; renderRailCats(); }
+function setRailSub(k, sub) { RAIL.sub[k] = sub; renderRailCats(); }
+
 function renderPhones() {
   const grid = document.getElementById('phones-grid');
   grid.className = 'phones-grid' + (state.showCol1 ? '' : ' single');
@@ -1141,7 +1358,7 @@ function renderPhones() {
         : `<span class="diff-badge" style="background:${d < 0 ? 'var(--green-bg)' : 'var(--red-bg)'};color:${d < 0 ? 'var(--green-text)' : 'var(--red-text)'}">${d < 0 ? eur(-d) + ' de moins' : eur(d) + ' de plus'} que le téléphone 1 (après ODR)</span>`;
     }
   }
-  document.getElementById('target-label').textContent = 'Téléphone ' + (state.activeCol + 1);
+  const tl = document.getElementById('target-label'); if(tl) tl.textContent = railTarget();
 }
 
 function renderForfait() {
@@ -1192,20 +1409,13 @@ function renderForfait() {
   el.innerHTML = h;
 }
 
-function renderPalette() {
-  document.getElementById('palette').innerHTML = ACCS.map(a => {
-    const pr = a.type === 'model' ? 'dès ' + eur(Math.min(...a.models.map(m => m.price)), 1) : a.type === 'custom' ? 'prix libre' : eur(a.price, 1);
-    const label = a.id === 'config' ? 'Configuration experte / personnalisée' : a.name;
-    return `<div class="palette-item ${a.iphoneOnly ? 'ios' : ''}" draggable="true" ondragstart="dragStart(event,'${a.id}')" onclick="addAcc(state.activeCol,'${a.id}')"><span>${esc(label)}</span><span class="pr">${pr}</span></div>`;
-  }).join('');
-}
 
 function renderHeader() {
   document.getElementById('version-badge').textContent = VERSION;
   document.getElementById('data-badge').textContent = 'Prix : ' + DATA_LABEL + (DATA_SOURCE === 'online' ? ' (en ligne)' : ' (fichier)');
 }
 
-function renderAll() { renderSidebar(); renderPhones(); renderForfait(); renderHeader(); }
+function renderAll() { renderSidebar(); renderPhones(); renderForfait(); renderHeader(); renderRail(); }
 
 // ═══════════════════════════════════════════════
 // PDF CLIENT (mise en forme reprise de Simultoo : blocs capturés un par un, jamais coupés entre deux pages)
@@ -1228,8 +1438,10 @@ function confirmPdf() {
   buildPdf(opts);
 }
 function accLabel(e) {
-  const a = accDef(e.id);
-  if(a.type === 'custom') return e.label || 'Autre accessoire';
+  const a = accDef(e.id); if(!a) return 'Accessoire';
+  if(e.id === 'omni') { const o = accOmni(e.accId); if(!o) return e.label || 'Accessoire'; const v = o.variantes[e.vi || 0]; return o.variantes.length > 1 && v ? v.nom : o.nom; }
+  if(e.id === 'mdm') return e.kind === 'mdm' ? 'MDM' + (e.label ? ' — ' + e.label : '') : (e.label || 'Saisie libre');
+  if(e.id === 'coque') { const m = a.models.find(m => m.key === e.modelKey) || a.models[0]; return 'Coque ' + m.label.toLowerCase(); }
   if(a.type === 'model') { const m = a.models.find(m => m.key === e.modelKey) || a.models[0]; return a.id === 'config' ? 'Configuration ' + m.label.toLowerCase() : a.name + ' — ' + m.label; }
   return a.name;
 }
@@ -1238,7 +1450,7 @@ const prEur = (n, d) => eur(n, d).replace(' ', ' ');
 function prPhoneCard(c, multi, photos) {
   const r = calcCol(c); if(!r || r.na) return '';
   const v = r.v, col = state.cols[c];
-  const packs = [packAppleOn(c) ? 'Pack 3+1 Apple' : '', packTiersOn(c) ? 'Pack 3+1 Tiers' : ''].filter(Boolean);
+  const packs = pack3p1(c) ? ['Pack 3+1'] : [];
   const accLis = col.accs.map(e => {
     const p = accPrice(e, c), full = accFullPrice(e);
     return `<li><span class="pr-opt-dot">✓</span><span>${esc(accLabel(e))}</span><span class="pr-li-price">${p < full ? `<s>${prEur(full)}</s>` : ''}${prEur(p)}</span></li>`;
@@ -1519,40 +1731,77 @@ function setCapa(c, capa) {
 function purgeIphoneOnly(c) {
   const v = variantOf(c); if(!v || v.isIphone) return;
   const before = state.cols[c].accs.length;
-  state.cols[c].accs = state.cols[c].accs.filter(e => !accDef(e.id).iphoneOnly);
-  state.cols[c].accs.forEach(e => { if(e.id === 'chargeur' && e.modelKey === 'apple30') e.modelKey = defaultModelKey(accDef('chargeur'), v); });
-  if(state.cols[c].accs.length < before) toast('Apple Watch, coque officielle Apple et AirTag retirés : réservés aux iPhone');
+  state.cols[c].accs = state.cols[c].accs.filter(e => !(e.id === 'airtag' || (e.id === 'omni' && (accOmni(e.accId) || {}).iphoneOnly)));
+  if(state.cols[c].accs.length < before) toast('Apple Watch et AirTag retirés : réservés aux iPhone');
 }
 function setVariant(c, slug) { state.cols[c].slug = slug; renderAll(); }
-function setActive(c) { if(state.activeCol !== c) { state.activeCol = c; renderPhones(); renderForfait(); } }
+function setActive(c) { if(state.activeCol !== c) { state.activeCol = c; renderPhones(); renderForfait(); renderRail(); } }
 function showCol1() { state.showCol1 = true; state.activeCol = 1; renderAll(); }
 function hideCol1() { state.showCol1 = false; state.cols[1] = newCol(); state.activeCol = 0; renderAll(); }
 function resetCol(c) { state.cols[c] = newCol(); renderAll(); }
 
 function addAcc(c, id, silent) {
   const a = accDef(id); const v = variantOf(c);
+  if(!a) return false;
   if(!v) { toast('Choisis d\'abord un smartphone'); return false; }
   if(a.iphoneOnly && !v.isIphone) { if(!silent) toast(a.name + ' : réservé aux iPhone'); return false; }
   const e = {uid: uidSeq++, id};
-  if(a.type === 'model') e.modelKey = defaultModelKey(a, v);
+  if(a.type === 'model') e.modelKey = id === 'config' ? 'experte' : id === 'coque' ? (v.isIphone ? 'officielle' : 'simple') : a.models[0].key;
+  if(id === 'mdm') e.kind = 'libre';
   state.cols[c].accs.push(e);
-  if(!silent) { renderPhones(); }
+  if(!silent) renderPhones();
   return true;
 }
-function addPack(type, c) {
+function addOmni(c, accId, vi, silent) {
+  const a = accOmni(accId); const v = variantOf(c);
+  if(!a) return false;
+  if(!v) { toast('Choisis d\'abord un smartphone'); return false; }
+  if(a.iphoneOnly && !v.isIphone) { if(!silent) toast(a.nom + ' : réservée aux iPhone'); return false; }
+  let i = vi; if(i === undefined) { i = a.variantes.findIndex(x => x.dispo); if(i < 0) i = 0; }
+  state.cols[c].accs.push({uid: uidSeq++, id: 'omni', accId, vi: i});
+  if(!silent) { renderPhones(); toast(a.nom + ' ajouté' + (accOdrActive(a).length ? ' — ODR −' + eur(accOdrActive(a)[0].montant) : '')); }
+  return true;
+}
+function addConfig(c, key) {
+  if(!variantOf(c)) { toast('Choisis d\'abord un smartphone'); return; }
+  const ex = state.cols[c].accs.find(e => e.id === 'config');
+  if(ex) ex.modelKey = key; else state.cols[c].accs.push({uid: uidSeq++, id: 'config', modelKey: key});
+  renderPhones();
+}
+function addCoque(c, key) {
+  if(!variantOf(c)) { toast('Choisis d\'abord un smartphone'); return; }
+  const ex = state.cols[c].accs.find(e => e.id === 'coque');
+  if(ex) { ex.modelKey = key; delete ex.priceOverride; syncPackFourth(c); toast('Gamme de coque modifiée'); }
+  else state.cols[c].accs.push({uid: uidSeq++, id: 'coque', modelKey: key});
+  renderPhones();
+}
+function addPack(c) {
   c = c ?? state.activeCol;
   const v = variantOf(c);
   if(!v) { toast('Choisis d\'abord un smartphone'); return; }
-  if(type === 'apple' && !v.isIphone) { toast('Pack 3+1 Apple : réservé aux iPhone — utilise le Pack Tiers'); return; }
-  const ids = type === 'apple' ? PACK_APPLE : PACK_TIERS;
-  const have = state.cols[c].accs.map(x => x.id);
-  ids.forEach(id => { if(!have.includes(id)) addAcc(c, id, true); });
+  const P = packPlan(v), accs = state.cols[c].accs;
+  if(!accs.some(e => e.id === 'coque')) accs.push({uid: uidSeq++, id: 'coque', modelKey: P.coque});
+  if(!accs.some(isChargerEntry)) {
+    if(P.ch) accs.push({uid: uidSeq++, id: 'omni', accId: P.ch.a.id, vi: P.ch.vi});
+    else accs.push({uid: uidSeq++, id: 'chargeur', modelKey: P.chFb});
+  }
+  if(!accs.some(e => e.id === 'zagg')) accs.push({uid: uidSeq++, id: 'zagg'});
+  if(!accs.some(e => e.id === P.fourth)) accs.push(P.fourth === 'bonus' ? {uid: uidSeq++, id: 'bonus', modelKey: 'g49'} : {uid: uidSeq++, id: 'airtag'});
   renderPhones();
-  toast(type === 'apple' ? 'Pack 3+1 Apple ajouté — AirTag à 1 €' : 'Pack 3+1 Tiers ajouté — accessoire bonus à prix pack');
+  toast('Pack 3+1 ajouté — ' + (P.fourth === 'airtag' ? 'AirTag à 1 €' : 'accessoire bonus à prix pack'));
 }
+function setAccVariant(c, uid, vi) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) e.vi = +vi || 0; renderPhones(); }
+function editAccPrice(c, uid) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) { e.editPrice = true; renderPhones(); const inp = document.querySelector('#col-' + c + ' .acc-tag input.num[autofocus]'); if(inp) { inp.focus(); inp.select(); } } }
+function stopEditPrice(c, uid) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e && e.editPrice) { e.editPrice = false; renderPhones(); } }
 function removeAcc(c, uid) { state.cols[c].accs = state.cols[c].accs.filter(x => x.uid !== uid); renderPhones(); }
-function setAccModel(c, uid, key) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) e.modelKey = key; renderPhones(); }
-function setAccCustom(c, uid, k, val) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) e[k] = k === 'price' ? (+val || 0) : val; renderPhones(); }
+function setAccModel(c, uid, key) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) { e.modelKey = key; if(e.id === 'coque') { delete e.priceOverride; syncPackFourth(c); } } renderPhones(); }
+function syncPackFourth(c) {
+  const v = variantOf(c); if(!v || !v.isIphone) return;
+  const accs = state.cols[c].accs, coque = accs.find(e => e.id === 'coque'); if(!coque) return;
+  if(coque.modelKey === 'officielle') { const b = accs.find(e => e.id === 'bonus'); if(b && !accs.some(e => e.id === 'airtag')) { b.id = 'airtag'; delete b.modelKey; toast('Coque officielle : l\'accessoire bonus redevient l\'AirTag à 1 €'); } }
+  else { const t = accs.find(e => e.id === 'airtag'); if(t && pack3p1(c) === null && false) {} if(t) { t.id = 'bonus'; t.modelKey = 'g49'; toast('Coque non officielle : l\'AirTag devient un accessoire bonus (1 € ou 19 €)'); } }
+}
+function setAccCustom(c, uid, k, val) { const e = state.cols[c].accs.find(x => x.uid === uid); if(e) { e[k] = (k === 'price' || k === 'priceOverride') ? (val === '' ? '' : Math.abs(+val || 0)) : val; if(k === 'priceOverride') e.editPrice = false; } renderPhones(); }
 
 // Drag & drop palette → colonne
 function dragStart(e, id) { e.dataTransfer.setData('text/plain', id); e.dataTransfer.effectAllowed = 'copy'; }
@@ -1563,10 +1812,10 @@ function drop(e, c) {
   document.getElementById('col-' + c).classList.remove('drag-over');
   const id = e.dataTransfer.getData('text/plain');
   state.activeCol = c;
-  if(id === '__packApple') addPack('apple', c);
-  else if(id === '__packTiers') addPack('tiers', c);
+  if(id === '__pack') addPack(c);
+  else if(id.startsWith('omni:')) addOmni(c, id.slice(5));
   else if(accDef(id)) addAcc(c, id);
-  renderPhones();
+  renderPhones(); renderRail();
 }
 
 let toastT;
@@ -1654,7 +1903,7 @@ function toPrixData(raw) {
     const or = (raw.operateurs || {}).orange || {};
     return {modeles: omniToOrange(raw), versionMinimale: raw.versionMinimale, message: raw.message,
             genereLe: or.releveLe || raw.genereLe, frais: or.frais, source: 'OMNI',
-            etalRegle: (raw.regles || {}).etalementOrange || null};
+            etalRegle: (raw.regles || {}).etalementOrange || null, accessoires: raw.accessoires || []};
   }
   return raw;
 }
@@ -1676,12 +1925,13 @@ function applyPrix(d, source, labelOverride) {
   DATA_META = {versionMinimale: d.versionMinimale || null, message: d.message || null, genereLe: d.genereLe || null, source: d.source || '', frais: d.frais};
   DATA_SOURCE = source;
   if(d.etalRegle && Array.isArray(d.etalRegle.paliers)) ETAL_REGLE = d.etalRegle;
+  ACC_OMNI = normAcc(d.accessoires);
   loadData(d.modeles, labelOverride || labelFromDate(d.genereLe) || '—');
 }
 let firstRender = true;
 function afterLoad() {
   loaderHide();
-  if(firstRender) { renderPalette(); firstRender = false; renderAll(); checkPreviewEnv(); }
+  if(firstRender) { firstRender = false; renderAll(); checkPreviewEnv(); }
   else { renderAll(); fillVersionBadges(); }
   renderNotices();
 }
