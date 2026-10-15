@@ -246,6 +246,14 @@
   .fsm-rows > div { display: flex; justify-content: space-between; font-size: 12.5px; padding: 2px 0; color: #444; gap: 8px; } .fsm-rows b { color: #111; white-space: nowrap; }
   .fsm-odr { color: #1a7a3c !important; border-top: 1px dashed #ddd; margin-top: 3px; padding-top: 4px !important; }
   .fsm-why { font-size: 11.5px; color: #1a7a3c; margin-top: 6px; font-weight: 600; }
+  .fsm-total { margin-top: 10px; background: #f6f8fb; border: 1px solid #dde5ee; border-radius: 6px; padding: 9px 11px; }
+  .ft-head { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; font-size: 13.5px; }
+  .ft-head b { font-size: 20px; color: var(--orange); } .ft-head b small { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .ft-bar { display: flex; height: 6px; gap: 2px; margin: 6px 0; } .ft-bar i { display: block; height: 100%; }
+  .ft-bar .o, .ft-row .dot.o { background: var(--orange); } .ft-bar .c, .ft-row .dot.c { background: #1d4d7a; }
+  .ft-row { display: flex; align-items: baseline; gap: 7px; font-size: 12.5px; padding: 1px 0; }
+  .ft-row .dot { width: 9px; height: 9px; flex-shrink: 0; align-self: center; } .ft-row .k { flex: 1; } .ft-row small { color: var(--text-muted); font-size: 11px; margin-left: 3px; } .ft-row b { white-space: nowrap; }
+  .ft-phases { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
   .fsm-def { font-size: 11.5px; color: #1d4d7a; margin-top: 6px; }
   .fsm-seuil { font-size: 11.5px; color: #8a6a00; background: #FFF6DC; padding: 6px 9px; margin-top: 6px; line-height: 1.4; border-radius: 4px; }
   .fsm-refus { background: #FDECEE; color: #8E0B20; font-size: 12.5px; padding: 9px 11px; line-height: 1.45; border-radius: 4px; }
@@ -592,10 +600,13 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v2.8';
+const VERSION = 'v2.9';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 const PATCHNOTES = [
+  {v:'v2.9 — 15/10/2026', items:[
+    'Financement sur mesure : « Total mensuel » forfait Orange + crédit dans le bloc FSM (lignes « Forfait — facture Orange » et « Crédit 12 / 24 mois — Cetelem »), et dans le PDF (0 € payé en boutique, total mensuel détaillé, paliers dans le temps).',
+  ]},
   {v:'v2.8 — 15/10/2026', items:[
     'Financement sur mesure : le TAEG payant est le même pour tous les produits (16,32 % sur 12 mois, 15,81 % sur 24 mois, relevés dans prix-omni.js) ; il est appliqué par défaut quand un mobile ou un palier n\'a pas de taux relevé. Alerte si le montant est sous le minimum de crédit constaté sur boutique.orange.fr (≈ 200 €).',
   ]},
@@ -1237,7 +1248,26 @@ function fsmBlockHTML(c) {
     <div class="fsm-tabs">${tabs}</div>
     ${body}${zeroBox}
     <div class="fsm-alerte"><span class="fsm-ico">!</span><b>${FSM_ALERTE}</b></div>
-    ${R.err ? '' : `<div class="fsm-foot"><span>Mensualité Cetelem <small>(hors facture Orange)</small></span><b>${eur(R.mens)}/mois</b></div><div class="fsm-legal">${fsmExemple(R)} ${FSM_LEGAL}</div>`}
+    ${R.err ? '' : fsmTotalHTML(c, R) + `<div class="fsm-legal">${fsmExemple(R)} ${FSM_LEGAL}</div>`}
+  </div>`;
+}
+// v2.9 — Total mensuel = forfait Orange (facture Orange) + crédit (Cetelem), avec paliers dans le temps
+function fsmPhases(t1, t2, R) {
+  const ph = [{to: 12, v: t1 + R.mens}, {to: 24, v: t2 + (R.mois >= 13 ? R.mens : 0)}, {to: null, v: t2}], out = [];
+  ph.forEach(p => { const l = out[out.length - 1]; if(l && Math.abs(l.v - p.v) < 0.005) l.to = p.to; else out.push({...p}); });
+  return out.length < 2 ? '' : `pendant ${out[0].to} mois` + out.slice(1).map(p => p.to ? `, puis ${eur(p.v, 1)}/mois jusqu'au ${p.to}e mois` : `, puis ${eur(p.v, 1)}/mois`).join('');
+}
+function fsmTotalHTML(c, R) {
+  const r = calcCol(c), fc = r.fc;
+  if(!fc) return `<div class="fsm-foot"><span>Mensualité Cetelem <small>(hors facture Orange)</small></span><b>${eur(R.mens)}/mois</b></div>`;
+  const t1 = fc.y1 + fc.opt + r.etalM, t2 = fc.y2 + fc.opt + r.etalM, tot = t1 + R.mens;
+  const w = v => Math.max(2, v / tot * 100).toFixed(1) + '%';
+  return `<div class="fsm-total">
+    <div class="ft-head"><span>Total mensuel</span><b>${eur(tot, 1)}<small>/mois</small></b></div>
+    <div class="ft-bar"><i class="o" style="width:${w(t1)}"></i><i class="c" style="width:${w(R.mens)}"></i></div>
+    <div class="ft-row"><span class="dot o"></span><span class="k">Forfait <small>facture Orange${Math.abs(t1 - t2) > 0.004 ? ` · puis ${eur(t2, 1)}` : ''}</small></span><b>${eur(t1, 1)}</b></div>
+    <div class="ft-row"><span class="dot c"></span><span class="k">Crédit ${R.mois} mois <small>Cetelem, hors facture Orange${R.zero ? ' · 0 %' : ''}</small></span><b>${eur(R.mens)}</b></div>
+    ${fsmPhases(t1, t2, R) ? `<div class="ft-phases">${fsmPhases(t1, t2, R)}</div>` : ''}
   </div>`;
 }
 function prFsmBlock(c) {
@@ -1755,7 +1785,10 @@ async function buildPdf(opts) {
     const t1 = (fc ? fc.y1 + fc.opt : 0) + r.etalM, t2 = (fc ? fc.y2 + fc.opt : 0) + r.etalM;
     return `<div class="pr-totalbox-row">
       <span class="l">${multi ? `Proposition ${c + 1} — ` : ''}${esc(r.v.name)}<small>${r.odrTotal > 0 ? `Après remboursement : ${prEur(r.apres)}` : 'Payé en boutique aujourd\'hui'}${r.cost24 !== null ? ` · coût total sur 24 mois : ${prEur(r.cost24)}` : ''}${(() => { const R = state.cols[c].fsm ? fsmCalc(c) : null; return R && !R.err ? ` · ou financé : ${R.mois} × ${prEur(R.mens)} (TAEG ${pct(R.taeg)})` : ''; })()}</small></span>
-      <span class="v">${prEur(r.caisse)}${t1 ? `<small> + ${prEur(t1, 1)}/mois</small>` : ''}${Math.abs(t1 - t2) > 0.004 ? `<div class="sub">pendant 12 mois puis ${prEur(t2, 1)}/mois</div>` : ''}${multi && r.etal ? `<div class="sub" style="font-size:11px">dont étalement ${prEur(r.etalM)}/mois pendant ${r.etal.mois} mois</div>` : ''}</span>
+      ${(() => { const R = state.cols[c].fsm ? fsmCalc(c) : null; if(!R || R.err || !fc) return '';
+        const ph = fsmPhases(t1, t2, R);
+        return `<span class="v">${prEur(t1 + R.mens, 1)}<small>/mois</small><div class="sub" style="font-size:11.5px">0 € payé en boutique · forfait ${prEur(t1, 1)} (facture Orange) + crédit ${R.mois} mois ${prEur(R.mens)} (Cetelem)</div>${ph ? `<div class="sub" style="font-size:11.5px">${ph}</div>` : ''}</span>`; })()
+      || `<span class="v">${prEur(r.caisse)}${t1 ? `<small> + ${prEur(t1, 1)}/mois</small>` : ''}${Math.abs(t1 - t2) > 0.004 ? `<div class="sub">pendant 12 mois puis ${prEur(t2, 1)}/mois</div>` : ''}${multi && r.etal ? `<div class="sub" style="font-size:11px">dont étalement ${prEur(r.etalM)}/mois pendant ${r.etal.mois} mois</div>` : ''}</span>`}
     </div>`;
   }).join('');
   let ecoHTML = '';
