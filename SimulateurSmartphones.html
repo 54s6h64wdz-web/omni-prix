@@ -231,6 +231,35 @@
   .btn-simultoo:hover{background:#ff8f26;}
   .simultoo-hint{margin-top:10px; font-size:12px; color:#8a8a8a; text-align:center;}
   .cost-box b { font-size: 14px; }
+  /* v2.7 — Financement sur mesure Cetelem */
+  .fsm-chips { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin: 2px 0 4px; font-size: 11.5px; color: var(--text-muted); }
+  .fsm-chip { border: 1px solid #cfd8e3; background: #f3f7fb; color: #1d4d7a; font-size: 11.5px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; }
+  .fsm-chip b { font-weight: 700; } .fsm-chip i { font-style: normal; color: #1a7a3c; font-weight: 800; }
+  .fsm-chip.on { background: #1d4d7a; color: #fff; border-color: #1d4d7a; } .fsm-chip.on i { color: #9fe0b0; }
+  .fsm-box { margin-top: 10px; border: 1px solid #cfd8e3; border-left: 5px solid #1d4d7a; border-radius: var(--radius-sm); padding: 10px 12px; background: #fff; }
+  .fsm-head { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: #1d4d7a; font-size: 13.5px; margin-bottom: 8px; }
+  .fsm-tabs { display: flex; gap: 6px; margin-bottom: 9px; }
+  .fsm-tab { border: 1px solid #ccc; background: #fff; padding: 4px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; border-radius: 4px; font-family: inherit; }
+  .fsm-tab.on { background: #1d4d7a; color: #fff; border-color: #1d4d7a; }
+  .fsm-big { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; } .fsm-big span { font-size: 13px; color: #555; } .fsm-big b { font-size: 22px; font-weight: 800; }
+  .fsm-zero { background: #e5f4e9; color: #1a7a3c !important; font-weight: 800; font-size: 11.5px !important; padding: 2px 7px; border-radius: 3px; }
+  .fsm-rows > div { display: flex; justify-content: space-between; font-size: 12.5px; padding: 2px 0; color: #444; gap: 8px; } .fsm-rows b { color: #111; white-space: nowrap; }
+  .fsm-odr { color: #1a7a3c !important; border-top: 1px dashed #ddd; margin-top: 3px; padding-top: 4px !important; }
+  .fsm-why { font-size: 11.5px; color: #1a7a3c; margin-top: 6px; font-weight: 600; }
+  .fsm-def { font-size: 11.5px; color: #1d4d7a; margin-top: 6px; }
+  .fsm-seuil { font-size: 11.5px; color: #8a6a00; background: #FFF6DC; padding: 6px 9px; margin-top: 6px; line-height: 1.4; border-radius: 4px; }
+  .fsm-refus { background: #FDECEE; color: #8E0B20; font-size: 12.5px; padding: 9px 11px; line-height: 1.45; border-radius: 4px; }
+  .fsm-manual { display: block; margin-top: 9px; font-size: 12.5px; font-weight: 600; cursor: pointer; } .fsm-manual small { display: block; font-weight: 400; color: #8a6a00; margin-top: 2px; line-height: 1.35; }
+  .fsm-alerte { display: flex; align-items: center; gap: 10px; background: #FBF7E8; padding: 9px 11px; margin-top: 10px; font-size: 12px; line-height: 1.4; border-radius: 4px; }
+  .fsm-ico { width: 20px; height: 20px; border-radius: 50%; background: #F5C842; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .fsm-foot { display: flex; justify-content: space-between; align-items: baseline; margin-top: 9px; font-size: 13px; font-weight: 600; } .fsm-foot small { font-weight: 400; color: var(--text-muted); } .fsm-foot b { font-size: 16px; color: #1d4d7a; }
+  .fsm-legal { font-size: 10px; color: #777; line-height: 1.4; margin-top: 8px; }
+  #printArea .pr-fsm { padding: 12px 18px; border: 1px solid #cfd8e3; border-left: 5px solid #1d4d7a; border-radius: 10px; margin-bottom: 11px; }
+  #printArea .pr-fsm-alerte { background: #FBF7E8; font-weight: 800; font-size: 12px; padding: 8px 10px; margin: 6px 0 8px; }
+  #printArea .pr-fsm-big { font-size: 15px; margin-bottom: 6px; } #printArea .pr-fsm-big b { font-size: 19px; }
+  #printArea .pr-fsm-rows > div { display: flex; justify-content: space-between; font-size: 12.5px; padding: 2px 0; }
+  #printArea .pr-fsm-rows > div.tot { border-top: 1px solid #ddd; margin-top: 3px; padding-top: 4px; font-weight: 700; }
+  #printArea .pr-fsm-legal { font-size: 8.5px; color: #666; line-height: 1.4; margin-top: 8px; }
   .diff-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; margin-top: 8px; }
 
   /* Cartes du bas */
@@ -563,10 +592,19 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v2.6';
+const VERSION = 'v2.8';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 const PATCHNOTES = [
+  {v:'v2.8 — 15/10/2026', items:[
+    'Financement sur mesure : le TAEG payant est le même pour tous les produits (16,32 % sur 12 mois, 15,81 % sur 24 mois, relevés dans prix-omni.js) ; il est appliqué par défaut quand un mobile ou un palier n\'a pas de taux relevé. Alerte si le montant est sous le minimum de crédit constaté sur boutique.orange.fr (≈ 200 €).',
+  ]},
+  {v:'v2.7 — 15/10/2026', items:[
+    'Financement sur mesure Cetelem (FSM) : sous « Payé en caisse (comptant) », boutons FSM 12 mois / 24 mois avec la mensualité. Le bloc détaille montant financé, TAEG fixe, taux débiteur, coût du crédit, montant total dû, l\'encadré « Un crédit vous engage… » et les mentions légales ; il est repris dans le PDF.',
+    'Taux 0 % sur tout le panier dès qu\'un produit est éligible (mobile en opération taux 0 au palier choisi, ou accessoire éligible comme les AirPods Pro 3). Case « Éligible au financement à taux 0 % » à cocher à la main si besoin.',
+    'Taux inconnu pour ce mobile et ce palier : pas de simulation, renvoi vers l\'outil Financement sur mesure de la tablette vendeur. Les ODR ne sont pas déduites du montant financé (affichées à part).',
+    'Ajouter à Simultoo : le financement choisi (12 ou 24 mois, taux 0 manuel) est envoyé avec le reste.',
+  ]},
   {v:'v2.6 — 15/10/2026', items:[
     'Panneau des accessoires rétractable (« Masquer ✕ », onglet « Accessoires » pour le rouvrir ; choix mémorisé sur le poste).',
     'Tuiles compactées : Pack 3+1 en haut sur toute la largeur, puis sac Orange, configuration, coque, Zagg et saisie libre / MDM en demi-largeur. La gamme de coque et le type de configuration se choisissent dans la carte du mobile.',
@@ -690,6 +728,12 @@ function readPrice(o, dateFin) {
 let PHONES = [];   // variantes normalisées
 let MODELS = [];   // [{name, brand, variants:[...]}]
 
+// v2.7 — Crédit Cetelem relevé par OMNI pour un palier : credit12 / credit24 {taeg} ou credit12SansFrais / credit24SansFrais (taux 0)
+function fsmCreditOf(bloc) {
+  const pa = bloc && bloc.paiements; if(!pa) return null;
+  const one = n => pa['credit' + n + 'SansFrais'] ? {zero: true} : (pa['credit' + n] && +pa['credit' + n].taeg > 0 ? {taeg: +pa['credit' + n].taeg} : null);
+  return {12: one(12), 24: one(24)};
+}
 function normalize(raw) {
   return raw.filter(r => r && r.slug && r.model).map(r => {
     const toks = r.slug.toLowerCase().split('-');
@@ -710,6 +754,8 @@ function normalize(raw) {
         acq80: readPrice(r.acq80, dateFin), acq200: readPrice(r.acq200, dateFin), acq300: readPrice(r.acq300, dateFin),
         pcm200: readPrice(r.pcm200, dateFin), pcm300: readPrice(r.pcm300, dateFin)
       },
+      credit: {nu: fsmCreditOf(r.vsim), acq80: fsmCreditOf(r.acq80), acq200: fsmCreditOf(r.acq200), acq300: fsmCreditOf(r.acq300),
+               pcm200: fsmCreditOf(r.pcm200), pcm300: fsmCreditOf(r.pcm300)},
       odr: (r.odr || []).map(o => ({nom: o.nom, montant: +o.montant || 0, debut: parseFrDate(o.debut), fin: parseFrDate(o.fin), lien: o.lien})),
       bonusReprise: r.bonusReprise && r.bonusReprise.amountInCents ? {montant: r.bonusReprise.amountInCents / 100, condition: stripHtml(r.bonusReprise.condition)} : null
     };
@@ -828,6 +874,7 @@ const ACCS = [
 ];
 // Accessoires du catalogue Orange (prix-omni.js)
 let ACC_OMNI = [];
+let TZ_ACC = new Set();   // v2.7 : accessoires éligibles au crédit à taux 0 (prix-omni.js → tauxZero.accessoires)
 const ACC_CATS = [
   {key:'chargeurs', nom:'Accessoires de charge', subs:[['secteur','Chargeurs secteur'],['cable','Câbles'],['batterie','Batteries'],['induction','Induction'],['voiture','Voiture']]},
   {key:'montres', nom:'Montres connectées'},
@@ -924,7 +971,7 @@ const state = {
   remOverride: {},     // id remise → true/false (choix conseiller)
   options: new Set(), assurance: '', odrOff: {}, etalement: false
 };
-function newCol() { return {model: '', slug: '', accs: []}; }
+function newCol() { return {model: '', slug: '', accs: [], fsm: null}; }
 let uidSeq = 1;
 
 function currentForfaitId() {
@@ -1095,6 +1142,129 @@ function calcCol(c) {
 }
 
 // ═══════════════════════════════════════════════
+// v2.7 — FINANCEMENT SUR MESURE CETELEM (même règle que Simultoo)
+// Montant financé = prix payé comptant (mobile + accessoires − reprise − bonus). Taux 0 % pour tout le panier dès
+// qu'un produit est éligible ; sinon TAEG relevé pour ce mobile et ce palier ; taux inconnu → pas de simulation.
+// Les ODR ne réduisent pas le montant financé.
+// ═══════════════════════════════════════════════
+const FSM_DUREES = [12, 24];
+/* Taux FSM par défaut : TAEG payant relevé par OMNI (le même pour tous les produits : 16,32 % sur 12 mois, 15,81 % sur 24 mois
+   au 15/10/2026). On prend la valeur la plus fréquente du fichier ; repli sur ces valeurs si le fichier n'en contient aucune. */
+const FSM_TAUX_STD = {12: 16.32, 24: 15.81};
+function fsmDefaults(raw){
+  const cnt = {12: {}, 24: {}}; let seuil = Infinity;
+  const scan = (pa, prix) => { if(!pa) return; [12, 24].forEach(n => { const x = pa["credit" + n]; if(x && +x.taeg > 0){ cnt[n][x.taeg] = (cnt[n][x.taeg] || 0) + 1; if(+prix > 0) seuil = Math.min(seuil, +prix); } }); };
+  ((raw && raw.produits) || []).forEach(p => { const o = p.orange; if(!o) return; const bl = Object.assign({nu: o.nu}, o.forfaits || {});
+    Object.values(bl).forEach(b => { if(b && b.paiements) scan(b.paiements, b.paiements.comptant || b.prix); }); });
+  ((raw && raw.accessoires) || []).forEach(a => scan(a.paiements, a.prix));
+  const best = n => { const e = Object.entries(cnt[n]).sort((a, b) => b[1] - a[1])[0]; return e ? +e[0] : FSM_TAUX_STD[n]; };
+  return {12: best(12), 24: best(24), seuil: isFinite(seuil) ? seuil : 0, lu: Object.keys(cnt[12]).length > 0};
+}
+let FSM_DEF = fsmDefaults(null);
+const FSM_ALERTE = "Un crédit vous engage et doit être remboursé. Vérifiez vos capacités de remboursement avant de vous engager.";
+const FSM_LEGAL = "Offre de financement réservée aux particuliers, sous réserve d'acceptation du dossier par Cetelem, marque de BNP Paribas Personal Finance, SA — 1 boulevard Haussmann, 75009 Paris — RCS Paris 542 097 902 — N° ORIAS 07 023 128 (www.orias.fr). Orange agit en qualité d'intermédiaire de crédit à titre non exclusif et apporte son concours à la réalisation d'opérations de crédit sans agir en qualité de prêteur. Vous disposez d'un délai légal de rétractation de 14 jours à compter de l'acceptation de l'offre de contrat de crédit. Assurance emprunteur facultative non incluse. Simulation indicative et non contractuelle : seule l'offre de contrat de crédit émise par Cetelem fait foi. Les remboursements (ODR) sont versés après l'achat et ne réduisent pas le montant financé.";
+function fsmCalc(c, mois) {
+  const col = state.cols[c], r = calcCol(c);
+  mois = mois || (col.fsm && col.fsm.mois) || 12;
+  if(!r || r.na) return {err: 'na', mois};
+  if(r.etal) return {err: 'etal', mois};
+  const montant = Math.round(r.caisse * 100) / 100;
+  if(!(montant > 0)) return {err: 'montant', mois, montant};
+  const cr = r.v.credit && r.v.credit[priceKey()] ? r.v.credit[priceKey()][mois] : null;
+  const zeroReasons = [];
+  if(cr && cr.zero) zeroReasons.push(r.v.name);
+  col.accs.forEach(e => { if(e.id === 'omni' && TZ_ACC.has(e.accId)) { const a = accOmni(e.accId); zeroReasons.push(a ? a.nom : 'accessoire'); } });
+  const autoZero = zeroReasons.length > 0;
+  const manualZero = !autoZero && !!(col.fsm && col.fsm.zero);
+  const zero = autoZero || manualZero;
+  // v2.8 : taux payant identique pour tous les produits → taux par défaut si ce mobile / ce palier n'a pas de taux relevé
+  const taegLu = (cr && cr.taeg > 0) ? cr.taeg : null;
+  const defaut = !zero && !taegLu;
+  const taeg = zero ? 0 : (taegLu || FSM_DEF[mois]);
+  if(!(zero || taeg > 0)) return {err: 'taux', mois, montant};
+  const sousSeuil = !zero && FSM_DEF.seuil > 0 && montant < FSM_DEF.seuil;
+  let mens, total;
+  if(zero) { mens = Math.round(montant / mois * 100) / 100; total = montant; }
+  else {
+    const t = Math.pow(1 + taeg / 100, 1 / 12) - 1;
+    mens = Math.round(montant * t / (1 - Math.pow(1 + t, -mois)) * 100) / 100;
+    total = Math.round(mens * mois * 100) / 100;
+  }
+  const tdeb = zero ? 0 : Math.round((Math.pow(1 + taeg / 100, 1 / 12) - 1) * 12 * 10000) / 100;
+  return {mois, montant, taeg, tdeb, mens, total, cout: Math.round((total - montant) * 100) / 100, zero, autoZero, manualZero, zeroReasons, odr: r.odrTotal, defaut, sousSeuil, seuil: FSM_DEF.seuil};
+}
+function setFsm(c, mois) { const col = state.cols[c]; if(col.fsm && col.fsm.mois === mois) col.fsm = null; else col.fsm = {...(col.fsm || {}), mois}; renderAll(); }
+function setFsmZero(c, on) { const col = state.cols[c]; if(col.fsm) { col.fsm.zero = !!on; renderAll(); } }
+const pct = x => (+x).toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' %';
+function fsmExemple(R) {
+  if(R.zero) return `Exemple : pour un achat de ${eur(R.montant)} financé sur ${R.mois} mois, vous remboursez ${R.mois} mensualités de ${eur(R.mens)}${Math.abs(R.mens * R.mois - R.montant) > 0.004 ? ' (dernière mensualité ajustée)' : ''}. TAEG fixe : 0 %. Taux débiteur fixe : 0 %. Frais de dossier : 0 €. Coût total du crédit : 0 €. Montant total dû : ${eur(R.montant)}.`;
+  return `Exemple : pour un achat de ${eur(R.montant)} financé sur ${R.mois} mois, vous remboursez ${R.mois} mensualités de ${eur(R.mens)}. TAEG fixe : ${pct(R.taeg)}. Taux débiteur fixe : ${pct(R.tdeb)}. Frais de dossier : 0 €. Coût total du crédit : ${eur(R.cout)} (intérêts). Montant total dû : ${eur(R.total)}.`;
+}
+function fsmChipsHTML(c, r) {
+  if(r.etal || !(r.caisse > 0)) return '';
+  return `<div class="fsm-chips"><span>Financer</span>${FSM_DUREES.map(n => {
+    const R = fsmCalc(c, n), on = state.cols[c].fsm && state.cols[c].fsm.mois === n;
+    return `<button class="fsm-chip ${on ? 'on' : ''}" onclick="event.stopPropagation(); setFsm(${c}, ${n})" title="Financement sur mesure Cetelem ${n} mois">FSM ${n} m${R.err ? ' · taux ?' : ` · <b>${eur(R.mens)}</b>/mois${R.zero ? ' <i>0 %</i>' : ''}`}</button>`;
+  }).join('')}</div>`;
+}
+function fsmBlockHTML(c) {
+  const col = state.cols[c]; if(!col.fsm) return '';
+  const R = fsmCalc(c); if(R.err === 'na') return '';
+  const tabs = FSM_DUREES.map(n => `<button class="fsm-tab ${col.fsm.mois === n ? 'on' : ''}" onclick="event.stopPropagation(); setFsm(${c}, ${n})">${n} mois</button>`).join('');
+  let body;
+  if(R.err === 'taux') body = `<div class="fsm-refus"><b>Taux indisponible pour ce panier</b> : pas de simulation ici. Faites la simulation directement dans l'outil <b>Financement sur mesure</b> de la tablette vendeur.</div>`;
+  else if(R.err === 'etal') body = `<div class="fsm-refus">L'étalement 24 mois est déjà choisi pour ce mobile : décochez-le pour simuler un financement sur mesure.</div>`;
+  else if(R.err === 'montant') body = `<div class="fsm-refus">Rien à financer : le montant payé comptant est nul.</div>`;
+  else body = `
+    <div class="fsm-big"><span>${R.mois} mensualités de</span><b>${eur(R.mens)}</b>${R.zero ? '<span class="fsm-zero">Taux 0 %</span>' : ''}</div>
+    <div class="fsm-rows">
+      <div><span>Montant financé (comptant)</span><b>${eur(R.montant)}</b></div>
+      <div><span>TAEG fixe</span><b>${pct(R.taeg)}</b></div>
+      <div><span>Taux débiteur fixe</span><b>${pct(R.tdeb)}</b></div>
+      <div><span>Coût total du crédit</span><b>${eur(R.cout)}</b></div>
+      <div><span>Montant total dû</span><b>${eur(R.total)}</b></div>
+      <div><span>Frais de dossier</span><b>0,00 €</b></div>
+      ${R.odr > 0 ? `<div class="fsm-odr"><span>ODR remboursées après l'achat (non déduites du crédit)</span><b>−${eur(R.odr)}</b></div>` : ''}
+    </div>
+    ${R.autoZero ? `<div class="fsm-why">Taux 0 % sur tout le panier : ${R.zeroReasons.map(esc).join(', ')} ${R.zeroReasons.length > 1 ? 'sont éligibles' : 'est éligible'} au financement sans frais.</div>` : ''}
+    ${R.defaut ? `<div class="fsm-def">TAEG standard Cetelem ${R.mois} mois (le même pour tous les produits), appliqué par défaut.</div>` : ''}
+    ${R.sousSeuil ? `<div class="fsm-seuil">⚠️ Montant inférieur à ${eur(R.seuil)} : boutique.orange.fr ne propose pas le crédit en dessous. Vérifiez l'éligibilité dans l'outil Financement sur mesure de la tablette.</div>` : ''}`;
+  const zeroBox = (R.autoZero || R.err === 'etal' || R.err === 'montant') ? '' :
+    `<label class="fsm-manual"><input type="checkbox" ${col.fsm.zero ? 'checked' : ''} onchange="setFsmZero(${c}, this.checked)"> Éligible au financement à taux 0 %
+      <small>⚠️ À cocher uniquement si une opération taux 0 est bien en cours sur l'un des produits du panier (vérifiez dans l'outil Financement sur mesure de la tablette).</small></label>`;
+  return `<div class="fsm-box" onclick="event.stopPropagation()">
+    <div class="fsm-head"><span>Financement sur mesure Cetelem</span><button class="rm" title="Retirer le financement" onclick="event.stopPropagation(); state.cols[${c}].fsm = null; renderAll()">×</button></div>
+    <div class="fsm-tabs">${tabs}</div>
+    ${body}${zeroBox}
+    <div class="fsm-alerte"><span class="fsm-ico">!</span><b>${FSM_ALERTE}</b></div>
+    ${R.err ? '' : `<div class="fsm-foot"><span>Mensualité Cetelem <small>(hors facture Orange)</small></span><b>${eur(R.mens)}/mois</b></div><div class="fsm-legal">${fsmExemple(R)} ${FSM_LEGAL}</div>`}
+  </div>`;
+}
+function prFsmBlock(c) {
+  if(!state.cols[c].fsm) return '';
+  const r = calcCol(c), R = fsmCalc(c); if(R.err) return '';
+  return `
+  <div class="pr-block pr-block-pad">
+    <div class="pr-fsm">
+      <div class="pr-cat">Financement sur mesure Cetelem — ${esc(r.v.name)}</div>
+      <div class="pr-fsm-alerte">${FSM_ALERTE}</div>
+      <div class="pr-fsm-big">${R.mois} mensualités de <b>${prEur(R.mens)}</b>${R.zero ? ' — taux 0 %' : ''}</div>
+      <div class="pr-fsm-rows">
+        <div><span>Montant financé (prix payé comptant)</span><b>${prEur(R.montant)}</b></div>
+        <div><span>Durée</span><b>${R.mois} mois</b></div>
+        <div><span>TAEG fixe</span><b>${pct(R.taeg)}</b></div>
+        <div><span>Taux débiteur fixe</span><b>${pct(R.tdeb)}</b></div>
+        <div><span>Frais de dossier</span><b>0,00 €</b></div>
+        <div><span>Coût total du crédit</span><b>${prEur(R.cout)}</b></div>
+        <div class="tot"><span>Montant total dû</span><b>${prEur(R.total)}</b></div>
+        ${R.odr > 0 ? `<div><span>Remboursements ODR (versés après l'achat, non déduits du crédit)</span><b>− ${prEur(R.odr)}</b></div>` : ''}
+      </div>
+      <div class="pr-fsm-legal">${fsmExemple(R)}${R.manualZero ? ' Taux 0 % sous réserve d\'éligibilité de l\'opération en cours.' : ''} ${FSM_LEGAL}</div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
 // RENDU
 // ═══════════════════════════════════════════════
 function renderSidebar() {
@@ -1189,16 +1359,18 @@ function renderCol(c) {
       ${state.reprise ? `<div class="t-row green"><span>Orange Reprise</span><span class="v">${r.reprise ? '−' + eur(r.reprise) : '0 €'}</span></div>` : ''}
       ${r.bonus ? `<div class="t-row green" title="${esc(v.bonusReprise.condition)}"><span>Bonus reprise</span><span class="v">−${eur(r.bonus)}</span></div>` : ''}
       ${!r.bonus && v.bonusReprise ? `<div class="t-row green" style="font-size:11.5px"><span>💡 Bonus reprise de ${eur(v.bonusReprise.montant)} ${bonusSeuil(v) ? `avec une reprise d'au moins ${eur(bonusSeuil(v))}` : 'avec une reprise, même à 0 €'}</span></div>` : ''}
-      <div class="final-row"><span class="final-label">Payé en caisse</span><span class="final-amount">${eur(r.caisse)}</span></div>
+      <div class="final-row"><span class="final-label">Payé en caisse (comptant)</span><span class="final-amount">${eur(r.caisse)}</span></div>
+      ${fsmChipsHTML(c, r)}
       ${r.etal ? `<div class="t-row" style="color:var(--blue-text);font-weight:600"><span>puis ${eur(r.etal.mensualite)}/mois pendant ${r.etal.mois} mois, sur la facture mobile</span></div>` : ''}
       ${r.odrs.map(o => o.pending ? `<div class="t-row odr off" style="font-weight:500"><span>💡 ${esc(o.hint)}${o.lien ? ` <a href="${esc(o.lien)}" target="_blank" rel="noopener">conditions ↗</a>` : ''}</span></div>`
         : o.excluded ? `<div class="t-row odr off"><span>🏷 ${esc(o.nom)} <small style="font-weight:500">— ${esc(o.why)}</small></span><span class="v"><s>−${eur(o.montant)}</s></span></div>`
         : `<div class="t-row odr ${state.odrOff[o.key] ? 'off' : ''}"><span><label style="cursor:pointer"><input type="checkbox" ${state.odrOff[o.key] ? '' : 'checked'} onchange="toggleOdr('${esc(o.key)}', this.checked)" style="accent-color:var(--orange);vertical-align:-1px"> 🏷 ${esc(o.nom)}${o.fin ? ' · jusqu\'au ' + fmtDate(o.fin) : ''}</label>${o.lien ? `<a href="${esc(o.lien)}" target="_blank" rel="noopener">formulaire ↗</a>` : ''}</span><span class="v">−${eur(o.montant)}</span></div>`).join('')}
       ${r.odrTotal > 0 ? `<div class="final-row"><span class="final-label">Après remboursement</span><span class="final-amount sm">${eur(r.apres)}</span></div>` : ''}
     </div>`;
+    h += fsmBlockHTML(c);
     if(r.fc) h += `<div class="cost-box">Sur 24 mois avec le forfait ${esc(r.fc.f.name)} : <b>${eur(r.cost24)}</b>${r.equiv !== null && state.contrat !== 'nu' ? `<br>Revient au même que le mobile acheté nu + un forfait à <b>${eur(r.equiv, 1)}/mois</b>` : ''}</div>`;
     if(EMBED) h += r.fc
-      ? `<button class="btn-simultoo" onclick="event.stopPropagation(); addToSimultoo(${c})">＋ Ajouter à Simultoo <small>${esc(r.fc.f.name)} + ce mobile</small></button>`
+      ? `<button class="btn-simultoo" onclick="event.stopPropagation(); addToSimultoo(${c})">＋ Ajouter à Simultoo <small>${esc(r.fc.f.name)} + ce mobile${state.cols[c].fsm && !r.etal ? ` + FSM ${state.cols[c].fsm.mois} mois` : ''}</small></button>`
       : `<div class="simultoo-hint">Choisis un forfait pour pouvoir ajouter ce mobile à Simultoo.</div>`;
   }
   h += `<div id="diff-${c}"></div>`;
@@ -1220,12 +1392,13 @@ function simultooPayload(c) {
       reprise: r.reprise, bonusReprise: r.bonus, odr: r.odrTotal,
       odrs: r.odrs.filter(o => !o.pending && !o.acc).map(o => ({lien: o.lien || '', on: odrActive(o), montant: o.montant, iphone: !!o.iphone})),
       accItems: state.cols[c].accs.map(e => {
-        const it = {label: accLabel(e), price: Math.round(accPrice(e, c) * 100) / 100, img: e.id === 'omni' ? accImg(e) : '', kind: e.id};
+        const it = {label: accLabel(e), price: Math.round(accPrice(e, c) * 100) / 100, img: e.id === 'omni' ? accImg(e) : '', kind: e.id, accId: e.id === 'omni' ? e.accId : ''};
         const ao = r.odrs.filter(o => o.acc && o.accUid === e.uid && odrActive(o));
         if(ao.length) it.odr = ao.map(o => ({nom: o.nom, montant: o.montant, lien: o.lien || '', fin: o.fin ? fmtDate(o.fin) + '/' + o.fin.getFullYear() : ''}));
         return it;
       }),
-      etal: !!r.etal}};
+      etal: !!r.etal,
+      fsm: state.cols[c].fsm && !r.etal ? {mois: state.cols[c].fsm.mois, zero: !!state.cols[c].fsm.zero} : null}};
 }
 // v2.4 : contexte client envoyé par Simultoo à l'ouverture (client box Orange / Open, −26 ans).
 // Le profil client du simulateur suit Simultoo ; le forfait choisi n'est pas modifié.
@@ -1581,7 +1754,7 @@ async function buildPdf(opts) {
     const r = calcCol(c);
     const t1 = (fc ? fc.y1 + fc.opt : 0) + r.etalM, t2 = (fc ? fc.y2 + fc.opt : 0) + r.etalM;
     return `<div class="pr-totalbox-row">
-      <span class="l">${multi ? `Proposition ${c + 1} — ` : ''}${esc(r.v.name)}<small>${r.odrTotal > 0 ? `Après remboursement : ${prEur(r.apres)}` : 'Payé en boutique aujourd\'hui'}${r.cost24 !== null ? ` · coût total sur 24 mois : ${prEur(r.cost24)}` : ''}</small></span>
+      <span class="l">${multi ? `Proposition ${c + 1} — ` : ''}${esc(r.v.name)}<small>${r.odrTotal > 0 ? `Après remboursement : ${prEur(r.apres)}` : 'Payé en boutique aujourd\'hui'}${r.cost24 !== null ? ` · coût total sur 24 mois : ${prEur(r.cost24)}` : ''}${(() => { const R = state.cols[c].fsm ? fsmCalc(c) : null; return R && !R.err ? ` · ou financé : ${R.mois} × ${prEur(R.mens)} (TAEG ${pct(R.taeg)})` : ''; })()}</small></span>
       <span class="v">${prEur(r.caisse)}${t1 ? `<small> + ${prEur(t1, 1)}/mois</small>` : ''}${Math.abs(t1 - t2) > 0.004 ? `<div class="sub">pendant 12 mois puis ${prEur(t2, 1)}/mois</div>` : ''}${multi && r.etal ? `<div class="sub" style="font-size:11px">dont étalement ${prEur(r.etalM)}/mois pendant ${r.etal.mois} mois</div>` : ''}</span>
     </div>`;
   }).join('');
@@ -1611,7 +1784,7 @@ async function buildPdf(opts) {
   </div>
   <div class="pr-spacer"></div>
 </div>
-${cols.map(c => prPhoneCard(c, multi, photos)).join('')}
+${cols.map(c => prPhoneCard(c, multi, photos) + prFsmBlock(c)).join('')}
 ${fc ? prForfaitCard(fc, multi ? null : calcCol(cols[0]).etal) : ''}
 <div class="pr-block pr-block-pad">
   <div class="pr-totalbox">${totalRows}</div>
@@ -1862,9 +2035,10 @@ function loaderError(why) {
 function omniBloc(f) {
   if(!f) return null;
   if(f.promo !== undefined) return f;                      // déjà à l'ancien format (bloc nu)
-  if(f.cat > 0) return {cat: f.cat, promo: f.prix > 0 && f.prix < f.cat ? f.prix : null, remise: f.remise || 0};
-  if(f.prix > 0) return {cat: f.prix, promo: null, remise: 0};
-  return {cat: 0, promo: null, remise: f.remise || 0};     // prix réel = −remise (habitude du scraper)
+  const pa = f.paiements || null;                          // v2.7 : crédit Cetelem (FSM) relevé pour ce palier
+  if(f.cat > 0) return {cat: f.cat, promo: f.prix > 0 && f.prix < f.cat ? f.prix : null, remise: f.remise || 0, paiements: pa};
+  if(f.prix > 0) return {cat: f.prix, promo: null, remise: 0, paiements: pa};
+  return {cat: 0, promo: null, remise: f.remise || 0, paiements: pa};     // prix réel = −remise (habitude du scraper)
 }
 // Mots qui distinguent deux modèles qu'OMNI a regroupés (ex. Galaxy A17 5G et 4G, Fairphone 6 et 6+)
 const MODEL_TOKENS = {'4g': '4G', '5g': '5G', 'plus': 'Plus', 'pro': 'Pro', 'max': 'Max', 'lite': 'Lite', 'fe': 'FE', 'ultra': 'Ultra'};
@@ -1903,7 +2077,8 @@ function toPrixData(raw) {
     const or = (raw.operateurs || {}).orange || {};
     return {modeles: omniToOrange(raw), versionMinimale: raw.versionMinimale, message: raw.message,
             genereLe: or.releveLe || raw.genereLe, frais: or.frais, source: 'OMNI',
-            etalRegle: (raw.regles || {}).etalementOrange || null, accessoires: raw.accessoires || []};
+            etalRegle: (raw.regles || {}).etalementOrange || null, accessoires: raw.accessoires || [],
+            tzAcc: ((raw.tauxZero || {}).accessoires) || [], fsmDef: fsmDefaults(raw)};
   }
   return raw;
 }
@@ -1926,6 +2101,8 @@ function applyPrix(d, source, labelOverride) {
   DATA_SOURCE = source;
   if(d.etalRegle && Array.isArray(d.etalRegle.paliers)) ETAL_REGLE = d.etalRegle;
   ACC_OMNI = normAcc(d.accessoires);
+  if(d.fsmDef) FSM_DEF = d.fsmDef;
+  TZ_ACC = new Set([...(d.tzAcc || []), ...(d.accessoires || []).filter(a => a && a.tauxZero).map(a => a.id)]);
   loadData(d.modeles, labelOverride || labelFromDate(d.genereLe) || '—');
 }
 let firstRender = true;
