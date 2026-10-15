@@ -15,8 +15,8 @@
 //     jour    : jour habituel de mise à jour des prix Orange : 0 dimanche, 1 lundi, 2 mardi, 3 mercredi,
 //               4 jeudi, 5 vendredi, 6 samedi.
 window.SIMULTOO_UPDATE = {
-  "version": "2.2",
-  "date": "14/10/2026",
+  "version": "2.4",
+  "date": "15/10/2026",
   "message": null,
   "alertePrix": { "active": true, "jour": 4 }
 };
