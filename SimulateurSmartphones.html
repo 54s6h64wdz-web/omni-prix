@@ -231,6 +231,17 @@
   .btn-simultoo:hover{background:#ff8f26;}
   .simultoo-hint{margin-top:10px; font-size:12px; color:#8a8a8a; text-align:center;}
   .cost-box b { font-size: 14px; }
+  /* v3.0 — mode carte (ouvert depuis une carte Simultoo) */
+  .card-ctx { display: none; }
+  .card-mode .card-ctx { display: block; border-left: 4px solid var(--orange); }
+  .card-mode header, .card-mode .sb-contrat, .card-mode .sb-profil, .card-mode #forfait-card, .card-mode .add-col-btn { display: none !important; }
+  .card-mode .phones-grid.single { grid-template-columns: 1fr; }
+  .card-mode .app-layout { padding-top: 0; } .card-mode .sidebar, .card-mode .acc-rail { top: 0; }
+  .cc-name { font-size: 18px; font-weight: 700; margin: 2px 0 8px; }
+  .cc-tier { display: inline-flex; flex-direction: column; padding: 5px 10px; border: 2px solid; font-size: 12px; line-height: 1.25; }
+  .cc-tier b { font-weight: 800; letter-spacing: .02em; text-transform: uppercase; } .cc-tier small { font-weight: 500; }
+  .cc-acq { border-color: #1d63c9; color: #1d63c9; background: #eef4fd; } .cc-pcm { border-color: #c2185b; color: #c2185b; background: #fdeef4; } .cc-nu { border-color: #555; color: #333; background: #f3f3f3; }
+  .ri-tz { font-size: 10px; font-weight: 700; color: #1d4d7a; background: #e6eef7; padding: 1px 5px; border-radius: 3px; }
   /* v2.7 — Financement sur mesure Cetelem */
   .fsm-chips { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin: 2px 0 4px; font-size: 11.5px; color: var(--text-muted); }
   .fsm-chip { border: 1px solid #cfd8e3; background: #f3f7fb; color: #1d4d7a; font-size: 11.5px; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; }
@@ -508,7 +519,8 @@
 
 <div class="app-layout">
   <aside class="sidebar">
-    <div class="sidebar-card">
+    <div class="sidebar-card card-ctx" id="card-ctx"></div>
+    <div class="sidebar-card sb-contrat">
       <div class="section-label">Type de vente</div>
       <div class="toggle-group" id="contrat-group">
         <button class="toggle-btn" data-c="nu" onclick="setContrat('nu')">Nu / vSIM<small>Prix du mobile seul</small></button>
@@ -517,7 +529,7 @@
       </div>
       <div id="forfait-picker"></div>
     </div>
-    <div class="sidebar-card">
+    <div class="sidebar-card sb-profil">
       <div class="section-label">Profil client</div>
       <label class="switch-row"><span>Client box Orange<small>Remise Open</small></span>
         <span class="switch"><input type="checkbox" id="sw-box" onchange="setFlag('box',this.checked)"><span class="switch-slider"></span></span></label>
@@ -600,10 +612,18 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v2.9';
+const VERSION = 'v3.0';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
+// v3.0 — mode « carte » : ouvert par Simultoo depuis une carte mobile (+ smartphone / modifier) — contexte imposé par la carte
+const CARD_MODE = EMBED && new URLSearchParams(location.search).get('mode') === 'card';
+let CARD = null, CARD_PENDING = null;
+if(CARD_MODE) document.documentElement.classList.add('card-mode');
 const PATCHNOTES = [
+  {v:'v3.0 — 16/10/2026', items:[
+    'Nouvelle catégorie d\'accessoires « Lunettes connectées » (Ray-Ban Meta, Oakley Meta, Meta), triées par modèle. Pastille « FSM 0 % » sur les accessoires éligibles au financement à taux 0.',
+    'Mode « carte » pour Simultoo : quand on ajoute un smartphone dans une carte mobile de Simultoo, cette page s\'ouvre en grand avec le contexte de la carte (forfait, palier de prix acquisition / PCM / nu, étalement si vSIM), un seul smartphone, les accessoires et prestations à droite et le FSM. « Ajouter à la carte » renvoie tout dans la carte ; à la modification, le panier est rechargé tel quel.',
+  ]},
   {v:'v2.9 — 15/10/2026', items:[
     'Financement sur mesure : « Total mensuel » forfait Orange + crédit dans le bloc FSM (lignes « Forfait — facture Orange » et « Crédit 12 / 24 mois — Cetelem »), et dans le PDF (0 € payé en boutique, total mensuel détaillé, paliers dans le temps).',
   ]},
@@ -890,11 +910,13 @@ const ACC_CATS = [
   {key:'chargeurs', nom:'Accessoires de charge', subs:[['secteur','Chargeurs secteur'],['cable','Câbles'],['batterie','Batteries'],['induction','Induction'],['voiture','Voiture']]},
   {key:'montres', nom:'Montres connectées'},
   {key:'ecouteurs', nom:'Écouteurs sans fil'},
-  {key:'enceintes', nom:'Enceintes'}
+  {key:'enceintes', nom:'Enceintes'},
+  {key:'lunettes', nom:'Lunettes connectées'}
 ];
 function parseIsoDay(s, endOfDay) { if(!s) return null; const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})/); if(!m) return parseFrDate(s); return new Date(+m[1], +m[2]-1, +m[3], endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0); }
 function accSub(a) {
   const n = a.nom || '';
+  if(a.categorie === 'lunettes') return /Ray-?Ban/i.test(n) ? 'Ray-Ban Meta' : /Oakley/i.test(n) ? 'Oakley Meta' : 'Meta';   // v3.0
   if(a.categorie !== 'chargeurs') return a.marque || 'Autre';
   if(/allume-cigare/i.test(n)) return 'voiture';
   if(/induction/i.test(n)) return 'induction';
@@ -1259,7 +1281,7 @@ function fsmPhases(t1, t2, R) {
 }
 function fsmTotalHTML(c, R) {
   const r = calcCol(c), fc = r.fc;
-  if(!fc) return `<div class="fsm-foot"><span>Mensualité Cetelem <small>(hors facture Orange)</small></span><b>${eur(R.mens)}/mois</b></div>`;
+  if(!fc || CARD_MODE) return `<div class="fsm-foot"><span>Mensualité Cetelem <small>(hors facture Orange)</small></span><b>${eur(R.mens)}/mois</b></div>`;
   const t1 = fc.y1 + fc.opt + r.etalM, t2 = fc.y2 + fc.opt + r.etalM, tot = t1 + R.mens;
   const w = v => Math.max(2, v / tot * 100).toFixed(1) + '%';
   return `<div class="fsm-total">
@@ -1398,8 +1420,9 @@ function renderCol(c) {
       ${r.odrTotal > 0 ? `<div class="final-row"><span class="final-label">Après remboursement</span><span class="final-amount sm">${eur(r.apres)}</span></div>` : ''}
     </div>`;
     h += fsmBlockHTML(c);
-    if(r.fc) h += `<div class="cost-box">Sur 24 mois avec le forfait ${esc(r.fc.f.name)} : <b>${eur(r.cost24)}</b>${r.equiv !== null && state.contrat !== 'nu' ? `<br>Revient au même que le mobile acheté nu + un forfait à <b>${eur(r.equiv, 1)}/mois</b>` : ''}</div>`;
-    if(EMBED) h += r.fc
+    if(r.fc && !CARD_MODE) h += `<div class="cost-box">Sur 24 mois avec le forfait ${esc(r.fc.f.name)} : <b>${eur(r.cost24)}</b>${r.equiv !== null && state.contrat !== 'nu' ? `<br>Revient au même que le mobile acheté nu + un forfait à <b>${eur(r.equiv, 1)}/mois</b>` : ''}</div>`;
+    if(CARD_MODE) h += `<button class="btn-simultoo" onclick="event.stopPropagation(); sendToCard(${c})">${CARD && CARD.termUid ? '✓ Enregistrer dans la carte' : '✓ Ajouter à la carte'} <small>${esc(CARD ? CARD.cardName : '')} — ${esc(contratLabel())}${state.cols[c].fsm && !r.etal ? ` + FSM ${state.cols[c].fsm.mois} mois` : ''}</small></button>`;
+    else if(EMBED) h += r.fc
       ? `<button class="btn-simultoo" onclick="event.stopPropagation(); addToSimultoo(${c})">＋ Ajouter à Simultoo <small>${esc(r.fc.f.name)} + ce mobile${state.cols[c].fsm && !r.etal ? ` + FSM ${state.cols[c].fsm.mois} mois` : ''}</small></button>`
       : `<div class="simultoo-hint">Choisis un forfait pour pouvoir ajouter ce mobile à Simultoo.</div>`;
   }
@@ -1411,13 +1434,18 @@ function renderCol(c) {
 // Mêmes identifiants des deux côtés : forfaits (ma1…mm7), options (dz1, cs1, a1…), mobiles (slugs OMNI).
 function simultooPayload(c) {
   const r = calcCol(c); if(!r || r.na || !r.fc) return null;
-  const v = r.v, fc = r.fc;
+  const fc = r.fc;
   return {type: 'simultoo:add', version: 1,
     forfait: fc.fid,
     flags: {box: !!state.flags.box, u26: !!state.flags.u26},
     remises: fc.rems.map(x => ({id: x.id, l: x.l, on: !!x.on})),
     options: [...state.options, state.assurance].filter(Boolean),
-    terminal: {slug: v.slug, name: [v.name, v.capa, v.color].filter(Boolean).join(' '), img: v.img || '', price: r.pr.price,
+    terminal: termPayload(c, r)};
+}
+// v3.0 — Mobile + accessoires + FSM au format Simultoo, avec l'état complet (sim) pour pouvoir rouvrir et modifier
+function termPayload(c, r) {
+  const v = r.v;
+  return {slug: v.slug, name: [v.name, v.capa, v.color].filter(Boolean).join(' '), img: v.img || '', price: r.pr.price,
       accessories: Math.round(r.accs * 100) / 100, accNote: state.cols[c].accs.map(accLabel).join(', '),
       reprise: r.reprise, bonusReprise: r.bonus, odr: r.odrTotal,
       odrs: r.odrs.filter(o => !o.pending && !o.acc).map(o => ({lien: o.lien || '', on: odrActive(o), montant: o.montant, iphone: !!o.iphone})),
@@ -1428,10 +1456,62 @@ function simultooPayload(c) {
         return it;
       }),
       etal: !!r.etal,
-      fsm: state.cols[c].fsm && !r.etal ? {mois: state.cols[c].fsm.mois, zero: !!state.cols[c].fsm.zero} : null}};
+      fsm: state.cols[c].fsm && !r.etal ? {mois: state.cols[c].fsm.mois, zero: !!state.cols[c].fsm.zero} : null,
+      sim: {slug: v.slug, accs: state.cols[c].accs.map(e => { const x = {...e}; delete x.editPrice; return x; }),
+            fsm: state.cols[c].fsm ? {...state.cols[c].fsm} : null, odrOff: {...state.odrOff},
+            reprise: !!state.reprise, repriseVal: +state.repriseVal || 0, etalement: !!state.etalement}};
+}
+// ── v3.0 : mode carte ──
+function applyCard(d) {
+  CARD = d; CARD_PENDING = null;
+  const tier = d.tier || 'nu';
+  if(tier === 'nu') { state.contrat = 'nu'; state.nuForfait = NU_FORFAITS.includes(d.forfait) ? d.forfait : ''; }
+  else { state.contrat = tier.slice(0, 3); state.tier = tier.slice(3); }
+  state.flags.box = !!d.box; state.flags.u26 = !!d.u26; state.remOverride = {};
+  state.showCol1 = false; state.activeCol = 0; state.cols[1] = newCol();
+  const sm = d.sim || {}, col = newCol();
+  const v = sm.slug ? PHONES.find(p => p.slug === sm.slug) : null;
+  if(v) { col.model = v.name; col.slug = v.slug; }
+  if(Array.isArray(sm.accs)) col.accs = sm.accs.map(e => ({...e}));
+  else if(Array.isArray(sm.accItems) && sm.accItems.length)   // terminal envoyé par une ancienne version : on reconstruit le panier
+    col.accs = sm.accItems.map(a => a.accId && accOmni(a.accId) ? {uid: uidSeq++, id: 'omni', accId: a.accId, vi: 0}
+      : {uid: uidSeq++, id: 'mdm', kind: (+a.price < 0 ? 'mdm' : 'libre'), label: a.label || '', price: Math.abs(+a.price || 0)});
+  else if(+sm.accessories > 0) col.accs = [{uid: uidSeq++, id: 'mdm', kind: 'libre', label: 'Accessoires', price: +sm.accessories}];
+  col.accs.forEach(e => { if(e.uid >= uidSeq) uidSeq = e.uid + 1; });
+  col.fsm = sm.fsm || null;
+  state.cols[0] = col;
+  state.odrOff = {...(sm.odrOff || {})};
+  state.reprise = !!sm.reprise; state.repriseVal = +sm.repriseVal || 0;
+  state.etalement = !!d.etalOk && !!sm.etalement;
+  const rv = document.getElementById('reprise-val'); if(rv) rv.value = state.repriseVal || '';
+  renderAll(); window.scrollTo(0, 0);
+  if(d.sim && d.sim.slug && !v) toast('Ce mobile n\'est plus dans les prix chargés : choisis-le à nouveau');
+}
+function sendToCard(c) {
+  const r = calcCol(c);
+  if(!CARD || !r || r.na) { toast('Choisis un smartphone disponible pour ce forfait'); return; }
+  try { window.parent.postMessage({type: 'simultoo:term', version: 1, req: CARD.req, cardUid: CARD.cardUid, termUid: CARD.termUid || null, terminal: termPayload(c, r)}, '*'); }
+  catch(e) { toast('Impossible de joindre Simultoo'); }
+}
+function renderCardCtx() {
+  const el = document.getElementById('card-ctx'); if(!el) return;
+  if(!CARD) { el.innerHTML = `<div class="section-label">Ligne mobile Simultoo</div><div class="muted-note">Chargement du contexte de la carte…</div>`; return; }
+  const k = CARD.tier || 'nu', kind = k.startsWith('pcm') ? 'pcm' : k.startsWith('acq') ? 'acq' : 'nu';
+  el.innerHTML = `<div class="section-label">Ligne mobile Simultoo</div>
+    <div class="cc-name">${esc(CARD.cardName || '')}</div>
+    <span class="cc-tier cc-${kind}"><b>${esc(CARD.tierLabel || contratLabel())}</b><small>${kind === 'pcm' ? 'prix migration (client mobile Orange)' : kind === 'acq' ? 'prix nouveau client' : 'prix sans forfait engagé'}</small></span>
+    ${CARD.etalOk ? `<label class="switch-row" style="margin-top:10px"><span>Étalement du mobile<small>24 mois, sur la facture mobile (vSIM)</small></span>
+      <span class="switch"><input type="checkbox" ${state.etalement ? 'checked' : ''} onchange="setEtalement(this.checked)"><span class="switch-slider"></span></span></label>` : ''}
+    <div class="muted-note" style="margin-top:8px">Forfait, remises et options se règlent dans la carte Simultoo.</div>`;
 }
 // v2.4 : contexte client envoyé par Simultoo à l'ouverture (client box Orange / Open, −26 ans).
 // Le profil client du simulateur suit Simultoo ; le forfait choisi n'est pas modifié.
+window.addEventListener('message', e => {
+  if(!CARD_MODE || e.source !== window.parent) return;
+  const d = e.data; if(!d || d.type !== 'simultoo:card') return;
+  if(CARD && CARD.req === d.req) return;          // même demande reçue deux fois
+  if(PHONES.length) applyCard(d); else CARD_PENDING = d;
+});
 window.addEventListener('message', e => {
   if(!EMBED || e.source !== window.parent) return;
   const d = e.data; if(!d || d.type !== 'simultoo:ctx') return;
@@ -1539,7 +1619,7 @@ function railItemHTML(a, v) {
   return `<div class="ri ${dim ? 'dim' : ''}" draggable="true" ondragstart="dragStart(event,'omni:${esc(a.id)}')" onclick="addOmni(state.activeCol,'${esc(a.id)}')" title="${esc(a.nom)}">
     <img src="${esc(a.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
     <div class="ri-txt"><div class="ri-name">${esc(a.nom)}</div>
-      <div class="ri-meta">${a.iphoneOnly ? '<span class="ri-pill">iPhone</span>' : ''}${odr.map(o => `<span class="ri-odr">ODR −${eur(o.montant)}</span>`).join('')}${a.promo ? `<span class="ri-promo">Promo −${eur(a.catPrix - a.prix)}${a.promoFin ? ' jusqu\'au ' + fmtDate(a.promoFin) : ''}</span>` : ''}${doro ? '<span class="ri-promo">9 € avec ce Doro</span>' : ''}</div></div>
+      <div class="ri-meta">${a.iphoneOnly ? '<span class="ri-pill">iPhone</span>' : ''}${TZ_ACC.has(a.id) ? '<span class="ri-tz">FSM 0 %</span>' : ''}${odr.map(o => `<span class="ri-odr">ODR −${eur(o.montant)}</span>`).join('')}${a.promo ? `<span class="ri-promo">Promo −${eur(a.catPrix - a.prix)}${a.promoFin ? ' jusqu\'au ' + fmtDate(a.promoFin) : ''}</span>` : ''}${doro ? '<span class="ri-promo">9 € avec ce Doro</span>' : ''}</div></div>
     <div class="ri-price">${a.promo ? `<s>${eur(a.catPrix)}</s>` : ''}<b>${eur(a.prix)}</b></div>
   </div>`;
 }
@@ -1550,7 +1630,7 @@ function renderPhones() {
   const grid = document.getElementById('phones-grid');
   grid.className = 'phones-grid' + (state.showCol1 ? '' : ' single');
   const colHtml = c => `<div class="phone-col ${state.showCol1 && state.activeCol === c ? 'active-col' : ''}" id="col-${c}" onclick="setActive(${c})" ondragover="dragOver(event,${c})" ondragleave="dragLeave(event,${c})" ondrop="drop(event,${c})">${renderCol(c)}</div>`;
-  grid.innerHTML = colHtml(0) + (state.showCol1 ? colHtml(1) : `<button class="add-col-btn" onclick="showCol1()"><span class="add-col-icon">+</span>Comparer avec<br>un 2e smartphone</button>`);
+  grid.innerHTML = colHtml(0) + (CARD_MODE ? '' : state.showCol1 ? colHtml(1) : `<button class="add-col-btn" onclick="showCol1()"><span class="add-col-icon">+</span>Comparer avec<br>un 2e smartphone</button>`);
   // écart entre les deux
   if(state.showCol1) {
     const a = calcCol(0), b = calcCol(1);
@@ -1618,7 +1698,7 @@ function renderHeader() {
   document.getElementById('data-badge').textContent = 'Prix : ' + DATA_LABEL + (DATA_SOURCE === 'online' ? ' (en ligne)' : ' (fichier)');
 }
 
-function renderAll() { renderSidebar(); renderPhones(); renderForfait(); renderHeader(); renderRail(); }
+function renderAll() { renderSidebar(); renderPhones(); renderForfait(); renderHeader(); renderRail(); if(CARD_MODE) renderCardCtx(); }
 
 // ═══════════════════════════════════════════════
 // PDF CLIENT (mise en forme reprise de Simultoo : blocs capturés un par un, jamais coupés entre deux pages)
@@ -2143,6 +2223,7 @@ function afterLoad() {
   loaderHide();
   if(firstRender) { firstRender = false; renderAll(); checkPreviewEnv(); }
   else { renderAll(); fillVersionBadges(); }
+  if(CARD_MODE) { if(CARD_PENDING) applyCard(CARD_PENDING); try { window.parent.postMessage({type: 'simultoo:ready', version: 1}, '*'); } catch(e) {} }
   renderNotices();
 }
 async function startLoad() {
