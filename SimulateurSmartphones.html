@@ -241,6 +241,7 @@
   .cc-tier { display: inline-flex; flex-direction: column; padding: 5px 10px; border: 2px solid; font-size: 12px; line-height: 1.25; }
   .cc-tier b { font-weight: 800; letter-spacing: .02em; text-transform: uppercase; } .cc-tier small { font-weight: 500; }
   .cc-acq { border-color: #1d63c9; color: #1d63c9; background: #eef4fd; } .cc-pcm { border-color: #c2185b; color: #c2185b; background: #fdeef4; } .cc-nu { border-color: #555; color: #333; background: #f3f3f3; }
+  .ri-br { font-size: 10px; font-weight: 700; color: #fff; background: #1a7a3c; padding: 1px 5px; border-radius: 3px; }
   .ri-tz { font-size: 10px; font-weight: 700; color: #1d4d7a; background: #e6eef7; padding: 1px 5px; border-radius: 3px; }
   /* v2.7 — Financement sur mesure Cetelem */
   .fsm-chips { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin: 2px 0 4px; font-size: 11.5px; color: var(--text-muted); }
@@ -612,7 +613,7 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v3.0';
+const VERSION = 'v3.2';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 // v3.0 — mode « carte » : ouvert par Simultoo depuis une carte mobile (+ smartphone / modifier) — contexte imposé par la carte
@@ -620,6 +621,12 @@ const CARD_MODE = EMBED && new URLSearchParams(location.search).get('mode') === 
 let CARD = null, CARD_PENDING = null;
 if(CARD_MODE) document.documentElement.classList.add('card-mode');
 const PATCHNOTES = [
+  {v:'v3.2 — 16/10/2026', items:[
+    'Bonus reprise des accessoires Samsung valables jusqu\'au 21/10/2026 inclus (date affichée sur chaque bonus) ; ils disparaissent automatiquement ensuite.',
+  ]},
+  {v:'v3.1 — 16/10/2026', items:[
+    'Bonus reprise accessoires Samsung (non relevés par OMNI, saisis dans la page) : Galaxy Watch Ultra (2025) / Ultra2 100 €, Watch8 Classic 80 €, Watch8 / Watch9 50 €, Buds4 Pro / Buds4 / Buds3 FE 30 €. Cumulables avec le bonus reprise du smartphone, 2 bonus maximum par panier (les plus élevés). Pastille « Bonus reprise » sur ces accessoires dans le panneau de droite.',
+  ]},
   {v:'v3.0 — 16/10/2026', items:[
     'Nouvelle catégorie d\'accessoires « Lunettes connectées » (Ray-Ban Meta, Oakley Meta, Meta), triées par modèle. Pastille « FSM 0 % » sur les accessoires éligibles au financement à taux 0.',
     'Mode « carte » pour Simultoo : quand on ajoute un smartphone dans une carte mobile de Simultoo, cette page s\'ouvre en grand avec le contexte de la carte (forfait, palier de prix acquisition / PCM / nu, étalement si vSIM), un seul smartphone, les accessoires et prestations à droite et le FSM. « Ajouter à la carte » renvoie tout dans la carte ; à la modification, le panier est rechargé tel quel.',
@@ -1045,6 +1052,24 @@ const cheatCodeOn = () => state.flags.u26 && state.contrat === 'nu' && state.nuF
 // Bonus reprise : montant de reprise minimum selon la marque
 const BONUS_SEUIL = {Apple: 10, Samsung: 1};
 const bonusSeuil = v => BONUS_SEUIL[v.brand] ?? 0;
+/* v3.1 — Bonus reprise des accessoires Samsung : ils ne sont pas sur le site (donc pas dans prix-omni.js), on les saisit ici.
+   Lien vers les produits du fichier par identifiant (ids) ; « re » rattrape une nouvelle référence de la même gamme.
+   Cumulables avec le bonus reprise du smartphone : BONUS_MAX bonus par panier au maximum (les plus élevés).
+   À mettre à jour ici quand la grille change (montants, modèles). */
+const BONUS_ACC = [
+  {montant: 100, nom: 'Galaxy Watch Ultra (2025) / Ultra2', ids: ['acc-samsung-galaxy-watch-ultra-4g', 'acc-samsung-galaxy-watch-ultra2-4g'], re: /^Samsung Galaxy Watch Ultra/i},
+  {montant: 80,  nom: 'Galaxy Watch8 Classic', ids: [], re: /^Samsung Galaxy Watch\s?8 Classic/i},
+  {montant: 50,  nom: 'Galaxy Watch8 / Watch9', ids: ['acc-samsung-galaxy-watch8-4g', 'acc-samsung-galaxy-watch8-bluetooth', 'acc-samsung-galaxy-watch9-4g-40mm-creme', 'acc-samsung-galaxy-watch9-4g-44mm-graphite', 'acc-samsung-galaxy-watch9-bluetooth'], re: /^Samsung Galaxy Watch\s?(8|9)(?!\s*Classic)\b/i},
+  {montant: 30,  nom: 'Galaxy Buds4 Pro / Buds4 / Buds3 FE', ids: ['acc-ecouteurs-samsung-galaxy-buds4-pro', 'acc-ecouteurs-samsung-galaxy-buds4', 'acc-ecouteurs-samsung-galaxy-buds3-fe'], re: /Samsung Galaxy Buds\s?(4 Pro|4|3 FE)\b/i}
+];
+const BONUS_ACC_FIN = '21/10/2026';   // v3.2 : fin de l'opération (incluse) — après cette date, plus aucun bonus accessoire
+const BONUS_ACC_SEUIL = 1;   // reprise minimum (comme pour un smartphone Samsung)
+const BONUS_MAX = 2;         // bonus reprise par panier
+function bonusAccOf(a) {
+  if(!a) return null;
+  const fin = parseFrDate(BONUS_ACC_FIN); if(fin) { fin.setHours(23, 59, 59); if(today() > fin) return null; }
+  return BONUS_ACC.find(b => b.ids.includes(a.id)) || BONUS_ACC.find(b => b.re.test(a.nom)) || null;
+}
 
 // ═══════════════════════════════════════════════
 // REMISES FORFAIT
@@ -1132,7 +1157,14 @@ function calcCol(c) {
   const accs = state.cols[c].accs.reduce((s, e) => s + accPrice(e, c), 0);
   const accsFull = state.cols[c].accs.reduce((s, e) => s + accFullPrice(e), 0);
   const reprise = state.reprise ? state.repriseVal : 0;
-  const bonus = state.reprise && v.bonusReprise && state.repriseVal >= bonusSeuil(v) ? v.bonusReprise.montant : 0;
+  // v3.1 : bonus du mobile + bonus des accessoires Samsung, 2 au maximum (les plus élevés)
+  const bonusList = [];
+  if(v.bonusReprise) bonusList.push({nom: 'Bonus reprise ' + v.name, montant: v.bonusReprise.montant, kind: 'phone', seuil: bonusSeuil(v), condition: v.bonusReprise.condition,
+    ok: !!state.reprise && state.repriseVal >= bonusSeuil(v)});
+  state.cols[c].accs.forEach(e => { if(e.id !== 'omni') return; const a = accOmni(e.accId), b = bonusAccOf(a); if(!b) return;
+    bonusList.push({nom: 'Bonus reprise ' + a.nom, montant: b.montant, kind: 'acc', accId: a.id, seuil: BONUS_ACC_SEUIL, fin: BONUS_ACC_FIN, ok: !!state.reprise && state.repriseVal >= BONUS_ACC_SEUIL}); });
+  bonusList.filter(x => x.ok).sort((x, y) => y.montant - x.montant).forEach((x, i) => { x.kept = i < BONUS_MAX; });
+  const bonus = bonusList.filter(x => x.kept).reduce((t, x) => t + x.montant, 0);
   const etal = etalOf(c);
   const caisse = Math.max(0, (etal ? etal.apport : pr.price) + accs - reprise - bonus);
   const etalM = etal ? etal.mensualite : 0;
@@ -1171,7 +1203,7 @@ function calcCol(c) {
     const odrNu = odrs.filter(o => !o.cond && odrActive(o)).reduce((s, o) => s + o.montant, 0);
     if(nu !== null) equiv = (cost24 - Math.max(0, nu + accs - reprise - bonus) + odrNu) / 24;
   }
-  return {v, pr, accs, accsFull, reprise, bonus, caisse, odrs, odrTotal, apres: caisse - odrTotal, fc, cost24, equiv, etal, etalM};
+  return {v, pr, accs, accsFull, reprise, bonus, bonusList, caisse, odrs, odrTotal, apres: caisse - odrTotal, fc, cost24, equiv, etal, etalM};
 }
 
 // ═══════════════════════════════════════════════
@@ -1409,8 +1441,10 @@ function renderCol(c) {
       ${state.contrat === 'nu' && state.etalement && !r.etal ? `<div class="t-row" style="font-size:11.5px"><span>Pas d'étalement possible pour ce mobile (prix inférieur à ${eur(Math.min(...ETAL_REGLE.paliers.map(p => p.prixMin)))})</span></div>` : ''}
       ${col.accs.length ? `<div class="t-row"><span>Accessoires et prestations${r.accs < r.accsFull ? ` <small>(−${eur(r.accsFull - r.accs)} de remise)</small>` : ''}</span><span class="v">${eur(r.accs)}</span></div>` : ''}
       ${state.reprise ? `<div class="t-row green"><span>Orange Reprise</span><span class="v">${r.reprise ? '−' + eur(r.reprise) : '0 €'}</span></div>` : ''}
-      ${r.bonus ? `<div class="t-row green" title="${esc(v.bonusReprise.condition)}"><span>Bonus reprise</span><span class="v">−${eur(r.bonus)}</span></div>` : ''}
-      ${!r.bonus && v.bonusReprise ? `<div class="t-row green" style="font-size:11.5px"><span>💡 Bonus reprise de ${eur(v.bonusReprise.montant)} ${bonusSeuil(v) ? `avec une reprise d'au moins ${eur(bonusSeuil(v))}` : 'avec une reprise, même à 0 €'}</span></div>` : ''}
+      ${r.bonusList.filter(x => x.kept).map(x => `<div class="t-row green" title="${esc(x.condition || '')}"><span>${esc(x.nom)}${x.fin ? ` <small>jusqu'au ${esc(x.fin.slice(0, 5))}</small>` : ''}</span><span class="v">−${eur(x.montant)}</span></div>`).join('')}
+      ${r.bonusList.filter(x => x.ok && !x.kept).map(x => `<div class="t-row" style="font-size:11.5px;opacity:.75"><span><s>${esc(x.nom)}</s> — ${BONUS_MAX} bonus reprise maximum par panier</span><span class="v"><s>−${eur(x.montant)}</s></span></div>`).join('')}
+      ${r.bonusList.filter(x => !x.ok && x.kind === 'acc').map(x => `<div class="t-row green" style="font-size:11.5px"><span>💡 ${esc(x.nom)} : ${eur(x.montant)} avec une reprise d'au moins ${eur(x.seuil)} (jusqu'au ${esc(x.fin.slice(0, 5))})</span></div>`).join('')}
+      ${!r.bonusList.some(x => x.kind === 'phone' && x.ok) && v.bonusReprise ? `<div class="t-row green" style="font-size:11.5px"><span>💡 Bonus reprise de ${eur(v.bonusReprise.montant)} ${bonusSeuil(v) ? `avec une reprise d'au moins ${eur(bonusSeuil(v))}` : 'avec une reprise, même à 0 €'}</span></div>` : ''}
       <div class="final-row"><span class="final-label">Payé en caisse (comptant)</span><span class="final-amount">${eur(r.caisse)}</span></div>
       ${fsmChipsHTML(c, r)}
       ${r.etal ? `<div class="t-row" style="color:var(--blue-text);font-weight:600"><span>puis ${eur(r.etal.mensualite)}/mois pendant ${r.etal.mois} mois, sur la facture mobile</span></div>` : ''}
@@ -1448,6 +1482,7 @@ function termPayload(c, r) {
   return {slug: v.slug, name: [v.name, v.capa, v.color].filter(Boolean).join(' '), img: v.img || '', price: r.pr.price,
       accessories: Math.round(r.accs * 100) / 100, accNote: state.cols[c].accs.map(accLabel).join(', '),
       reprise: r.reprise, bonusReprise: r.bonus, odr: r.odrTotal,
+      bonusList: r.bonusList.map(x => ({nom: x.nom, montant: x.montant, kind: x.kind, ok: !!x.ok, fin: x.fin || ''})),
       odrs: r.odrs.filter(o => !o.pending && !o.acc).map(o => ({lien: o.lien || '', on: odrActive(o), montant: o.montant, iphone: !!o.iphone})),
       accItems: state.cols[c].accs.map(e => {
         const it = {label: accLabel(e), price: Math.round(accPrice(e, c) * 100) / 100, img: e.id === 'omni' ? accImg(e) : '', kind: e.id, accId: e.id === 'omni' ? e.accId : ''};
@@ -1536,7 +1571,8 @@ function accTagHTML(e, c) {
     else {
       img = `<img class="acc-img" src="${esc(accImg(e))}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`;
       inner = esc(o.nom) + (o.variantes.length > 1 ? ` <select onchange="setAccVariant(${c},${e.uid},this.value)">${o.variantes.map((x, i) => `<option value="${i}" ${i === (e.vi || 0) ? 'selected' : ''}>${esc(cap(x.couleur || ('modèle ' + (i + 1))))}${x.dispo ? '' : ' ⚠'}</option>`).join('')}</select>` : '')
-        + accOdrActive(o).map(x => ` <span class="acc-odr">ODR −${eur(x.montant)}</span>`).join('');
+        + accOdrActive(o).map(x => ` <span class="acc-odr">ODR −${eur(x.montant)}</span>`).join('')
+        + (bonusAccOf(o) ? ` <span class="acc-odr" style="background:#e5f4e9;color:#1a7a3c">Bonus reprise ${eur(bonusAccOf(o).montant)}</span>` : '');
     }
   } else if(e.id === 'coque') {
     inner = `Coque <select onchange="setAccModel(${c},${e.uid},this.value)">${a.models.map(m => `<option value="${m.key}" ${m.key === e.modelKey ? 'selected' : ''}>${esc(m.label)}</option>`).join('')}</select>`;
@@ -1619,7 +1655,7 @@ function railItemHTML(a, v) {
   return `<div class="ri ${dim ? 'dim' : ''}" draggable="true" ondragstart="dragStart(event,'omni:${esc(a.id)}')" onclick="addOmni(state.activeCol,'${esc(a.id)}')" title="${esc(a.nom)}">
     <img src="${esc(a.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">
     <div class="ri-txt"><div class="ri-name">${esc(a.nom)}</div>
-      <div class="ri-meta">${a.iphoneOnly ? '<span class="ri-pill">iPhone</span>' : ''}${TZ_ACC.has(a.id) ? '<span class="ri-tz">FSM 0 %</span>' : ''}${odr.map(o => `<span class="ri-odr">ODR −${eur(o.montant)}</span>`).join('')}${a.promo ? `<span class="ri-promo">Promo −${eur(a.catPrix - a.prix)}${a.promoFin ? ' jusqu\'au ' + fmtDate(a.promoFin) : ''}</span>` : ''}${doro ? '<span class="ri-promo">9 € avec ce Doro</span>' : ''}</div></div>
+      <div class="ri-meta">${a.iphoneOnly ? '<span class="ri-pill">iPhone</span>' : ''}${bonusAccOf(a) ? `<span class="ri-br">Bonus reprise ${eur(bonusAccOf(a).montant)} · jusqu'au ${BONUS_ACC_FIN.slice(0, 5)}</span>` : ''}${TZ_ACC.has(a.id) ? '<span class="ri-tz">FSM 0 %</span>' : ''}${odr.map(o => `<span class="ri-odr">ODR −${eur(o.montant)}</span>`).join('')}${a.promo ? `<span class="ri-promo">Promo −${eur(a.catPrix - a.prix)}${a.promoFin ? ' jusqu\'au ' + fmtDate(a.promoFin) : ''}</span>` : ''}${doro ? '<span class="ri-promo">9 € avec ce Doro</span>' : ''}</div></div>
     <div class="ri-price">${a.promo ? `<s>${eur(a.catPrix)}</s>` : ''}<b>${eur(a.prix)}</b></div>
   </div>`;
 }
@@ -1757,7 +1793,7 @@ function prPhoneCard(c, multi, photos) {
       ${r.etal ? `<div class="pr-remline"><span>Étalement sur ${r.etal.mois} mois (${r.etal.mois} × ${prEur(r.etal.mensualite)}/mois sur la facture mobile)</span><b>− ${prEur(r.etal.mensualite * r.etal.mois)}</b></div>` : ''}
       ${col.accs.length ? `<div class="pr-remline"><span>Accessoires et prestations</span><b>+ ${prEur(r.accs)}</b></div>` : ''}
       ${r.reprise ? `<div class="pr-remline green"><span>Reprise de votre ancien mobile</span><b>− ${prEur(r.reprise)}</b></div>` : ''}
-      ${r.bonus ? `<div class="pr-remline green"><span>Bonus reprise</span><b>− ${prEur(r.bonus)}</b></div>` : ''}
+      ${r.bonusList.filter(x => x.kept).map(x => `<div class="pr-remline green"><span>${esc(x.nom)}${x.fin ? ` (jusqu'au ${esc(x.fin)})` : ''}</span><b>− ${prEur(x.montant)}</b></div>`).join('')}
       <div class="pr-foot">
         <div class="pr-foot-lbl">Payé en boutique <span>(aujourd'hui)</span></div>
         <div class="pr-foot-right">
