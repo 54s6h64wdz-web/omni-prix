@@ -244,16 +244,23 @@
   .card-mode .card-bar { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; margin-bottom: 14px; }
   .card-mode .card-bar > .sidebar-card { margin: 0; padding: 8px 12px; font-size: 13px; background: var(--surface); box-shadow: var(--shadow); }
   .card-mode .card-bar .section-label { font-size: 10px; margin-bottom: 4px; }
-  .card-mode .card-bar .card-ctx { flex: 1 1 260px; }
+  .card-mode .card-bar .card-ctx { flex: 1 1 200px; }
   .card-mode .card-bar .card-ctx .cc-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .card-mode .card-bar .card-ctx .cc-name { font-size: 17px; }
   .card-mode .card-bar .card-ctx .muted-note { display: none; }
-  .card-mode .card-bar .sb-reprise { flex: 0 1 300px; }
+  .card-mode .card-bar .sb-reprise { flex: 0 1 240px; }
   .card-mode .card-bar .sb-reprise .reprise-row { display: flex; align-items: center; gap: 10px; }
   .card-mode .card-bar .sb-reprise .reprise-input { margin-top: 0; }
   .card-mode .card-bar .sb-reprise .sub-label { display: none; }
-  .card-mode .card-bar .sb-ean { flex: 0 1 260px; display: flex; flex-direction: column; justify-content: center; }
+  .card-mode .card-bar .sb-ean { flex: 0 1 210px; display: flex; flex-direction: column; justify-content: center; }
   .sb-ean { display: none; }
+  /* v3.4 — popup : panneau des accessoires toujours à droite et plus étroit (la popup fait ~1100 px de large ;
+     sous 1200 px, le panneau passait sous le mobile, décalé de la largeur de l'ancienne colonne de gauche) */
+  .card-mode .acc-rail { position: fixed; top: 0; right: 0; bottom: 0; width: 290px; margin-left: 0; max-height: none; }
+  .card-mode main { margin-right: 290px; }
+  .card-mode .acc-rail .rail-head small { display: none; }
+  @media (max-width: 1000px) { .card-mode .acc-rail { width: 250px; } .card-mode main { margin-right: 250px; } }
+  @media (max-width: 680px) { .card-mode .acc-rail { position: static; width: 100%; } .card-mode main { margin-right: 0; } }
   /* Douchette EAN (v3.3) */
   .ean-field { display: flex; align-items: center; gap: 7px; border: 1.5px solid var(--border-strong); border-radius: 20px; padding: 3px 10px; background: var(--surface); }
   .ean-field svg { flex-shrink: 0; color: var(--text); }
@@ -679,6 +686,7 @@ const PATCHNOTES = [
     'Mode salarié : accessoires −30 % par défaut (connectés et Apple −15 %, Apple Watch / AirPods / lunettes Meta non remisés) ; remise forfait calculée après les ODR du forfait (remises sur la facture mensuelle).',
     '130 Go 5G : Code Privilège au choix, −5 € avec Remise Open ou −10 € sans (non cumulable avec le code promo) → 14,99 €/mois.',
     'Pack 3+1 iPhone : 4e article au choix, AirTag ou accessoire bonus à 1 €.',
+    'Popup de Simultoo : panneau des accessoires toujours à droite et plus étroit (290 px, 250 px sur petit écran) — il passait sous le mobile sur les écrans de moins de 1200 px.',
     'Coques et protections du catalogue (quand OMNI les relèvera) : pas affichées dans le panneau, seulement en recherche et au scan EAN ; elles comptent dans le pack 3+1.'
   ]},
   {v:'v3.3 — 20/10/2026', items:[
