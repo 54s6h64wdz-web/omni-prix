@@ -254,6 +254,7 @@
   .card-mode .card-bar .sb-reprise .sub-label { display: none; }
   .card-mode .card-bar .sb-ean { flex: 0 1 210px; display: flex; flex-direction: column; justify-content: center; }
   .sb-ean { display: none; }
+  .rail-fit { font-size: 11px; color: #aaa; padding: 2px 2px 6px; } .rail-fit button { background: none; border: none; color: var(--orange); font-size: 11px; cursor: pointer; padding: 0; text-decoration: underline; font-family: inherit; }
   /* v3.4 — popup : panneau des accessoires toujours à droite et plus étroit (la popup fait ~1100 px de large ;
      sous 1200 px, le panneau passait sous le mobile, décalé de la largeur de l'ancienne colonne de gauche) */
   .card-mode .acc-rail { position: fixed; top: 0; right: 0; bottom: 0; width: 290px; margin-left: 0; max-height: none; }
@@ -631,6 +632,8 @@
         <input type="file" accept=".json,.js,application/json,text/javascript" style="display:none" onchange="openLocalFile(this.files[0])">
         Glisser le fichier ici ou <u>cliquer pour choisir</u>
       </label>
+      <h4>Accessoires de protection</h4>
+      <label class="chk" style="margin-bottom:6px"><input type="checkbox" id="show-cases" onchange="setShowCases(this.checked)"><span>Afficher les coques, films et étuis<small>Catalogue en ligne d'Orange, beaucoup plus large que la boutique : masqué par défaut. Le scan EAN (douchette) les trouve même masqués.</small></span></label>
       <h4>Patchnote</h4>
       <div id="patchnote"></div>
       <div style="margin-top:18px;padding-top:12px;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
@@ -668,7 +671,7 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v3.4';
+const VERSION = 'v3.5';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 // v3.0 — mode « carte » : ouvert par Simultoo depuis une carte mobile (+ smartphone / modifier) — contexte imposé par la carte
@@ -682,6 +685,9 @@ if(CARD_MODE) {
   bar.insertBefore(document.querySelector('.sb-reprise'), ean);
 }
 const PATCHNOTES = [
+  {v:'v3.5 — 20/10/2026', items:[
+    'Coques, films de protection et étuis à rabat (catalogue en ligne, relevés par OMNI) : onglets masqués par défaut, à afficher dans « Données » ; affichés, ils se limitent aux références compatibles avec le mobile choisi (« tout afficher » possible). Le scan EAN les trouve dans tous les cas, et ils comptent dans le pack 3+1.'
+  ]},
   {v:'v3.4 — 20/10/2026', items:[
     'Mode salarié : accessoires −30 % par défaut (connectés et Apple −15 %, Apple Watch / AirPods / lunettes Meta non remisés) ; remise forfait calculée après les ODR du forfait (remises sur la facture mensuelle).',
     '130 Go 5G : Code Privilège au choix, −5 € avec Remise Open ou −10 € sans (non cumulable avec le code promo) → 14,99 €/mois.',
@@ -995,8 +1001,20 @@ const ACC_CATS = [
   {key:'montres', nom:'Montres connectées'},
   {key:'ecouteurs', nom:'Écouteurs sans fil'},
   {key:'enceintes', nom:'Enceintes'},
-  {key:'lunettes', nom:'Lunettes connectées'}
+  {key:'lunettes', nom:'Lunettes connectées'},
+  // v3.5 — protections (catalogue en ligne, bien plus large qu'en boutique) : masquées par défaut, réglage dans « Données »
+  {key:'coques', nom:'Coques', cases:true},
+  {key:'films', nom:'Films de protection', cases:true},
+  {key:'etuis', nom:'Étuis à rabat', cases:true}
 ];
+const CASE_CATS = ['coques', 'films', 'etuis'];
+// Protection compatible avec le mobile choisi (« pour iPhone 17 Pro » ≠ « pour iPhone 17 Pro Max »)
+function phoneKey(v) { return v ? v.name.replace(/\s+(5G\+?|4G)$/i, '').trim() : ''; }
+function caseFits(a, v) {
+  const k = phoneKey(v); if(!k) return true;
+  const re = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*');
+  return new RegExp(re + '(?![\\w+]|\\s*(pro|max|plus|ultra|fe|edge|lite|e)\\b)', 'i').test(a.nom);
+}
 function parseIsoDay(s, endOfDay) { if(!s) return null; const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})/); if(!m) return parseFrDate(s); return new Date(+m[1], +m[2]-1, +m[3], endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0); }
 function accSub(a) {
   const n = a.nom || '';
@@ -1761,7 +1779,9 @@ function accTagHTML(e, c) {
 }
 
 // ── Panneau de droite : accessoires & prestations (v2.5) ──
-const RAIL = {open: {}, sub: {}, q: '', hidden: (() => { try { return localStorage.getItem('simusmart_rail_hidden') === '1'; } catch(e) { return false; } })()};
+const RAIL = {open: {}, sub: {}, q: '', hidden: (() => { try { return localStorage.getItem('simusmart_rail_hidden') === '1'; } catch(e) { return false; } })(),
+  showCases: (() => { try { return localStorage.getItem('simusmart_show_cases') === '1'; } catch(e) { return false; } })(), allCases: false};
+function setShowCases(on) { RAIL.showCases = !!on; try { localStorage.setItem('simusmart_show_cases', on ? '1' : ''); } catch(e) {} renderRail(); }
 function railTarget() { return 'Téléphone ' + (state.activeCol + 1); }
 function renderRail() {
   const el = document.getElementById('acc-rail'); if(!el) return;
@@ -1793,7 +1813,11 @@ function renderRailCats() {
   const q = (RAIL.q || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
   const match = a => !q || (a.nom + ' ' + a.marque).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q);
   box.innerHTML = ACC_CATS.map(C => {
-    const all = ACC_OMNI.filter(a => a.cat === C.key && match(a)).sort((x, y) => x.prix - y.prix || x.nom.localeCompare(y.nom));
+    if(C.cases && !RAIL.showCases) return '';
+    let all = ACC_OMNI.filter(a => a.cat === C.key && match(a)).sort((x, y) => x.prix - y.prix || x.nom.localeCompare(y.nom));
+    let fitNote = '';
+    if(C.cases && v && !RAIL.allCases) { const n = all.length; all = all.filter(a => caseFits(a, v)); fitNote = `<div class="rail-fit">Compatibles ${esc(phoneKey(v))} (${all.length}/${n}) · <button onclick="RAIL.allCases=true; renderRailCats()">tout afficher</button></div>`; }
+    else if(C.cases && v && RAIL.allCases) fitNote = `<div class="rail-fit">Toutes les références · <button onclick="RAIL.allCases=false; renderRailCats()">compatibles ${esc(phoneKey(v))} seulement</button></div>`;
     if(q && !all.length) return '';
     const subs = C.subs ? C.subs.filter(([k]) => all.some(a => a.sub === k))
       : [...new Set(all.map(a => a.sub))].sort((x, y) => all.filter(a => a.sub === y).length - all.filter(a => a.sub === x).length || x.localeCompare(y)).map(k => [k, k]);
@@ -1803,18 +1827,18 @@ function renderRailCats() {
     const nOdr = all.filter(a => accOdrActive(a).length).length;
     return `<div class="rail-cat ${open ? 'open' : ''}">
       <button class="rail-cat-h" onclick="toggleRailCat('${C.key}')"><span>${esc(C.nom)} <small>${all.length}</small>${nOdr ? `<span class="ri-odr">${nOdr} ODR</span>` : ''}</span><span class="chev">▸</span></button>
-      ${open ? `<div class="rail-cat-b">
+      ${open ? `<div class="rail-cat-b">${fitNote}
         ${subs.length > 1 ? `<div class="rail-subs"><button class="${cur ? '' : 'on'}" onclick="setRailSub('${C.key}','')">Tous</button>${subs.map(([k, l]) => `<button class="${cur === k ? 'on' : ''}" onclick="setRailSub('${C.key}','${esc(k)}')">${esc(l)}</button>`).join('')}</div>` : ''}
         ${items.map(a => railItemHTML(a, v)).join('') || '<div class="rail-empty">Aucun article</div>'}
       </div>` : ''}
     </div>`;
   }).join('') + railExtraHTML(v, q, match) + railAutresHTML(v, q) || `<div class="rail-empty">Aucun accessoire ne correspond à « ${esc(RAIL.q)} ».</div>`;
 }
-// v3.4 — catégories hors liste (coques, protections… quand OMNI les relèvera) : jamais affichées par défaut,
-// seulement dans les résultats d'une recherche ; elles servent surtout au scan EAN (douchette).
+// v3.4 — catégories hors liste : seulement dans les résultats d'une recherche. v3.5 : les protections (coques, films,
+// étuis) ont leurs onglets, masqués par défaut (réglage dans « Données ») ; le scan EAN les trouve toujours.
 function railExtraHTML(v, q, match) {
   if(!q) return '';
-  const known = new Set(ACC_CATS.map(C => C.key));
+  const known = new Set([...ACC_CATS.map(C => C.key), ...CASE_CATS]);   // protections : jamais en recherche si masquées
   const list = ACC_OMNI.filter(a => !known.has(a.cat) && match(a)).sort((x, y) => x.prix - y.prix || x.nom.localeCompare(y.nom));
   if(!list.length) return '';
   return `<div class="rail-cat open"><div class="rail-cat-h" style="cursor:default"><span>Coques et autres articles <small>${list.length}</small></span></div><div class="rail-cat-b">${list.slice(0, 60).map(a => railItemHTML(a, v)).join('')}</div></div>`;
@@ -2576,6 +2600,7 @@ function renderModal() {
   document.getElementById('data-info').innerHTML = `<div class="stat-grid"><div><b>${esc(DATA_LABEL)}</b>${DATA_SOURCE === 'online' ? 'prix en ligne' : 'fichier ouvert à la main'}</div><div><b>${MODELS.length}</b>modèles (${PHONES.length} coloris)</div><div><b>${nbOdr}</b>coloris avec ODR</div></div>
     <div style="font-size:12px;color:var(--text-hint);margin-top:6px">${nbNa} coloris indisponibles en ligne (signalés ⚠).</div>`;
   document.getElementById('prix-url').value = prixUrl();
+  const sc = document.getElementById('show-cases'); if(sc) sc.checked = !!RAIL.showCases;
   document.getElementById('patchnote').innerHTML = PATCHNOTES.map(p => `<div><b>${esc(p.v)}</b><ul class="patch">${p.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('');
 }
 function openModal() { renderModal(); document.getElementById('modal').classList.add('show'); }
