@@ -15,8 +15,8 @@
 //     jour    : jour habituel de mise à jour des prix Orange : 0 dimanche, 1 lundi, 2 mardi, 3 mercredi,
 //               4 jeudi, 5 vendredi, 6 samedi.
 window.SIMULTOO_UPDATE = {
-  "version": "3.7",
+  "version": "3.9",
   "date": "20/10/2026",
-  "message": "CANAL+ 24 mois uniquement, répéteurs Wifi à 10 € d’activation, simulateur : une seule barre noire",
+  "message": "Nouvelles offres : 4G Home (Flybox achat / étalement / aide de l’État) et Internet par satellite ; Cybersecure 3 mois offerts",
   "alertePrix": { "active": true, "jour": 4 }
 };
