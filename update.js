@@ -15,8 +15,8 @@
 //     jour    : jour habituel de mise à jour des prix Orange : 0 dimanche, 1 lundi, 2 mardi, 3 mercredi,
 //               4 jeudi, 5 vendredi, 6 samedi.
 window.SIMULTOO_UPDATE = {
-  "version": "3.3",
+  "version": "3.4",
   "date": "20/10/2026",
-  "message": "Mode salarié (menu ☰), calculateur de valorisation « v », popup smartphone animée, douchette EAN",
+  "message": "Déjà client mobile, Code Privilège 130 Go, Changer l’offre en colonnes, mode salarié, valorisation « v », douchette EAN",
   "alertePrix": { "active": true, "jour": 4 }
 };
