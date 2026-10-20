@@ -15,8 +15,8 @@
 //     jour    : jour habituel de mise à jour des prix Orange : 0 dimanche, 1 lundi, 2 mardi, 3 mercredi,
 //               4 jeudi, 5 vendredi, 6 samedi.
 window.SIMULTOO_UPDATE = {
-  "version": "3.9",
-  "date": "20/10/2026",
-  "message": "Nouvelles offres : 4G Home (Flybox achat / étalement / aide de l’État) et Internet par satellite ; Cybersecure 3 mois offerts",
+  "version": "4.0",
+  "date": "21/10/2026",
+  "message": "Multi-SIM : incluse avec 200 / 300 Go seulement, 5 €/mois sinon",
   "alertePrix": { "active": true, "jour": 4 }
 };
