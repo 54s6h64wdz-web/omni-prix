@@ -254,6 +254,9 @@
   .card-mode .card-bar .sb-reprise .sub-label { display: none; }
   .card-mode .card-bar .sb-ean { flex: 0 1 210px; display: flex; flex-direction: column; justify-content: center; }
   .sb-ean { display: none; }
+  .embed-full header { display: none !important; }
+  .embed-full .app-layout { padding-top: 0; } .embed-full .sidebar, .embed-full .acc-rail { top: 0; }
+  .version-badge { display: none; }   /* v3.6 : la version est dans « Données » (⚙) */
   .rail-fit { font-size: 11px; color: #aaa; padding: 2px 2px 6px; } .rail-fit button { background: none; border: none; color: var(--orange); font-size: 11px; cursor: pointer; padding: 0; text-decoration: underline; font-family: inherit; }
   /* v3.4 — popup : panneau des accessoires toujours à droite et plus étroit (la popup fait ~1100 px de large ;
      sous 1200 px, le panneau passait sous le mobile, décalé de la largeur de l'ancienne colonne de gauche) */
@@ -615,7 +618,7 @@
 
 <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="modal-panel">
-    <div class="modal-header"><span>Données et paramètres</span><button class="icon-btn" onclick="closeModal()" style="font-size:18px;line-height:1">×</button></div>
+    <div class="modal-header"><span>Données et paramètres <small class="ver-num" style="font-weight:500;color:var(--text-hint);margin-left:6px"></small></span><button class="icon-btn" onclick="closeModal()" style="font-size:18px;line-height:1">×</button></div>
     <div class="modal-body">
       <h4 style="margin-top:0">Fichier de prix utilisé</h4>
       <div id="data-info"></div>
@@ -671,12 +674,15 @@
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const VERSION = 'v3.5';
+const VERSION = 'v3.6';
 // Ouvert depuis le menu ☰ de Simultoo (dans un cadre) : pas de verrou « aperçu Teams », pas d'alerte de version (page en ligne = toujours la dernière).
 const EMBED = new URLSearchParams(location.search).get('embed') === 'simultoo';
 // v3.0 — mode « carte » : ouvert par Simultoo depuis une carte mobile (+ smartphone / modifier) — contexte imposé par la carte
 const CARD_MODE = EMBED && new URLSearchParams(location.search).get('mode') === 'card';
 let CARD = null, CARD_PENDING = null;
+// v3.6 — ouvert depuis le menu ☰ de Simultoo : plus d'en-tête orange, la barre noire de Simultoo porte la douchette,
+// la date des prix, « PDF client » et ⚙ Données (commandes reçues par message « simultoo:cmd »)
+if(EMBED && !CARD_MODE) document.documentElement.classList.add('embed-full');
 if(CARD_MODE) {
   document.documentElement.classList.add('card-mode');
   // v3.3 : la colonne de gauche disparaît dans la popup — contexte de la carte et reprise remontent dans un bandeau
@@ -685,6 +691,9 @@ if(CARD_MODE) {
   bar.insertBefore(document.querySelector('.sb-reprise'), ean);
 }
 const PATCHNOTES = [
+  {v:'v3.6 — 20/10/2026', items:[
+    'Ouvert depuis Simultoo (menu ☰) : plus de barre orange en double sous la barre noire ; la douchette, la date des prix, « PDF client » et ⚙ Données passent dans la barre noire. La version est affichée dans « Données ».'
+  ]},
   {v:'v3.5 — 20/10/2026', items:[
     'Coques, films de protection et étuis à rabat (catalogue en ligne, relevés par OMNI) : onglets masqués par défaut, à afficher dans « Données » ; affichés, ils se limitent aux références compatibles avec le mobile choisi (« tout afficher » possible). Le scan EAN les trouve dans tous les cas, et ils comptent dans le pack 3+1.'
   ]},
@@ -2424,8 +2433,9 @@ function flashCol(c) { const el = document.getElementById('col-' + c); if(el) { 
 // EAN scanné dans Simultoo (hors de la page) et transmis ici
 window.addEventListener('message', e => {
   if(!EMBED || e.source !== window.parent) return;
-  const d = e.data; if(!d || d.type !== 'simultoo:ean') return;
-  scanEan(d.ean);
+  const d = e.data; if(!d) return;
+  if(d.type === 'simultoo:ean') scanEan(d.ean);
+  else if(d.type === 'simultoo:cmd') { if(d.cmd === 'pdf') openPdfModal(); else if(d.cmd === 'data') openModal(); }
 });
 
 let toastT;
@@ -2549,7 +2559,8 @@ function afterLoad() {
   if(firstRender) { firstRender = false; renderAll(); checkPreviewEnv(); }
   else { renderAll(); fillVersionBadges(); }
   if(CARD_MODE && CARD_PENDING) applyCard(CARD_PENDING);
-  if(EMBED) { try { window.parent.postMessage({type: 'simultoo:ready', version: 1, mode: CARD_MODE ? 'card' : 'full'}, '*'); } catch(e) {} }
+  if(EMBED) { try { window.parent.postMessage({type: 'simultoo:ready', version: 1, mode: CARD_MODE ? 'card' : 'full'}, '*');
+    window.parent.postMessage({type: 'simultoo:info', version: VERSION, data: DATA_LABEL + (DATA_SOURCE === 'online' ? '' : ' (fichier)')}, '*'); } catch(e) {} }
   if(EAN_PENDING.length) { const q = EAN_PENDING.splice(0); q.forEach(x => scanEan(x)); }
   renderNotices();
 }

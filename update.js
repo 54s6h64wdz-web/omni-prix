@@ -15,8 +15,8 @@
 //     jour    : jour habituel de mise à jour des prix Orange : 0 dimanche, 1 lundi, 2 mardi, 3 mercredi,
 //               4 jeudi, 5 vendredi, 6 samedi.
 window.SIMULTOO_UPDATE = {
-  "version": "3.6",
+  "version": "3.7",
   "date": "20/10/2026",
-  "message": "CANAL+ (bouton + CANAL+), options du catalogue en ligne, assurance recommandée",
+  "message": "CANAL+ 24 mois uniquement, répéteurs Wifi à 10 € d’activation, simulateur : une seule barre noire",
   "alertePrix": { "active": true, "jour": 4 }
 };
