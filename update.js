@@ -1,4 +1,5 @@
-// Simultoo — fichier de mise à jour, lu par Simultoo à chaque ouverture.
+// Simultoo — fichier de mise à jour, lu par les anciennes versions de Simultoo (4.x et avant).
+// ⚠️ Depuis Simultoo 5.0 (25/10/2026), Simultoo se met à jour tout seul avec simultoo.enc : ce fichier ne doit plus être modifié.
 // Adresse : https://54s6h64wdz-web.github.io/omni-prix/update.js
 //
 // À modifier à la main. Garder un JSON valide entre les accolades :
@@ -15,8 +16,8 @@
 //     jour    : jour habituel de mise à jour des prix Orange : 0 dimanche, 1 lundi, 2 mardi, 3 mercredi,
 //               4 jeudi, 5 vendredi, 6 samedi.
 window.SIMULTOO_UPDATE = {
-  "version": "4.0",
-  "date": "21/10/2026",
-  "message": "Multi-SIM : incluse avec 200 / 300 Go seulement, 5 €/mois sinon",
+  "version": "5.0",
+  "date": "25/10/2026",
+  "message": "Simultoo 5 se met à jour tout seul : téléchargez une dernière fois le fichier sur le Teams, ensuite plus jamais",
   "alertePrix": { "active": true, "jour": 4 }
 };
