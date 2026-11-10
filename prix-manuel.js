@@ -142,8 +142,8 @@ window.PRIX_MANUEL = {
    "debut": "2026-11-10",
    "fin": "2026-11-18",
    "finDemande": "2026-12-18",
-   "lien": null,
-   "conditions": "Achat en boutique ou service clients entre le 10 et le 18/11/2026. Non cumulable avec une autre ODR Orange sur le mobile ni avec un code promo ; cumulable avec un bonus reprise.",
+   "lien": "https://formulaires.odr.orange.fr/19672",
+   "conditions": "Particuliers clients mobile Orange (France métropolitaine) : achat en boutique ou service clients entre le 10 et le 18/11/2026, demande par internet avant le 18/12/2026 minuit (courrier refusé). Non cumulable avec une autre ODR Orange sur le mobile ni avec un code promo ; cumulable avec un bonus reprise. Mobiles vendus par un tiers sur orange.fr exclus. Remboursement sous forme d'avoir sur facture à partir de la 2e ou 3e facture ; arrêté en cas de résiliation ou de rétractation. Un remboursement par mobile (IMEI) et par forfait.",
    "paliers": [
     {
      "montant": 100,
