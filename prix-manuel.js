@@ -5,6 +5,7 @@
 // un mobile), accessoires vendus en boutique mais absents du site, corrections de prix.
 // Toutes les dates sont au format AAAA-MM-JJ, incluses. Une ligne dont la date de fin est passée est ignorée automatiquement.
 // « modeles » / « declencheur » / « match » = expressions régulières testées sur « Marque Modèle » (ex. « Google Pixel 11 Pro XL 5G+ »).
+// odrArchive : ODR terminées à garder dans l'historique de l'outil « ODR » de Simultoo (nom, type, montant, debut, fin, lien, cibles, conditions).
 // lien: null = formulaire pas encore connu → la ligne s'affiche sans lien « formulaire ».
 window.PRIX_MANUEL = {
  "format": 1,
@@ -207,7 +208,7 @@ window.PRIX_MANUEL = {
    "orange": false,
    "debut": "2026-11-10",
    "lien": null,
-   "conditions": "ODR constructeur Samsung (grille Black Friday) ; cumulable avec les ODR Orange. Formulaire Samsung (lien non communiqué).",
+   "conditions": "ODR constructeur Samsung (grille Black Friday) ; cumulable avec les ODR Orange. Formulaire Samsung (lien non communiqué). Montants repris de la colonne « ODR » de la feuille « Produit Héros » du kit de com Black Friday. S26 (100 €) retiré le 10/11 : ODR introuvable.",
    "paliers": [
     {
      "montant": 300,
@@ -235,13 +236,6 @@ window.PRIX_MANUEL = {
      "fin": "2026-12-02",
      "modeles": [
       "^Samsung Galaxy S26 Ultra\\b"
-     ]
-    },
-    {
-     "montant": 100,
-     "fin": "2026-12-02",
-     "modeles": [
-      "^Samsung Galaxy S26( 5G|$)(?! FE| Plus| Ultra)"
      ]
     }
    ]
@@ -662,5 +656,6 @@ window.PRIX_MANUEL = {
    ],
    "source": "Kit de com Black Friday 2026"
   }
- ]
+ ],
+ "odrArchive": []
 };
