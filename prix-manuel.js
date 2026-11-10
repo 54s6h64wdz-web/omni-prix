@@ -201,44 +201,6 @@ window.PRIX_MANUEL = {
      ]
     }
    ]
-  },
-  {
-   "id": "odr-samsung-bf",
-   "nom": "Remboursement Samsung",
-   "orange": false,
-   "debut": "2026-11-10",
-   "lien": null,
-   "conditions": "ODR constructeur Samsung (grille Black Friday) ; cumulable avec les ODR Orange. Formulaire Samsung (lien non communiqué). Montants repris de la colonne « ODR » de la feuille « Produit Héros » du kit de com Black Friday. S26 (100 €) retiré le 10/11 : ODR introuvable.",
-   "paliers": [
-    {
-     "montant": 300,
-     "fin": "2027-01-05",
-     "modeles": [
-      "^Samsung Galaxy Z Fold8 Ultra\\b"
-     ]
-    },
-    {
-     "montant": 300,
-     "fin": "2026-12-02",
-     "modeles": [
-      "^Samsung Galaxy Z Fold8( 5G|$)(?! Ultra)"
-     ]
-    },
-    {
-     "montant": 200,
-     "fin": "2026-12-16",
-     "modeles": [
-      "^Samsung Galaxy Z Flip8\\b"
-     ]
-    },
-    {
-     "montant": 200,
-     "fin": "2026-12-02",
-     "modeles": [
-      "^Samsung Galaxy S26 Ultra\\b"
-     ]
-    }
-   ]
   }
  ],
  "odrIphone": {
