@@ -256,7 +256,7 @@ window.PRIX_MANUEL = {
    "debut": "2026-11-10",
    "fin": "2027-01-05",
    "finDemande": "2027-02-05",
-   "lien": "https://formulaires.orange.fr/20058",
+   "lien": "https://formulaires.odr.orange.fr/20058",
    "lienSosh": "https://formulaires.sosh.fr/20067",
    "client": "clients mobile Orange ou Sosh",
    "marques": [
