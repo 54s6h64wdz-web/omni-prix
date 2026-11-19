@@ -15,6 +15,7 @@ window.PRIX_MANUEL = {
   "Kit de com équipements Black Friday 2026 (DCGP, 06/11/2026) et ses 2 feuilles de calcul",
   "Bonus Black Friday 1re partie (10 au 18/11)",
   "Bonus Black Friday 2e partie (19/11 au 02/12/2026)",
+  "Formulaire ODR Privilège Android Premium Orange (20101), push « Privilège Android 158 € » — photos de Mounir du 19/11/2026",
   "Formulaires ODR Objets connectés Orange, iPhone neuf et objets connectés Orange, Black Friday mobile Orange"
  ],
  "bonusReprise": {
@@ -242,6 +243,37 @@ window.PRIX_MANUEL = {
       "^Samsung Galaxy A56\\b",
       "^Samsung Galaxy A53\\b",
       "^Samsung Galaxy A23\\b"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "odr-privilege-android",
+   "nom": "ODR Privilège Android Premium",
+   "orange": true,
+   "ciblage": true,
+   "client": "clients mobile Orange ciblés (push « Privilège Android 158 € » reçu par SMS ou e-mail)",
+   "debut": "2026-11-19",
+   "fin": "2026-12-31",
+   "finDemande": "2027-01-31",
+   "lien": "https://formulaires.odr.orange.fr/20101",
+   "conditions": "Offre personnalisée : réservée aux clients mobile Orange ciblés à qui Orange a envoyé un code promo (SMS ou e-mail) pour un des mobiles éligibles, et qui achètent en boutique Orange ou au service clients entre le 19/11 et le 31/12/2026 ; la remise du code promo est alors versée en remboursement différé de 158 €. Formulaire à envoyer par internet avant le 31/01/2027 minuit. À cocher seulement si le client a reçu le push.",
+   "paliers": [
+    {
+     "montant": 158,
+     "reconditionne": false,
+     "modeles": [
+      "^Google Pixel 10( 5G\\+?)?$",
+      "^Google Pixel 11( 5G\\+?)?$",
+      "^Google Pixel 11 Pro( 5G\\+?)?$",
+      "^Google Pixel 11 Pro XL\\b",
+      "^Google Pixel 11 Pro Fold\\b",
+      "^Samsung Galaxy S26( 5G\\+?)?$",
+      "^Samsung Galaxy S26 Plus\\b",
+      "^Samsung Galaxy S26 Ultra\\b",
+      "^Samsung Galaxy Z Flip8( 5G\\+?)?$",
+      "^Samsung Galaxy Z Fold8( 5G\\+?)?$",
+      "^Samsung Galaxy Z Fold8 Ultra\\b"
      ]
     }
    ]
@@ -663,5 +695,6 @@ window.PRIX_MANUEL = {
    "source": "Kit de com Black Friday 2026"
   }
  ],
- "odrArchive": []
+ "odrArchive": [],
+ "regleCiblage": "« ciblage »: true = ODR réservée aux clients ciblés par un push : affichée dans le simulateur mais décochée par défaut, jamais déduite du prix de la liste."
 };
