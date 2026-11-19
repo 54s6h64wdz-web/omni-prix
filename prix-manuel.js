@@ -9,11 +9,12 @@
 // lien: null = formulaire pas encore connu → la ligne s'affiche sans lien « formulaire ».
 window.PRIX_MANUEL = {
  "format": 1,
- "majLe": "2026-11-10",
+ "majLe": "2026-11-19",
  "auteur": "Mounir (ajouts manuels, saisis par Claude)",
  "sources": [
   "Kit de com équipements Black Friday 2026 (DCGP, 06/11/2026) et ses 2 feuilles de calcul",
   "Bonus Black Friday 1re partie (10 au 18/11)",
+  "Bonus Black Friday 2e partie (19/11 au 02/12/2026)",
   "Formulaires ODR Objets connectés Orange, iPhone neuf et objets connectés Orange, Black Friday mobile Orange"
  ],
  "bonusReprise": {
@@ -24,7 +25,7 @@ window.PRIX_MANUEL = {
    "reconditionne": 0
   },
   "maxParPanier": 2,
-  "regle": "1 bonus « smartphone » maximum par mobile acheté et mobile repris. Bonus accessoires et objets connectés : en boutique uniquement, seuls ou cumulables avec un bonus smartphone. Référence : le bonus reprise affiché sur orange.fr (prix-omni.js) ; les lignes « mobiles » ci-dessous ne servent que pour les mobiles sans bonus sur le site.",
+  "regle": "1 bonus « smartphone » maximum par mobile acheté et mobile repris. Bonus accessoires et objets connectés : en boutique uniquement, seuls ou cumulables avec un bonus smartphone. Référence : le bonus reprise affiché sur orange.fr (prix-omni.js) ; les lignes « mobiles » ci-dessous ne servent que pour les mobiles sans bonus sur le site. « sansSeuil » : mobiles achetés sans minimum de valeur pour le mobile repris (ex. Galaxy S25 pendant le Black Friday).",
   "mobiles": [
    {
     "nom": "Bonus reprise Black Friday — reconditionnés",
@@ -47,8 +48,8 @@ window.PRIX_MANUEL = {
   "sunset": {
    "nom": "Bonus reprise opération Sunset (mobile 2G repris)",
    "montant": 50,
-   "debut": "2026-11-10",
-   "fin": "2026-11-18",
+   "debut": "2026-11-19",
+   "fin": "2026-12-02",
    "condition": "Le mobile repris est un mobile 2G : pas de condition de valeur de reprise",
    "modeles": [
     "^MobiWire Hinto 2\\b",
@@ -59,7 +60,7 @@ window.PRIX_MANUEL = {
     "^TCL Onetouch 4043\\b",
     "^HONOR X5c Plus\\b",
     "^Motorola moto g67\\b",
-    "^Samsung Galaxy A17 4G\\b"
+    "^Samsung Galaxy A17 5G\\b"
    ]
   },
   "accessoires": [
@@ -130,6 +131,49 @@ window.PRIX_MANUEL = {
      "acc-ecouteurs-samsung-galaxy-buds3-fe"
     ],
     "match": "Samsung Galaxy Buds\\s?(4 Pro|4|3 FE)\\b"
+   },
+   {
+    "nom": "Huawei Watch GT 7 Pro 46 mm (noir)",
+    "montant": 50,
+    "debut": "2026-11-19",
+    "fin": "2026-12-02",
+    "ids": [
+     "acc-huawei-watch-gt-7-pro-bluetooth"
+    ],
+    "match": "^Huawei Watch GT ?7 Pro"
+   },
+   {
+    "nom": "Huawei Watch Fit 5 Pro (noir) / GT7 41 mm (rose)",
+    "montant": 30,
+    "debut": "2026-11-19",
+    "fin": "2026-12-02",
+    "ids": [
+     "acc-huawei-watch-fit-5-pro-bluetooth",
+     "acc-huawei-watch-gt7-bluetooth"
+    ],
+    "match": "^Huawei Watch (Fit 5 Pro|GT ?7(?! Pro))"
+   },
+   {
+    "nom": "Galaxy Buds4 Pro / Buds4 / Buds3 FE",
+    "montant": 30,
+    "debut": "2026-11-19",
+    "fin": "2026-12-02",
+    "ids": [
+     "acc-ecouteurs-samsung-galaxy-buds4-pro",
+     "acc-ecouteurs-samsung-galaxy-buds4",
+     "acc-ecouteurs-samsung-galaxy-buds3-fe"
+    ],
+    "match": "Samsung Galaxy Buds\\s?(4 Pro|4|3 FE)\\b"
+   }
+  ],
+  "sansSeuil": [
+   {
+    "nom": "Black Friday 2e partie : bonus Galaxy S25 sans minimum de valeur du mobile repris",
+    "debut": "2026-11-19",
+    "fin": "2026-12-02",
+    "modeles": [
+     "^Samsung Galaxy S25( 5G\\+?)?$"
+    ]
    }
   ]
  },
