@@ -16,6 +16,7 @@ window.PRIX_MANUEL = {
   "Bonus Black Friday 1re partie (10 au 18/11)",
   "Bonus Black Friday 2e partie (19/11 au 02/12/2026)",
   "Formulaire ODR Privilège Android Premium Orange (20101), push « Privilège Android 158 € » — photos de Mounir du 19/11/2026",
+  "Formulaire ODR Privilège Android Orange (20074), push « Privilège Android 100 € » — photos de Mounir du 19/11/2026",
   "Formulaires ODR Objets connectés Orange, iPhone neuf et objets connectés Orange, Black Friday mobile Orange"
  ],
  "bonusReprise": {
@@ -274,6 +275,28 @@ window.PRIX_MANUEL = {
       "^Samsung Galaxy Z Flip8( 5G\\+?)?$",
       "^Samsung Galaxy Z Fold8( 5G\\+?)?$",
       "^Samsung Galaxy Z Fold8 Ultra\\b"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "odr-privilege-android-100",
+   "nom": "ODR Privilège Android",
+   "orange": true,
+   "ciblage": true,
+   "client": "clients mobile Orange ciblés (push « Privilège Android » reçu par SMS ou e-mail)",
+   "debut": "2026-11-19",
+   "fin": "2026-12-31",
+   "finDemande": "2027-01-31",
+   "lien": "https://formulaires.odr.orange.fr/20074",
+   "conditions": "Offre personnalisée : réservée aux clients mobile Orange ciblés à qui Orange a envoyé un code promo (SMS ou e-mail) pour un des mobiles éligibles, et qui achètent en boutique Orange ou au service clients entre le 19/11 et le 31/12/2026. Non cumulable avec un code promo ; cumulable avec un bonus reprise ; limitée aux lignes mobiles ciblées. Un remboursement par mobile (IMEI) et par forfait. Formulaire à envoyer par internet avant le 31/01/2027 minuit. À cocher seulement si le client a reçu le push.",
+   "paliers": [
+    {
+     "montant": 100,
+     "reconditionne": false,
+     "modeles": [
+      "^Google Pixel 10a\\b",
+      "^Samsung Galaxy A57\\b"
      ]
     }
    ]
