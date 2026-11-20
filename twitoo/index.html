@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Twitoo</title>
+<meta name="description" content="Télécharger des vidéos Twitter / X, sans pub.">
+<meta name="theme-color" content="#0b0b0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Twitoo">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root {
+    --bg: #0b0b0f; --card: #16161d; --line: #26262f; --txt: #f2f2f5; --mute: #8c8c99;
+    --acc: #1d9bf0; --acc2: #4fb6ff; --ok: #2ecc71; --err: #ff5a5f;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--txt);
+    font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+  body { min-height: 100vh;
+    padding: calc(env(safe-area-inset-top) + 28px) calc(env(safe-area-inset-right) + 18px)
+             calc(env(safe-area-inset-bottom) + 28px) calc(env(safe-area-inset-left) + 18px); }
+  main { max-width: 520px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  header img { width: 44px; height: 44px; border-radius: 11px; }
+  h1 { font-size: 26px; margin: 0; letter-spacing: -.02em; }
+  header p { margin: 2px 0 0; color: var(--mute); font-size: 14px; }
+
+  .field { display: flex; gap: 8px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 6px; }
+  .field:focus-within { border-color: var(--acc); }
+  input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--txt);
+    font-size: 16px; padding: 10px 10px; }
+  input::placeholder { color: #5d5d6a; }
+  button { font: inherit; border: 0; cursor: pointer; border-radius: 12px; }
+  .ghost { background: #22222b; color: var(--txt); padding: 0 14px; font-size: 15px; }
+  .main-btn { width: 100%; margin-top: 12px; background: var(--acc); color: #fff; font-weight: 600;
+    padding: 15px; font-size: 17px; border-radius: 14px; transition: opacity .15s, transform .1s; }
+  .main-btn:active, .ghost:active, .dl:active { transform: scale(.98); }
+  .main-btn:disabled { opacity: .5; }
+
+  .msg { margin-top: 14px; padding: 12px 14px; border-radius: 12px; font-size: 14px; display: none; }
+  .msg.err { display: block; background: rgba(255,90,95,.12); color: #ff9a9d; }
+  .msg.info { display: block; background: rgba(29,155,240,.12); color: #9ed4ff; }
+
+  .tweet { margin-top: 22px; background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+    overflow: hidden; animation: up .25s ease; }
+  @keyframes up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .author { display: flex; align-items: center; gap: 10px; padding: 14px 14px 8px; }
+  .author img { width: 36px; height: 36px; border-radius: 50%; background: #2a2a33; }
+  .author b { display: block; font-size: 15px; }
+  .author span { color: var(--mute); font-size: 13px; }
+  .text { padding: 0 14px 12px; font-size: 14px; color: #cfcfd8; white-space: pre-wrap; word-break: break-word;
+    max-height: 7.2em; overflow: hidden; }
+  .video { border-top: 1px solid var(--line); padding: 14px; }
+  .video video { width: 100%; border-radius: 12px; background: #000; display: block; max-height: 60vh; }
+  .quals { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .dl { display: flex; justify-content: space-between; align-items: center; width: 100%;
+    background: #22222b; color: var(--txt); padding: 13px 14px; font-size: 15px; text-align: left; }
+  .dl small { color: var(--mute); }
+  .dl.best { background: var(--acc); color: #fff; }
+  .dl.best small { color: rgba(255,255,255,.8); }
+  .dl.save { background: var(--ok); color: #06210f; font-weight: 600; justify-content: center; }
+  .bar { height: 4px; background: #2a2a33; border-radius: 4px; overflow: hidden; margin-top: 10px; display: none; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--acc2); transition: width .15s; }
+  .hint { color: var(--mute); font-size: 13px; margin-top: 10px; }
+  .hint a { color: var(--acc2); }
+
+  details { margin-top: 28px; color: var(--mute); font-size: 14px; }
+  summary { cursor: pointer; color: var(--txt); }
+  details ol { padding-left: 20px; }
+  details li { margin: 6px 0; }
+  footer { margin-top: 26px; text-align: center; color: #55555f; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="icon-180.png" alt="">
+    <div>
+      <h1>Twitoo</h1>
+      <p>Vidéos Twitter / X, sans pub</p>
+    </div>
+  </header>
+
+  <form id="form" autocomplete="off">
+    <div class="field">
+      <input id="url" type="url" inputmode="url" placeholder="Colle le lien du tweet…" aria-label="Lien du tweet">
+      <button type="button" class="ghost" id="paste">Coller</button>
+    </div>
+    <button class="main-btn" id="go" type="submit">Trouver la vidéo</button>
+  </form>
+
+  <div id="msg" class="msg"></div>
+  <div id="result"></div>
+
+  <details>
+    <summary>Comment ça marche</summary>
+    <ol>
+      <li>Dans l'app X, sur le tweet : <b>Partager → Copier le lien</b>.</li>
+      <li>Ici : <b>Coller</b>, puis <b>Trouver la vidéo</b>.</li>
+      <li>Choisis la qualité. Une fois chargée, touche <b>Enregistrer</b> puis <b>Enregistrer la vidéo</b> pour l'avoir dans Photos.</li>
+      <li>Astuce : dans Safari, <b>Partager → Sur l'écran d'accueil</b> pour l'avoir comme une vraie app.</li>
+    </ol>
+  </details>
+
+  <footer>Aucune pub, aucun traqueur. Les tweets privés ne sont pas accessibles.</footer>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const form = $('#form'), input = $('#url'), go = $('#go'), msg = $('#msg'), result = $('#result');
+
+function say(text, kind = 'err') { msg.className = 'msg ' + kind; msg.textContent = text; }
+function clearMsg() { msg.className = 'msg'; msg.textContent = ''; }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// Extrait l'identifiant du tweet depuis n'importe quel lien x.com / twitter.com / fxtwitter / vxtwitter…
+function tweetId(raw) {
+  const s = (raw || '').trim();
+  const m = s.match(/(?:twitter|x|fxtwitter|vxtwitter|fixupx|fixvx|twittpr|nitter)\.[a-z.]+\/(?:[^/]+\/)?(?:status|statuses)\/(\d+)/i)
+         || s.match(/\/status(?:es)?\/(\d+)/i)
+         || s.match(/^(\d{8,25})$/);
+  return m ? m[1] : null;
+}
+
+// --- Récupération des infos du tweet (FxTwitter, puis vxTwitter en secours) ---
+async function fromFx(id) {
+  const r = await fetch(`https://api.fxtwitter.com/status/${id}`);
+  const j = await r.json().catch(() => null);
+  if (!j) throw new Error('fx');
+  if (j.code === 401) throw Object.assign(new Error('Ce tweet est privé.'), { final: true });
+  if (j.code === 404) throw Object.assign(new Error('Tweet introuvable (supprimé ou lien incorrect).'), { final: true });
+  if (!j.tweet) throw new Error('fx');
+  const t = j.tweet;
+  const vids = (t.media?.videos || []).map(v => {
+    let variants = (v.variants || [])
+      .filter(x => (x.content_type || x.type || '').includes('mp4') && x.url)
+      .map(x => ({ url: x.url, bitrate: x.bitrate || 0 }));
+    if (!variants.length) variants = [{ url: v.url, bitrate: 0, w: v.width, h: v.height }];
+    return { thumb: v.thumbnail_url, type: v.type, duration: v.duration, width: v.width, height: v.height, variants };
+  });
+  return { id, text: t.text, name: t.author?.name, handle: t.author?.screen_name, avatar: t.author?.avatar_url, vids };
+}
+
+async function fromVx(id) {
+  const r = await fetch(`https://api.vxtwitter.com/Twitter/status/${id}`);
+  const j = await r.json();
+  const vids = (j.media_extended || []).filter(m => m.type === 'video' || m.type === 'gif').map(m => ({
+    thumb: m.thumbnail_url, type: m.type, duration: m.duration_millis ? m.duration_millis / 1000 : null,
+    width: m.size?.width, height: m.size?.height, variants: [{ url: m.url, bitrate: 0 }]
+  }));
+  return { id, text: j.text, name: j.user_name, handle: j.user_screen_name, avatar: j.user_profile_image_url, vids };
+}
+
+async function lookup(id) {
+  try { return await fromFx(id); }
+  catch (e) { if (e.final) throw e; }
+  return await fromVx(id);
+}
+
+// --- Affichage ---
+function resOf(v) {
+  const m = v.url.match(/\/(\d{2,4})x(\d{2,4})\//);
+  return m ? { w: +m[1], h: +m[2] } : (v.w ? { w: v.w, h: v.h } : null);
+}
+function qualLabel(v) {
+  const r = resOf(v);
+  if (!r) return 'Meilleure qualité';
+  const p = Math.min(r.w, r.h);
+  return `${p >= 1080 ? '1080p' : p >= 720 ? '720p' : p >= 480 ? '480p' : p + 'p'}`;
+}
+function fmtDur(s) { if (!s) return ''; s = Math.round(s); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+
+function render(t) {
+  result.innerHTML = '';
+  if (!t.vids.length) { say("Pas de vidéo dans ce tweet (seulement du texte ou des photos)."); return; }
+  const card = document.createElement('div');
+  card.className = 'tweet';
+  card.innerHTML = `
+    <div class="author">
+      ${t.avatar ? `<img src="${esc(t.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : ''}
+      <div><b>${esc(t.name || '')}</b><span>@${esc(t.handle || '')}</span></div>
+    </div>
+    ${t.text ? `<div class="text">${esc(t.text)}</div>` : ''}`;
+  t.vids.forEach((v, i) => {
+    const variants = [...v.variants].sort((a, b) => (b.bitrate - a.bitrate) || ((resOf(b)?.w || 0) - (resOf(a)?.w || 0)));
+    const box = document.createElement('div');
+    box.className = 'video';
+    box.innerHTML = `
+      <video controls playsinline preload="metadata" ${v.thumb ? `poster="${esc(v.thumb)}"` : ''} src="${esc(variants[0].url)}"></video>
+      <div class="quals"></div>
+      <div class="bar"><i></i></div>
+      <div class="hint"></div>`;
+    const quals = box.querySelector('.quals');
+    const seen = new Set();
+    variants.forEach((q, k) => {
+      const label = qualLabel(q);
+      if (seen.has(label)) return; seen.add(label);
+      const b = document.createElement('button');
+      b.className = 'dl' + (k === 0 ? ' best' : '');
+      b.innerHTML = `<span>⬇︎ ${esc(label)}${v.type === 'gif' ? ' (GIF)' : ''}</span><small>${fmtDur(v.duration)}</small>`;
+      b.onclick = () => download(q.url, fileName(t, i, label), box);
+      quals.appendChild(b);
+    });
+    card.appendChild(box);
+  });
+  result.appendChild(card);
+}
+
+function fileName(t, i, label) {
+  return `twitoo_${t.handle || 'x'}_${t.id}${i ? '_' + (i + 1) : ''}_${label.replace(/\W/g, '')}.mp4`;
+}
+
+// --- Téléchargement ---
+// 1) on charge la vidéo dans la page (avec progression)
+// 2) bouton « Enregistrer » → feuille de partage iOS (« Enregistrer la vidéo » → Photos)
+//    ou téléchargement classique sur ordinateur.
+// Si le chargement est bloqué, on ouvre la vidéo directement.
+let busy = false;
+async function download(url, name, box) {
+  if (busy) return; busy = true;
+  const bar = box.querySelector('.bar'), fill = bar.querySelector('i'), hint = box.querySelector('.hint');
+  box.querySelectorAll('.dl.save').forEach(b => b.remove());
+  bar.style.display = 'block'; fill.style.width = '2%'; hint.textContent = 'Chargement…';
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const total = +r.headers.get('content-length') || 0;
+    let blob;
+    if (r.body && total) {
+      const reader = r.body.getReader(); const parts = []; let got = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        parts.push(value); got += value.length;
+        fill.style.width = Math.max(2, got / total * 100) + '%';
+        hint.textContent = `Chargement… ${(got / 1048576).toFixed(1)} / ${(total / 1048576).toFixed(1)} Mo`;
+      }
+      blob = new Blob(parts, { type: 'video/mp4' });
+    } else {
+      blob = await r.blob();
+    }
+    fill.style.width = '100%';
+    const file = new File([blob], name, { type: 'video/mp4' });
+    const canShare = navigator.canShare && navigator.canShare({ files: [file] });
+    hint.textContent = `Prêt (${(blob.size / 1048576).toFixed(1)} Mo).` + (canShare ? ' Touche « Enregistrer » puis « Enregistrer la vidéo ».' : '');
+    const save = document.createElement('button');
+    save.className = 'dl save';
+    save.textContent = canShare ? '📥 Enregistrer' : '📥 Enregistrer le fichier';
+    save.onclick = async () => {
+      if (canShare) {
+        try { await navigator.share({ files: [file] }); return; }
+        catch (e) { if (e.name === 'AbortError') return; }
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    };
+    box.querySelector('.quals').appendChild(save);
+    save.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (e) {
+    bar.style.display = 'none';
+    hint.innerHTML = `Chargement direct impossible. <a href="${esc(url)}" target="_blank" rel="noopener">Ouvre la vidéo ici</a>, puis touche <b>Partager → Enregistrer dans Fichiers</b> (ou appui long → Télécharger).`;
+  } finally { busy = false; }
+}
+
+// --- Formulaire ---
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  clearMsg(); result.innerHTML = '';
+  const id = tweetId(input.value);
+  if (!id) { say("Ce lien ne ressemble pas à un lien de tweet (ex. https://x.com/nom/status/123…)."); return; }
+  go.disabled = true; go.textContent = 'Recherche…';
+  try { render(await lookup(id)); }
+  catch (err) { say(err.final ? err.message : "Impossible de récupérer ce tweet pour l'instant. Réessaie dans un moment."); }
+  finally { go.disabled = false; go.textContent = 'Trouver la vidéo'; }
+});
+
+$('#paste').addEventListener('click', async () => {
+  try {
+    const t = await navigator.clipboard.readText();
+    if (t) { input.value = t.trim(); if (tweetId(input.value)) form.requestSubmit(); }
+  } catch { input.focus(); say('Appuie longuement dans le champ puis « Coller ».', 'info'); }
+});
+
+// Lien passé dans l'adresse (?url=… ou partage) → recherche automatique
+const params = new URLSearchParams(location.search);
+const pre = params.get('url') || params.get('text') || '';
+if (pre) { input.value = (pre.match(/https?:\/\/\S+/) || [pre])[0]; if (tweetId(input.value)) form.requestSubmit(); }
+</script>
+</body>
+</html>
