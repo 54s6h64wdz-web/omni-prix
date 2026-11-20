@@ -9,7 +9,7 @@
 // lien: null = formulaire pas encore connu → la ligne s'affiche sans lien « formulaire ».
 window.PRIX_MANUEL = {
  "format": 1,
- "majLe": "2026-11-19",
+ "majLe": "2026-11-20",
  "auteur": "Mounir (ajouts manuels, saisis par Claude)",
  "sources": [
   "Kit de com équipements Black Friday 2026 (DCGP, 06/11/2026) et ses 2 feuilles de calcul",
@@ -17,6 +17,7 @@ window.PRIX_MANUEL = {
   "Bonus Black Friday 2e partie (19/11 au 02/12/2026)",
   "Formulaire ODR Privilège Android Premium Orange (20101), push « Privilège Android 158 € » — photos de Mounir du 19/11/2026",
   "Formulaire ODR Privilège Android Orange (20074), push « Privilège Android 100 € » — photos de Mounir du 19/11/2026",
+  "Formulaire ODR « Mobile Orange Merci » (20004), lu le 20/11/2026",
   "Formulaires ODR Objets connectés Orange, iPhone neuf et objets connectés Orange, Black Friday mobile Orange"
  ],
  "bonusReprise": {
@@ -297,6 +298,27 @@ window.PRIX_MANUEL = {
      "modeles": [
       "^Google Pixel 10a\\b",
       "^Samsung Galaxy A57\\b"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "odr-orange-merci",
+   "nom": "ODR Mobile Orange Merci",
+   "orange": true,
+   "ciblage": true,
+   "seuil": 300,
+   "client": "clients mobile Orange ou Sosh ciblés par Orange",
+   "debut": "2026-11-19",
+   "fin": "2027-02-03",
+   "finDemande": "2027-03-03",
+   "lien": "https://formulaires.odr.orange.fr/20004",
+   "conditions": "Offre personnalisée : clients mobile Orange ou Sosh ciblés par Orange, achat d'un nouveau mobile vendu par Orange ou Sosh d'au moins 300 € après déduction des remises (hors bonus reprise), entre le 19/11/2026 et le 03/02/2027. Formulaire par internet avant le 03/03/2027 minuit. Un remboursement par client et par mobile (IMEI) ; arrêt en cas de résiliation ou de rétractation. À cocher seulement si le client est ciblé.",
+   "paliers": [
+    {
+     "montant": 50,
+     "modeles": [
+      ".*"
      ]
     }
    ]
@@ -719,5 +741,6 @@ window.PRIX_MANUEL = {
   }
  ],
  "odrArchive": [],
- "regleCiblage": "« ciblage »: true = ODR réservée aux clients ciblés par un push : affichée dans le simulateur mais décochée par défaut, jamais déduite du prix de la liste."
+ "regleCiblage": "« ciblage »: true = ODR réservée aux clients ciblés par un push : affichée dans le simulateur mais décochée par défaut, jamais déduite du prix de la liste.",
+ "regleSeuil": "« seuil » (ODR mobiles) : l'ODR n'est proposée que si le mobile coûte au moins ce montant après remises (remise salarié et MMV comprises, bonus reprise non déduit)."
 };
